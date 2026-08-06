@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EscaneaYa Pay — Cobra con tarjeta en segundos</title>
+<meta name="description" content="Acepta pagos con tarjeta en tu negocio. Sin mensualidad. Solo 5.5% por transacción. Regístrate gratis en minutos.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --azul:#0A1F5C;
+  --azul2:#12296e;
+  --verde:#7ED321;
+  --verde2:#5FA818;
+  --blanco:#ffffff;
+  --gris:#f4f6fb;
+  --texto:#16213E;
+  --suave:#7A8194;
+}
+html{scroll-behavior:smooth;}
+body{font-family:'Inter',sans-serif;color:var(--texto);background:var(--blanco);overflow-x:hidden;}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:16px 24px;display:flex;align-items:center;justify-content:space-between;background:rgba(10,31,92,0.97);backdrop-filter:blur(10px);}
+.nav-logo{display:flex;align-items:center;gap:10px;}
+.nav-logo-img{width:32px;height:32px;border-radius:8px;}
+.nav-brand{font-family:'Montserrat',sans-serif;font-weight:900;font-size:14px;color:var(--blanco);}
+.nav-brand span{color:var(--verde);}
+.nav-cta{background:var(--verde);color:var(--azul);font-family:'Montserrat',sans-serif;font-weight:800;font-size:13px;padding:10px 20px;border-radius:8px;text-decoration:none;border:none;cursor:pointer;}
+.nav-cta:hover{background:var(--verde2);color:#fff;}
+
+/* HERO */
+.hero{min-height:100vh;background:linear-gradient(135deg,var(--azul) 0%,var(--azul2) 60%,#1a3580 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:100px 24px 60px;text-align:center;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 70% 50%,rgba(126,211,33,0.08) 0%,transparent 60%);pointer-events:none;}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:8px;background:rgba(126,211,33,0.12);border:1px solid rgba(126,211,33,0.3);border-radius:999px;padding:6px 16px;font-size:12px;font-weight:600;color:var(--verde);margin-bottom:28px;letter-spacing:0.04em;}
+.hero-eyebrow::before{content:'●';font-size:8px;animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.3;}}
+.hero h1{font-family:'Montserrat',sans-serif;font-weight:900;font-size:clamp(36px,6vw,72px);color:var(--blanco);line-height:1.05;margin-bottom:24px;max-width:800px;}
+.hero h1 span{color:var(--verde);}
+.hero-sub{font-size:clamp(16px,2vw,20px);color:rgba(255,255,255,0.7);max-width:560px;line-height:1.6;margin-bottom:40px;}
+.hero-btns{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;margin-bottom:60px;}
+.btn-primary{background:var(--verde);color:var(--azul);font-family:'Montserrat',sans-serif;font-weight:900;font-size:16px;padding:16px 36px;border-radius:12px;text-decoration:none;border:none;cursor:pointer;transition:transform 0.15s,background 0.15s;}
+.btn-primary:hover{background:var(--verde2);color:#fff;transform:translateY(-2px);}
+.btn-secondary{background:rgba(255,255,255,0.08);color:#fff;font-family:'Montserrat',sans-serif;font-weight:700;font-size:15px;padding:16px 28px;border-radius:12px;text-decoration:none;border:1px solid rgba(255,255,255,0.2);cursor:pointer;transition:background 0.15s;}
+.btn-secondary:hover{background:rgba(255,255,255,0.15);}
+.hero-stat{display:flex;gap:40px;flex-wrap:wrap;justify-content:center;}
+.hero-stat-item{text-align:center;}
+.hero-stat-num{font-family:'Montserrat',sans-serif;font-weight:900;font-size:32px;color:var(--verde);}
+.hero-stat-lbl{font-size:12px;color:rgba(255,255,255,0.5);margin-top:4px;}
+
+/* FLOW */
+.flow{padding:80px 24px;background:var(--gris);}
+.section-eyebrow{font-size:11px;font-weight:700;color:var(--verde2);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:12px;text-align:center;}
+.section-title{font-family:'Montserrat',sans-serif;font-weight:900;font-size:clamp(26px,4vw,42px);color:var(--azul);text-align:center;margin-bottom:12px;}
+.section-sub{font-size:16px;color:var(--suave);text-align:center;max-width:500px;margin:0 auto 56px;}
+.flow-steps{display:flex;gap:0;max-width:900px;margin:0 auto;position:relative;flex-wrap:wrap;}
+.flow-step{flex:1;min-width:200px;text-align:center;padding:0 20px;position:relative;}
+.flow-step:not(:last-child)::after{content:'→';position:absolute;right:-12px;top:28px;font-size:24px;color:var(--verde);font-weight:900;}
+.flow-num{width:56px;height:56px;border-radius:16px;background:var(--azul);color:var(--verde);font-family:'Montserrat',sans-serif;font-weight:900;font-size:22px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;}
+.flow-step h3{font-family:'Montserrat',sans-serif;font-weight:800;font-size:15px;color:var(--azul);margin-bottom:8px;}
+.flow-step p{font-size:13px;color:var(--suave);line-height:1.5;}
+
+/* FEATURES */
+.features{padding:80px 24px;background:var(--blanco);}
+.features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:24px;max-width:1000px;margin:0 auto;}
+.feat-card{background:var(--gris);border-radius:20px;padding:28px 24px;}
+.feat-icon{font-size:32px;margin-bottom:16px;}
+.feat-card h3{font-family:'Montserrat',sans-serif;font-weight:800;font-size:16px;color:var(--azul);margin-bottom:8px;}
+.feat-card p{font-size:14px;color:var(--suave);line-height:1.6;}
+
+/* PRICE */
+.price{padding:80px 24px;background:var(--azul);}
+.price-card{max-width:480px;margin:0 auto;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:24px;padding:48px 40px;text-align:center;}
+.price-label{font-size:12px;font-weight:600;color:var(--verde);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:20px;}
+.price-amount{font-family:'Montserrat',sans-serif;font-weight:900;font-size:72px;color:var(--blanco);line-height:1;}
+.price-unit{font-size:20px;color:rgba(255,255,255,0.5);margin-bottom:8px;}
+.price-desc{font-size:15px;color:rgba(255,255,255,0.6);margin-bottom:32px;line-height:1.6;}
+.price-list{list-style:none;text-align:left;margin-bottom:36px;}
+.price-list li{font-size:14px;color:rgba(255,255,255,0.8);padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;gap:10px;}
+.price-list li::before{content:'✓';color:var(--verde);font-weight:900;flex-shrink:0;}
+.price-list li:last-child{border-bottom:none;}
+.price .btn-primary{width:100%;display:block;text-align:center;font-size:16px;padding:18px;}
+
+/* STAND */
+.stand{padding:80px 24px;background:var(--gris);overflow:hidden;}
+.stand-inner{max-width:1000px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;}
+.stand-text h2{font-family:'Montserrat',sans-serif;font-weight:900;font-size:clamp(26px,3.5vw,40px);color:var(--azul);margin-bottom:16px;}
+.stand-text p{font-size:15px;color:var(--suave);line-height:1.7;margin-bottom:24px;}
+.stand-badge{display:inline-block;background:rgba(126,211,33,0.15);color:var(--verde2);font-family:'Montserrat',sans-serif;font-weight:800;font-size:13px;padding:8px 16px;border-radius:999px;margin-bottom:20px;}
+.stand-visual{display:flex;justify-content:center;align-items:center;}
+.stand-mockup{width:180px;height:260px;background:linear-gradient(145deg,var(--azul),var(--azul2));border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;box-shadow:0 30px 60px rgba(10,31,92,0.25);position:relative;}
+.stand-mockup::before{content:'';position:absolute;bottom:-20px;left:50%;transform:translateX(-50%);width:120px;height:8px;background:var(--azul);border-radius:4px;}
+.stand-qr{width:80px;height:80px;background:#fff;border-radius:10px;display:flex;align-items:center;justify-content:center;}
+.stand-qr-inner{display:grid;grid-template-columns:repeat(5,1fr);gap:2px;width:60px;height:60px;}
+.qr-cell{border-radius:1px;}
+.stand-logo-area{font-family:'Montserrat',sans-serif;font-weight:900;font-size:10px;color:var(--verde);text-align:center;}
+.stand-label{font-size:9px;color:rgba(255,255,255,0.5);text-align:center;padding:0 12px;}
+
+/* CTA */
+.cta{padding:100px 24px;background:linear-gradient(135deg,var(--azul),var(--azul2));text-align:center;}
+.cta h2{font-family:'Montserrat',sans-serif;font-weight:900;font-size:clamp(30px,5vw,56px);color:var(--blanco);margin-bottom:16px;}
+.cta h2 span{color:var(--verde);}
+.cta p{font-size:18px;color:rgba(255,255,255,0.65);margin-bottom:40px;}
+.cta .btn-primary{display:inline-block;font-size:18px;padding:20px 48px;}
+
+/* FOOTER */
+footer{background:var(--azul);padding:32px 24px;text-align:center;border-top:1px solid rgba(255,255,255,0.08);}
+footer p{font-size:13px;color:rgba(255,255,255,0.4);}
+footer a{color:var(--verde);text-decoration:none;}
+
+/* RESPONSIVE */
+@media(max-width:640px){
+  .flow-step:not(:last-child)::after{display:none;}
+  .stand-inner{grid-template-columns:1fr;text-align:center;}
+  .stand-visual{order:-1;}
+  .hero-stat{gap:24px;}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">
+    <img src="data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMTUwMCAxNTAwIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgogIDxyZWN0IHdpZHRoPSIxNTAwIiBoZWlnaHQ9IjE1MDAiIGZpbGw9IiMwQTFGNUMiLz4KICA8cGF0aCBkPSJNIDIyMCAzODAgTCAyMjAgMjgwIFEgMjIwIDIyMCAyODAgMjIwIEwgNTYwIDIyMCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjRkZGRkZGIiBzdHJva2Utd2lkdGg9IjU1IiBzdHJva2UtbGluZWNhcD0icm91bmQiLz48cGF0aCBkPSJNIDEyODAgMzgwIEwgMTI4MCAyODAgUSAxMjgwIDIyMCAxMjIwIDIyMCBMIDk0MCAyMjAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI0ZGRkZGRiIgc3Ryb2tlLXdpZHRoPSI1NSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+PHBhdGggZD0iTSAyMjAgMTEyMCBMIDIyMCAxMjIwIFEgMjIwIDEyODAgMjgwIDEyODAgTCA1NjAgMTI4MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjRkZGRkZGIiBzdHJva2Utd2lkdGg9IjU1IiBzdHJva2UtbGluZWNhcD0icm91bmQiLz48cGF0aCBkPSJNIDEyODAgMTEyMCBMIDEyODAgMTIyMCBRIDEyODAgMTI4MCAxMjIwIDEyODAgTCA5NDAgMTI4MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjRkZGRkZGIiBzdHJva2Utd2lkdGg9IjU1IiBzdHJva2UtbGluZWNhcD0icm91bmQiLz48dGV4dCB4PSI3NTAiIHk9IjEwMTAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSI2MjAiIGZpbGw9IiM3RUQzMjEiPiQ8L3RleHQ+PC9zdmc+" alt="EscaneaYa Pay" class="nav-logo-img">
+    <div class="nav-brand">ESCANEAYA <span>PAY</span></div>
+  </div>
+  <a href="https://escaneayapay.com/registro-eyp.html" class="nav-cta">Regístrate gratis</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-eyebrow">🇵🇦 Hecho para Panamá</div>
+  <h1>Cobra con tarjeta.<br><span>Sin complicaciones.</span></h1>
+  <p class="hero-sub">Regístrate en 2 minutos y acepta pagos con tarjeta desde tu celular. Sin mensualidad, sin contratos, sin hardware.</p>
+  <div class="hero-btns">
+    <a href="https://escaneayapay.com/registro-eyp.html" class="btn-primary">🚀 Empieza gratis ahora</a>
+    <a href="#como-funciona" class="btn-secondary">Ver cómo funciona</a>
+  </div>
+  <div class="hero-stat">
+    <div class="hero-stat-item">
+      <div class="hero-stat-num">2 min</div>
+      <div class="hero-stat-lbl">Para activar tu cuenta</div>
+    </div>
+    <div class="hero-stat-item">
+      <div class="hero-stat-num">5.5%</div>
+      <div class="hero-stat-lbl">Solo pagas por venta</div>
+    </div>
+    <div class="hero-stat-item">
+      <div class="hero-stat-num">$0</div>
+      <div class="hero-stat-lbl">Mensualidad</div>
+    </div>
+  </div>
+</section>
+
+<!-- FLOW -->
+<section class="flow" id="como-funciona">
+  <div class="section-eyebrow">Cómo funciona</div>
+  <h2 class="section-title">Tan simple como parece</h2>
+  <p class="section-sub">En 3 pasos tu negocio acepta tarjetas.</p>
+  <div class="flow-steps">
+    <div class="flow-step">
+      <div class="flow-num">1</div>
+      <h3>Regístrate</h3>
+      <p>Crea tu cuenta gratis en 2 minutos. Solo necesitas correo y contraseña.</p>
+    </div>
+    <div class="flow-step">
+      <div class="flow-num">2</div>
+      <h3>Comparte tu link o QR</h3>
+      <p>Tu cliente entra, escribe el monto y paga con su tarjeta al instante.</p>
+    </div>
+    <div class="flow-step">
+      <div class="flow-num">3</div>
+      <h3>Recibe tu dinero</h3>
+      <p>Te liquidamos cada semana directo a tu cuenta bancaria en Panamá.</p>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="features">
+  <div class="section-eyebrow">Características</div>
+  <h2 class="section-title">Todo lo que necesitas</h2>
+  <p class="section-sub">Diseñado para negocios en Panamá que quieren cobrar fácil.</p>
+  <div class="features-grid">
+    <div class="feat-card">
+      <div class="feat-icon">🔗</div>
+      <h3>Cobro por link</h3>
+      <p>Comparte tu link por WhatsApp, Instagram o donde quieras. El cliente paga en segundos.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">📱</div>
+      <h3>QR presencial</h3>
+      <p>Muestra tu QR en pantalla o imprime tu stand. El cliente escanea y paga.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">⚡</div>
+      <h3>Cobro exacto</h3>
+      <p>Genera un link con el monto fijo para que el cliente no tenga que escribir nada.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">📊</div>
+      <h3>Dashboard completo</h3>
+      <p>Ve tus ventas del día, del mes y el total. Historial de cobros en tiempo real.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">💰</div>
+      <h3>Liquidaciones semanales</h3>
+      <p>Recibe tu dinero cada semana con desglose detallado de todas tus transacciones.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">🔒</div>
+      <h3>Pagos seguros</h3>
+      <p>Procesamos con tecnología bancaria certificada. Tus clientes pagan con confianza.</p>
+    </div>
+  </div>
+</section>
+
+<!-- PRICE -->
+<section class="price">
+  <div class="section-eyebrow" style="color:rgba(255,255,255,0.5);">Precio</div>
+  <h2 class="section-title" style="color:#fff;margin-bottom:40px;">Simple y transparente</h2>
+  <div class="price-card">
+    <div class="price-label">Comisión por transacción</div>
+    <div class="price-amount">5.5<span style="font-size:36px">%</span></div>
+    <div class="price-unit">por cada venta exitosa</div>
+    <div class="price-desc">Sin mensualidad. Sin contratos. Sin sorpresas.<br>Solo pagas cuando cobras.</div>
+    <ul class="price-list">
+      <li>Cuenta gratis para siempre</li>
+      <li>Link y QR de cobro ilimitados</li>
+      <li>Dashboard con historial completo</li>
+      <li>Liquidación semanal a tu banco</li>
+      <li>Stand físico gratis al registrarte</li>
+      <li>Soporte por WhatsApp</li>
+    </ul>
+    <a href="https://escaneayapay.com/registro-eyp.html" class="btn-primary">Empieza gratis ahora</a>
+  </div>
+</section>
+
+<!-- STAND -->
+<section class="stand">
+  <div class="stand-inner">
+    <div class="stand-text">
+      <div class="stand-badge">🎁 Gratis para nuevos registros</div>
+      <h2>Tu stand de cobro físico, gratis</h2>
+      <p>Al registrarte recibes un stand físico con tu QR personalizado. Colócalo en tu mostrador y deja que tus clientes paguen solos. Simple, rápido y profesional.</p>
+      <p>Stands adicionales disponibles por <strong>$5.99</strong> cada uno.</p>
+      <a href="https://escaneayapay.com/registro-eyp.html" class="btn-primary" style="display:inline-block;margin-top:8px">Solicita el tuyo gratis</a>
+    </div>
+    <div class="stand-visual">
+      <div class="stand-mockup">
+        <div class="stand-logo-area">ESCANEAYA PAY</div>
+        <div class="stand-qr">
+          <svg viewBox="0 0 60 60" width="56" height="56">
+            <rect x="2" y="2" width="20" height="20" rx="2" fill="#0A1F5C"/>
+            <rect x="6" y="6" width="12" height="12" rx="1" fill="#fff"/>
+            <rect x="8" y="8" width="8" height="8" fill="#0A1F5C"/>
+            <rect x="38" y="2" width="20" height="20" rx="2" fill="#0A1F5C"/>
+            <rect x="42" y="6" width="12" height="12" rx="1" fill="#fff"/>
+            <rect x="44" y="8" width="8" height="8" fill="#0A1F5C"/>
+            <rect x="2" y="38" width="20" height="20" rx="2" fill="#0A1F5C"/>
+            <rect x="6" y="42" width="12" height="12" rx="1" fill="#fff"/>
+            <rect x="8" y="44" width="8" height="8" fill="#0A1F5C"/>
+            <rect x="26" y="2" width="8" height="8" fill="#0A1F5C"/>
+            <rect x="26" y="14" width="8" height="8" fill="#0A1F5C"/>
+            <rect x="26" y="26" width="8" height="8" fill="#0A1F5C"/>
+            <rect x="38" y="26" width="8" height="8" fill="#0A1F5C"/>
+            <rect x="50" y="26" width="8" height="8" fill="#0A1F5C"/>
+            <rect x="2" y="26" width="8" height="8" fill="#7ED321"/>
+            <rect x="14" y="26" width="8" height="8" fill="#7ED321"/>
+            <rect x="38" y="38" width="8" height="8" fill="#0A1F5C"/>
+            <rect x="50" y="38" width="8" height="8" fill="#0A1F5C"/>
+            <rect x="38" y="50" width="8" height="8" fill="#7ED321"/>
+            <rect x="50" y="50" width="8" height="8" fill="#0A1F5C"/>
+          </svg>
+        </div>
+        <div class="stand-label">Escanea para pagar</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA FINAL -->
+<section class="cta">
+  <h2>¿Listo para <span>cobrar con tarjeta</span>?</h2>
+  <p>Únete hoy. Es gratis y tarda 2 minutos.</p>
+  <a href="https://escaneayapay.com/registro-eyp.html" class="btn-primary">🚀 Crear mi cuenta gratis</a>
+</section>
+
+<footer>
+  <p>© 2026 EscaneaYa Pay · Panamá · <a href="mailto:soporte@escaneayapay.com">soporte@escaneayapay.com</a></p>
+</footer>
+
+</body>
+</html>
