@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Escanea y Paga</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@800;900&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{--azul:#0A1F5C;--azul-suave:#12296e;--verde:#7ED321;--verde-oscuro:#5FA818;--fondo:#F3F5F9;--texto:#16213E;--gris:#7A8194;--borde:#E1E5EE;--card:#fff;}
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:'Poppins',sans-serif;background:var(--fondo);color:var(--texto);min-height:100vh;}
+  header{background:linear-gradient(135deg,var(--azul),var(--azul-suave));padding:16px 20px;display:flex;align-items:center;justify-content:space-between;}
+  .header-title{font-family:'Montserrat',sans-serif;font-weight:900;font-size:16px;color:#fff;}
+  .header-sub{font-size:11px;color:#8C9BD6;margin-top:2px;}
+  .btn-salir{background:rgba(255,255,255,0.15);border:none;border-radius:8px;padding:6px 12px;color:#fff;font-size:12px;font-weight:600;cursor:pointer;font-family:'Poppins',sans-serif;}
+  .container{max-width:700px;margin:0 auto;padding:20px 16px;}
+  .login-box{background:var(--card);border-radius:16px;padding:28px 24px;box-shadow:0 4px 20px rgba(0,0,0,0.08);max-width:380px;margin:60px auto;}
+  .login-title{font-family:'Montserrat',sans-serif;font-weight:900;font-size:20px;text-align:center;margin-bottom:4px;color:var(--azul);}
+  .login-sub{font-size:13px;color:var(--gris);text-align:center;margin-bottom:24px;}
+  input[type=password],input[type=text],input[type=email]{width:100%;border:1.5px solid var(--borde);border-radius:10px;padding:12px 14px;font-size:14px;font-family:'Poppins',sans-serif;margin-bottom:12px;}
+  input:focus{outline:none;border-color:var(--azul);}
+  .btn-main{width:100%;border:none;border-radius:10px;background:var(--azul);color:#fff;font-family:'Montserrat',sans-serif;font-weight:800;font-size:14px;padding:14px;cursor:pointer;}
+  .btn-main:disabled{opacity:0.6;cursor:not-allowed;}
+  .msg-err{color:#C0392B;font-size:13px;margin-top:8px;display:none;}
+  .card{background:var(--card);border-radius:14px;padding:18px 20px;margin-bottom:14px;box-shadow:0 2px 8px rgba(0,0,0,0.05);}
+  .card-title{font-size:12px;font-weight:700;color:var(--gris);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:12px;}
+  .negocio-card{background:var(--card);border-radius:14px;padding:18px 20px;margin-bottom:14px;box-shadow:0 2px 8px rgba(0,0,0,0.05);}
+  .negocio-nombre{font-family:'Montserrat',sans-serif;font-weight:900;font-size:16px;color:var(--azul);margin-bottom:2px;}
+  .negocio-email{font-size:12px;color:var(--gris);margin-bottom:12px;}
+  .montos-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;}
+  .monto-box{background:var(--fondo);border-radius:10px;padding:10px;text-align:center;}
+  .monto-val{font-family:'Montserrat',sans-serif;font-weight:900;font-size:16px;color:var(--azul);}
+  .monto-lbl{font-size:10px;color:var(--gris);margin-top:2px;}
+  .monto-val.verde{color:var(--verde-oscuro);}
+  .monto-val.rojo{color:#C0392B;}
+  .tx-mini{font-size:11px;color:var(--gris);margin-bottom:12px;max-height:100px;overflow-y:auto;}
+  .tx-mini-row{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--borde);}
+  .tx-mini-row:last-child{border-bottom:none;}
+  .comprobante-wrap{margin-bottom:12px;}
+  .comprobante-label{font-size:12px;font-weight:600;color:var(--gris);margin-bottom:6px;display:block;}
+  .btn-pagar{width:100%;border:none;border-radius:10px;background:var(--verde);color:var(--azul);font-family:'Montserrat',sans-serif;font-weight:800;font-size:13px;padding:12px;cursor:pointer;}
+  .btn-pagar:disabled{opacity:0.6;cursor:not-allowed;}
+  .badge-pagado{display:inline-block;background:rgba(126,211,33,0.15);color:var(--verde-oscuro);font-size:11px;font-weight:700;padding:4px 10px;border-radius:999px;margin-bottom:8px;}
+  .page-title{font-family:'Montserrat',sans-serif;font-weight:900;font-size:20px;margin-bottom:4px;}
+  .page-sub{font-size:13px;color:var(--gris);margin-bottom:20px;}
+  .empty{text-align:center;padding:40px;color:var(--gris);font-size:14px;}
+  .stats-top{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:20px;}
+  .stat-box{background:var(--card);border-radius:12px;padding:14px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,0.05);}
+  .stat-val{font-family:'Montserrat',sans-serif;font-weight:900;font-size:20px;color:var(--azul);}
+  .stat-lbl{font-size:10px;color:var(--gris);margin-top:2px;}
+  .stat-val.verde{color:var(--verde-oscuro);}
+  .tabs{display:flex;gap:8px;margin-bottom:20px;}
+  .tab{flex:1;border:1.5px solid var(--borde);border-radius:10px;background:transparent;padding:10px;font-family:'Poppins',sans-serif;font-weight:600;font-size:13px;cursor:pointer;color:var(--gris);}
+  .tab.active{background:var(--azul);color:#fff;border-color:var(--azul);}
+  .tab-content{display:none;}
+  .tab-content.active{display:block;}
+  .liq-row{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--borde);font-size:13px;}
+  .liq-row:last-child{border-bottom:none;}
+  .liq-negocio{font-weight:600;color:var(--texto);}
+  .liq-fecha{font-size:11px;color:var(--gris);}
+  .liq-monto{font-family:'Montserrat',sans-serif;font-weight:900;font-size:14px;color:var(--verde-oscuro);}
+  .liq-comision{font-size:11px;color:var(--gris);}
+</style>
+</head>
+<body>
+
+<div id="login-section">
+  <div class="login-box">
+    <div class="login-title">🔐 Admin</div>
+    <div class="login-sub">Escanea y Paga — Panel de liquidaciones</div>
+    <input type="password" id="admin-pass" placeholder="Contraseña de admin" onkeydown="if(event.key==='Enter')entrarAdmin()">
+    <button class="btn-main" onclick="entrarAdmin()">Entrar</button>
+    <p class="msg-err" id="admin-err">Contraseña incorrecta.</p>
+  </div>
+</div>
+
+<div id="admin-section" style="display:none">
+  <header>
+    <div>
+      <div class="header-title">⚡ Admin — Escanea y Paga</div>
+      <div class="header-sub">Panel de liquidaciones</div>
+    </div>
+    <button class="btn-salir" onclick="salirAdmin()">Salir</button>
+  </header>
+  <div class="container">
+
+    <div class="tabs">
+      <button class="tab active" onclick="cambiarTab('liquidaciones',this)">💰 Liquidar</button>
+      <button class="tab" onclick="cambiarTab('historial',this)">📊 Historial</button>
+    </div>
+
+    <!-- TAB LIQUIDACIONES -->
+    <div class="tab-content active" id="tab-liquidaciones">
+      <div class="stats-top">
+        <div class="stat-box"><div class="stat-val" id="stat-negocios">—</div><div class="stat-lbl">Negocios pendientes</div></div>
+        <div class="stat-box"><div class="stat-val verde" id="stat-neto">—</div><div class="stat-lbl">Total a pagar</div></div>
+      </div>
+      <div id="lista-negocios"><div class="empty">Cargando...</div></div>
+    </div>
+
+    <!-- TAB HISTORIAL -->
+    <div class="tab-content" id="tab-historial">
+      <div class="card">
+        <div class="card-title">📈 Ganancias de la empresa (comisión 5.5%)</div>
+        <canvas id="grafica-ganancias" height="120"></canvas>
+      </div>
+      <div class="stats-top" style="grid-template-columns:repeat(3,1fr)">
+        <div class="stat-box"><div class="stat-val" id="hist-total-liq">—</div><div class="stat-lbl">Liquidaciones</div></div>
+        <div class="stat-box"><div class="stat-val" id="hist-total-bruto">—</div><div class="stat-lbl">Total procesado</div></div>
+        <div class="stat-box"><div class="stat-val verde" id="hist-ganancia">—</div><div class="stat-lbl">Ganancia total</div></div>
+      </div>
+      <div class="card">
+        <div class="card-title">📋 Historial de liquidaciones</div>
+        <div id="lista-historial"><div class="empty">Cargando...</div></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+var APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbybW_QELgLOCoPgFkJZ3oYspne-r4JLLg8CvicFL2IWpJFpoXse3bk0sBBlRNUsHJzsPQ/exec";
+var ADMIN_PASS = "eypadmin2026";
+var graficaInstance = null;
+
+function entrarAdmin() {
+  var pass = document.getElementById('admin-pass').value;
+  var err = document.getElementById('admin-err');
+  if (pass !== ADMIN_PASS) { err.style.display = 'block'; return; }
+  err.style.display = 'none';
+  document.getElementById('login-section').style.display = 'none';
+  document.getElementById('admin-section').style.display = 'block';
+  cargarNegocios();
+  cargarHistorial();
+}
+
+function salirAdmin() {
+  document.getElementById('login-section').style.display = 'block';
+  document.getElementById('admin-section').style.display = 'none';
+  document.getElementById('admin-pass').value = '';
+}
+
+function cambiarTab(tab, btn) {
+  document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
+  document.querySelectorAll('.tab-content').forEach(function(t) { t.classList.remove('active'); });
+  btn.classList.add('active');
+  document.getElementById('tab-' + tab).classList.add('active');
+}
+
+function cargarNegocios() {
+  document.getElementById('lista-negocios').innerHTML = '<div class="empty">Cargando negocios...</div>';
+  var cb = 'admin_' + Date.now();
+  window[cb] = function(r) {
+    if (r && r.ok) renderNegocios(r.negocios);
+    else document.getElementById('lista-negocios').innerHTML = '<div class="empty">Error al cargar.</div>';
+    delete window[cb];
+    if (document.body.contains(sc)) document.body.removeChild(sc);
+  };
+  var sc = document.createElement('script');
+  sc.src = APPS_SCRIPT_URL + "?action=getLiquidacionesPendientes&callback=" + cb;
+  document.body.appendChild(sc);
+}
+
+function renderNegocios(negocios) {
+  var lista = document.getElementById('lista-negocios');
+  if (!negocios || !negocios.length) {
+    lista.innerHTML = '<div class="empty">✅ No hay negocios pendientes de pago.</div>';
+    document.getElementById('stat-negocios').textContent = '0';
+    document.getElementById('stat-neto').textContent = '$0.00';
+    return;
+  }
+
+  var totalNeto = 0;
+  negocios.forEach(function(n) { totalNeto += parseFloat(n.total_neto); });
+  document.getElementById('stat-negocios').textContent = negocios.length;
+  document.getElementById('stat-neto').textContent = '$' + totalNeto.toFixed(2);
+
+  lista.innerHTML = '';
+  negocios.forEach(function(n, i) {
+    var div = document.createElement('div');
+    div.className = 'negocio-card';
+    var txHtml = '';
+    (n.transacciones || []).forEach(function(tx) {
+      txHtml += '<div class="tx-mini-row"><span>' + (tx.fecha||'—').toString().substring(0,20) + ' — ' + (tx.orden||'—') + '</span><span>$' + parseFloat(tx.monto||0).toFixed(2) + '</span></div>';
+    });
+    div.innerHTML = '<div class="negocio-nombre">' + n.negocio + '</div>' +
+      '<div class="negocio-email">' + n.email + '</div>' +
+      '<div class="montos-grid">' +
+        '<div class="monto-box"><div class="monto-val">$' + n.total_bruto + '</div><div class="monto-lbl">Total bruto</div></div>' +
+        '<div class="monto-box"><div class="monto-val rojo">-$' + n.comision + '</div><div class="monto-lbl">Comisión 5.5%</div></div>' +
+        '<div class="monto-box"><div class="monto-val verde">$' + n.total_neto + '</div><div class="monto-lbl">A transferir</div></div>' +
+      '</div>' +
+      '<div class="tx-mini">' + (txHtml || '<div style="padding:4px 0;color:var(--gris)">Sin transacciones</div>') + '</div>' +
+      '<div class="comprobante-wrap"><label class="comprobante-label">Número o referencia de transferencia</label><input type="text" id="comp-' + i + '" placeholder="Ej: TRF-12345"></div>' +
+      '<button class="btn-pagar" id="btn-' + i + '" onclick="pagarNegocio(' + i + ',\'' + n.email + '\',\'' + n.negocio + '\',\'' + n.total_bruto + '\',\'' + n.comision + '\',\'' + n.total_neto + '\')">💸 Marcar como pagado y notificar</button>';
+    lista.appendChild(div);
+  });
+}
+
+function pagarNegocio(i, email, negocio, bruto, comision, neto) {
+  var comp = document.getElementById('comp-' + i);
+  if (!comp || !comp.value.trim()) { alert('Ingresa el número o referencia de la transferencia.'); return; }
+  var btn = document.getElementById('btn-' + i);
+  btn.disabled = true; btn.textContent = '⏳ Procesando...';
+  var cb = 'pagar_' + Date.now();
+  window[cb] = function(r) {
+    if (r && r.ok) {
+      alert('✓ Liquidación procesada. El negocio recibió su correo con el CSV.');
+      cargarNegocios();
+      cargarHistorial();
+    } else {
+      alert('Error al procesar. Intenta de nuevo.');
+      btn.disabled = false; btn.textContent = '💸 Marcar como pagado y notificar';
+    }
+    delete window[cb];
+    if (document.body.contains(sc)) document.body.removeChild(sc);
+  };
+  var sc = document.createElement('script');
+  sc.src = APPS_SCRIPT_URL + "?action=marcarPagado&callback=" + cb +
+    "&email=" + encodeURIComponent(email) +
+    "&negocio=" + encodeURIComponent(negocio) +
+    "&total_bruto=" + encodeURIComponent(bruto) +
+    "&comision=" + encodeURIComponent(comision) +
+    "&total_neto=" + encodeURIComponent(neto) +
+    "&comprobante=" + encodeURIComponent(comp.value.trim());
+  document.body.appendChild(sc);
+}
+
+function cargarHistorial() {
+  var cb = 'hist_' + Date.now();
+  window[cb] = function(r) {
+    if (r && r.ok) renderHistorial(r.liquidaciones);
+    delete window[cb];
+    if (document.body.contains(sc)) document.body.removeChild(sc);
+  };
+  var sc = document.createElement('script');
+  sc.src = APPS_SCRIPT_URL + "?action=getHistorialLiquidaciones&callback=" + cb;
+  document.body.appendChild(sc);
+}
+
+function renderHistorial(liquidaciones) {
+  if (!liquidaciones || !liquidaciones.length) {
+    document.getElementById('lista-historial').innerHTML = '<div class="empty">No hay liquidaciones registradas.</div>';
+    return;
+  }
+
+  var totalBruto = 0, totalGanancia = 0;
+  var porMes = {};
+
+  liquidaciones.forEach(function(l) {
+    totalBruto += parseFloat(l.total_bruto || 0);
+    totalGanancia += parseFloat(l.comision || 0);
+    var fecha = (l.fecha || '').toString().substring(0, 7);
+    if (!porMes[fecha]) porMes[fecha] = 0;
+    porMes[fecha] += parseFloat(l.comision || 0);
+  });
+
+  document.getElementById('hist-total-liq').textContent = liquidaciones.length;
+  document.getElementById('hist-total-bruto').textContent = '$' + totalBruto.toFixed(2);
+  document.getElementById('hist-ganancia').textContent = '$' + totalGanancia.toFixed(2);
+
+  // Gráfica
+  var labels = Object.keys(porMes).sort();
+  var valores = labels.map(function(k) { return porMes[k].toFixed(2); });
+
+  if (graficaInstance) graficaInstance.destroy();
+  var ctx = document.getElementById('grafica-ganancias').getContext('2d');
+  graficaInstance = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Ganancia ($)',
+        data: valores,
+        backgroundColor: '#7ED321',
+        borderRadius: 8
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { beginAtZero: true, ticks: { callback: function(v) { return '$' + v; } } }
+      }
+    }
+  });
+
+  // Lista
+  var html = '';
+  liquidaciones.slice().reverse().forEach(function(l) {
+    html += '<div class="liq-row">' +
+      '<div><div class="liq-negocio">' + l.negocio + '</div><div class="liq-fecha">' + (l.fecha||'').toString().substring(0,10) + ' · Ref: ' + (l.comprobante||'—') + '</div></div>' +
+      '<div style="text-align:right"><div class="liq-monto">$' + parseFloat(l.total_neto||0).toFixed(2) + '</div><div class="liq-comision">Com: $' + parseFloat(l.comision||0).toFixed(2) + '</div></div>' +
+      '</div>';
+  });
+  document.getElementById('lista-historial').innerHTML = html;
+}
+</script>
+</body>
+</html>

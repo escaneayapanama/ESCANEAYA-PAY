@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>Dashboard — Escanea y Paga</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@800;900&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{--azul:#0A1F5C;--azul-suave:#12296e;--verde:#7ED321;--verde-oscuro:#5FA818;--fondo:#F3F5F9;--texto:#16213E;--gris:#7A8194;--borde:#E1E5EE;--card:#fff;}
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:'Poppins',sans-serif;background:var(--fondo);color:var(--texto);min-height:100vh;padding-bottom:70px;}
+  header{background:linear-gradient(135deg,var(--azul) 0%,var(--azul-suave) 100%);position:sticky;top:0;z-index:20;}
+  .header-inner{max-width:600px;margin:0 auto;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;}
+  .header-left{display:flex;align-items:center;gap:10px;}
+  .eyp-logo{width:34px;height:34px;border-radius:8px;flex-shrink:0;}
+  .eyp-brand{font-family:'Montserrat',sans-serif;font-weight:900;font-size:13px;color:#fff;}
+  .eyp-brand span{color:#7ED321;}
+  .header-right{display:flex;align-items:center;gap:8px;}
+  .neg-logo{width:32px;height:32px;border-radius:8px;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;font-size:14px;overflow:hidden;flex-shrink:0;cursor:pointer;}
+  .neg-logo img{width:100%;height:100%;object-fit:cover;}
+  .neg-nombre{font-size:12px;font-weight:600;color:#fff;max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .bottom-nav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--borde);display:none;z-index:20;}
+  .bottom-nav-inner{max-width:600px;margin:0 auto;display:flex;}
+  .nav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 4px;cursor:pointer;font-size:10px;font-weight:600;color:var(--gris);gap:3px;border:none;background:transparent;font-family:'Poppins',sans-serif;}
+  .nav-item.active{color:var(--azul);}
+  .nav-icon{font-size:20px;}
+  .login-wrap{max-width:420px;margin:40px auto;padding:0 20px;}
+  .login-card{background:var(--card);border-radius:20px;padding:32px 28px;box-shadow:0 20px 50px rgba(10,31,92,0.10);}
+  .login-logo-wrap{display:flex;justify-content:center;margin-bottom:20px;}
+  .login-logo{width:80px;height:80px;border-radius:14px;}
+  .login-card h2{font-family:'Montserrat',sans-serif;font-weight:900;font-size:20px;margin:0 0 4px;text-align:center;}
+  .login-card p{font-size:13px;color:var(--gris);margin:0 0 24px;text-align:center;}
+  .flabel{font-size:12px;font-weight:600;color:var(--gris);margin-bottom:6px;display:block;}
+  .fgroup{margin-bottom:14px;}
+  input[type=email],input[type=password],input[type=text],input[type=number],input[type=tel],textarea{width:100%;border:1.5px solid var(--borde);border-radius:10px;padding:12px 14px;font-size:14px;color:var(--texto);background:#FBFCFE;font-family:'Poppins',sans-serif;}
+  input:focus,textarea:focus{outline:none;border-color:var(--azul);}
+  textarea{resize:vertical;min-height:70px;}
+  .btn-main{width:100%;border:none;border-radius:10px;background:var(--azul);color:#fff;font-family:'Montserrat',sans-serif;font-weight:800;font-size:14px;padding:14px;cursor:pointer;}
+  .btn-main:hover{background:var(--azul-suave);}
+  .btn-main:disabled{opacity:0.6;cursor:not-allowed;}
+  .btn-verde{border:none;border-radius:10px;background:var(--verde);color:var(--azul);font-family:'Montserrat',sans-serif;font-weight:800;font-size:13px;padding:11px 16px;cursor:pointer;}
+  .btn-verde:hover{background:var(--verde-oscuro);color:#fff;}
+  .btn-outline{border:1.5px solid var(--borde);border-radius:10px;background:transparent;color:var(--gris);font-family:'Poppins',sans-serif;font-weight:600;font-size:13px;padding:11px 16px;cursor:pointer;}
+  .btn-outline:hover{border-color:var(--azul);color:var(--azul);}
+  .msg-err{display:none;font-size:13px;color:#C0392B;margin-top:8px;}
+  .msg-ok{display:none;font-size:13px;color:var(--verde-oscuro);margin-top:8px;}
+  .register-link{text-align:center;margin-top:14px;font-size:13px;color:var(--gris);}
+  .register-link a{color:var(--azul);font-weight:600;text-decoration:none;}
+  .seccion{display:none;max-width:600px;margin:0 auto;padding:16px 16px 20px;}
+  .sec-title{font-family:'Montserrat',sans-serif;font-weight:900;font-size:18px;margin-bottom:16px;}
+  .card{background:var(--card);border-radius:16px;padding:18px 20px;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,0.05);}
+  .card-title{font-size:12px;font-weight:700;color:var(--gris);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:12px;}
+  .stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px;}
+  .stat-card{background:var(--card);border-radius:14px;padding:16px 12px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,0.05);}
+  .stat-val{font-family:'Montserrat',sans-serif;font-weight:900;font-size:20px;color:var(--azul);}
+  .stat-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--gris);margin-top:4px;}
+  .liq-card{background:linear-gradient(135deg,var(--azul),var(--azul-suave));border-radius:16px;padding:18px 20px;color:#fff;margin-bottom:12px;}
+  .liq-title{font-size:11px;color:#8C9BD6;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px;}
+  .liq-fecha{font-family:'Montserrat',sans-serif;font-weight:900;font-size:18px;}
+  .liq-monto{font-size:13px;color:#B9C2E8;margin-top:4px;}
+  .cobro-hint{font-size:12px;color:var(--gris);background:rgba(126,211,33,0.08);border:1px solid rgba(126,211,33,0.2);border-radius:8px;padding:10px 12px;margin-bottom:14px;line-height:1.5;}
+  .btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
+  .tx-card{background:var(--card);border-radius:12px;padding:14px 16px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 2px 8px rgba(0,0,0,0.04);}
+  .tx-orden{font-size:11px;color:var(--gris);}
+  .tx-cliente{font-size:13px;font-weight:600;color:var(--texto);margin-top:2px;}
+  .tx-fecha{font-size:11px;color:var(--gris);margin-top:2px;}
+  .tx-monto{font-family:'Montserrat',sans-serif;font-weight:900;font-size:16px;color:var(--azul);text-align:right;}
+  .tx-estado{font-size:10px;font-weight:700;color:var(--verde-oscuro);background:rgba(126,211,33,0.12);padding:2px 8px;border-radius:999px;margin-top:4px;display:inline-block;}
+  .tx-empty{text-align:center;padding:30px;color:var(--gris);font-size:13px;}
+  .prod-card{background:var(--card);border-radius:12px;padding:14px 16px;margin-bottom:8px;display:flex;gap:12px;align-items:flex-start;box-shadow:0 2px 8px rgba(0,0,0,0.04);}
+  .prod-img{width:52px;height:52px;border-radius:10px;background:var(--fondo);border:1px solid var(--borde);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:22px;overflow:hidden;}
+  .prod-img img{width:100%;height:100%;object-fit:cover;}
+  .prod-info{flex:1;}
+  .prod-nombre{font-size:14px;font-weight:600;color:var(--texto);}
+  .prod-desc{font-size:12px;color:var(--gris);margin-top:2px;}
+  .prod-precio{font-family:'Montserrat',sans-serif;font-weight:900;font-size:15px;color:var(--azul);margin-top:4px;}
+  .prod-actions{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;}
+  .btn-xs{border:none;border-radius:6px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Poppins',sans-serif;}
+  .btn-xs-verde{background:rgba(126,211,33,0.15);color:var(--verde-oscuro);}
+  .btn-xs-red{background:rgba(255,80,80,0.1);color:#C0392B;}
+  .add-prod-btn{width:100%;border:2px dashed var(--borde);border-radius:12px;background:transparent;padding:14px;font-size:13px;font-weight:600;color:var(--gris);cursor:pointer;margin-top:4px;}
+  .add-prod-btn:hover{border-color:var(--azul);color:var(--azul);}
+  .avatar-upload{width:72px;height:72px;border-radius:14px;background:var(--fondo);border:2px dashed var(--borde);display:flex;align-items:center;justify-content:center;font-size:28px;overflow:hidden;cursor:pointer;position:relative;margin-bottom:12px;}
+  .avatar-upload img{width:100%;height:100%;object-fit:cover;}
+  .avatar-upload:hover::after{content:'📷';position:absolute;inset:0;background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;font-size:22px;border-radius:12px;}
+  .avatar-upload input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;}
+  .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:100;align-items:flex-end;justify-content:center;}
+  .modal-overlay.open{display:flex;}
+  .modal{background:#fff;border-radius:20px 20px 0 0;padding:24px 20px 32px;width:100%;max-width:600px;max-height:90vh;overflow-y:auto;}
+  .modal-title{font-family:'Montserrat',sans-serif;font-weight:900;font-size:16px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;}
+  .modal-close{background:none;border:none;font-size:20px;cursor:pointer;color:var(--gris);}
+  .foto-upload{width:80px;height:80px;border-radius:12px;background:var(--fondo);border:2px dashed var(--borde);display:flex;align-items:center;justify-content:center;font-size:28px;overflow:hidden;cursor:pointer;position:relative;margin-bottom:12px;}
+  .foto-upload img{width:100%;height:100%;object-fit:cover;}
+  .foto-upload input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;}
+  .qr-modal{display:none;position:fixed;inset:0;background:rgba(10,31,92,0.95);z-index:200;flex-direction:column;align-items:center;justify-content:center;padding:20px;}
+  .qr-modal.open{display:flex;}
+  .qr-modal-close{position:absolute;top:20px;right:20px;background:none;border:none;color:#fff;font-size:28px;cursor:pointer;}
+  .qr-modal-negocio{font-family:'Montserrat',sans-serif;font-weight:900;font-size:22px;color:#fff;margin-bottom:6px;text-align:center;}
+  .qr-modal-sub{font-size:14px;color:#B9C2E8;margin-bottom:24px;text-align:center;}
+  .qr-modal-logo{width:64px;height:64px;border-radius:14px;object-fit:cover;margin-bottom:16px;}
+  .qr-box{background:#fff;border-radius:20px;padding:20px;}
+  .btn-cantidad{border:1.5px solid var(--borde);border-radius:8px;background:transparent;padding:8px 14px;font-family:'Montserrat',sans-serif;font-weight:800;font-size:13px;cursor:pointer;color:var(--texto);}
+  .btn-cantidad.active{background:var(--azul);color:#fff;border-color:var(--azul);}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="header-left">
+<img src="data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMTUwMCAxNTAwIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgogIDxyZWN0IHdpZHRoPSIxNTAwIiBoZWlnaHQ9IjE1MDAiIGZpbGw9IiMwQTFGNUMiLz4KCiAgPCEtLSBFc3F1aW5hIHN1cGVyaW9yIGl6cXVpZXJkYSAtLT4KICA8cGF0aCBkPSJNIDIyMCAzODAgTCAyMjAgMjgwIFEgMjIwIDIyMCAyODAgMjIwIEwgNTYwIDIyMCIKICAgICAgICBmaWxsPSJub25lIiBzdHJva2U9IiNGRkZGRkYiIHN0cm9rZS13aWR0aD0iNTUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgogIDxnPgogICAgPHJlY3QgeD0iMzc1IiB5PSI0MDAiIHdpZHRoPSI3MCIgaGVpZ2h0PSI3MCIgZmlsbD0iIzdFRDMyMSIvPgogICAgPHJlY3QgeD0iNDYwIiB5PSI0MDAiIHdpZHRoPSI3MCIgaGVpZ2h0PSI3MCIgZmlsbD0iI0ZGRkZGRiIvPgogICAgPHJlY3QgeD0iMzc1IiB5PSI0ODUiIHdpZHRoPSI3MCIgaGVpZ2h0PSI3MCIgZmlsbD0iI0ZGRkZGRiIvPgogICAgPHJlY3QgeD0iNDYwIiB5PSI0ODUiIHdpZHRoPSI3MCIgaGVpZ2h0PSI3MCIgZmlsbD0iIzdFRDMyMSIvPgogIDwvZz4KCiAgPCEtLSBFc3F1aW5hIHN1cGVyaW9yIGRlcmVjaGEgLS0+CiAgPHBhdGggZD0iTSAxMjgwIDM4MCBMIDEyODAgMjgwIFEgMTI4MCAyMjAgMTIyMCAyMjAgTCA5NDAgMjIwIgogICAgICAgIGZpbGw9Im5vbmUiIHN0cm9rZT0iI0ZGRkZGRiIgc3Ryb2tlLXdpZHRoPSI1NSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+CiAgPGc+CiAgICA8cmVjdCB4PSI5NzAiIHk9IjQwMCIgd2lkdGg9IjcwIiBoZWlnaHQ9IjcwIiBmaWxsPSIjN0VEMzIxIi8+CiAgICA8cmVjdCB4PSIxMDU1IiB5PSI0MDAiIHdpZHRoPSI3MCIgaGVpZ2h0PSI3MCIgZmlsbD0iI0ZGRkZGRiIvPgogICAgPHJlY3QgeD0iOTcwIiB5PSI0ODUiIHdpZHRoPSI3MCIgaGVpZ2h0PSI3MCIgZmlsbD0iI0ZGRkZGRiIvPgogICAgPHJlY3QgeD0iMTA1NSIgeT0iNDg1IiB3aWR0aD0iNzAiIGhlaWdodD0iNzAiIGZpbGw9IiM3RUQzMjEiLz4KICA8L2c+CgogIDwhLS0gRXNxdWluYSBpbmZlcmlvciBpenF1aWVyZGEgLS0+CiAgPHBhdGggZD0iTSAyMjAgMTEyMCBMIDIyMCAxMjIwIFEgMjIwIDEyODAgMjgwIDEyODAgTCA1NjAgMTI4MCIKICAgICAgICBmaWxsPSJub25lIiBzdHJva2U9IiNGRkZGRkYiIHN0cm9rZS13aWR0aD0iNTUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgogIDxnPgogICAgPHJlY3QgeD0iMzc1IiB5PSI5NDUiIHdpZHRoPSI3MCIgaGVpZ2h0PSI3MCIgZmlsbD0iIzdFRDMyMSIvPgogICAgPHJlY3QgeD0iNDYwIiB5PSI5NDUiIHdpZHRoPSI3MCIgaGVpZ2h0PSI3MCIgZmlsbD0iI0ZGRkZGRiIvPgogICAgPHJlY3QgeD0iMzc1IiB5PSIxMDMwIiB3aWR0aD0iNzAiIGhlaWdodD0iNzAiIGZpbGw9IiNGRkZGRkYiLz4KICAgIDxyZWN0IHg9IjQ2MCIgeT0iMTAzMCIgd2lkdGg9IjcwIiBoZWlnaHQ9IjcwIiBmaWxsPSIjN0VEMzIxIi8+CiAgPC9nPgoKICA8IS0tIEVzcXVpbmEgaW5mZXJpb3IgZGVyZWNoYSAtLT4KICA8cGF0aCBkPSJNIDEyODAgMTEyMCBMIDEyODAgMTIyMCBRIDEyODAgMTI4MCAxMjIwIDEyODAgTCA5NDAgMTI4MCIKICAgICAgICBmaWxsPSJub25lIiBzdHJva2U9IiNGRkZGRkYiIHN0cm9rZS13aWR0aD0iNTUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgogIDxnPgogICAgPHJlY3QgeD0iOTcwIiB5PSI5NDUiIHdpZHRoPSI3MCIgaGVpZ2h0PSI3MCIgZmlsbD0iIzdFRDMyMSIvPgogICAgPHJlY3QgeD0iMTA1NSIgeT0iOTQ1IiB3aWR0aD0iNzAiIGhlaWdodD0iNzAiIGZpbGw9IiNGRkZGRkYiLz4KICAgIDxyZWN0IHg9Ijk3MCIgeT0iMTAzMCIgd2lkdGg9IjcwIiBoZWlnaHQ9IjcwIiBmaWxsPSIjRkZGRkZGIi8+CiAgICA8cmVjdCB4PSIxMDU1IiB5PSIxMDMwIiB3aWR0aD0iNzAiIGhlaWdodD0iNzAiIGZpbGw9IiM3RUQzMjEiLz4KICA8L2c+CgogIDwhLS0gUHVudG9zIGxhdGVyYWxlcyAtLT4KICA8cmVjdCB4PSIyNTUiIHk9IjY3MCIgd2lkdGg9IjY1IiBoZWlnaHQ9IjY1IiBmaWxsPSIjRkZGRkZGIi8+CiAgPHJlY3QgeD0iMjU1IiB5PSI3NzAiIHdpZHRoPSI2NSIgaGVpZ2h0PSI2NSIgZmlsbD0iIzdFRDMyMSIvPgogIDxyZWN0IHg9IjExODAiIHk9IjY3MCIgd2lkdGg9IjY1IiBoZWlnaHQ9IjY1IiBmaWxsPSIjN0VEMzIxIi8+CiAgPHJlY3QgeD0iMTE4MCIgeT0iNzcwIiB3aWR0aD0iNjUiIGhlaWdodD0iNjUiIGZpbGw9IiNGRkZGRkYiLz4KCiAgPCEtLSBTaWdubyBkZSBkb2xhciBlbiBlbCBjZW50cm8sIHJlZW1wbGF6YW5kbyBlbCByYXlvIC0tPgogIDx0ZXh0IHg9Ijc1MCIgeT0iMTAxMCIgdGV4dC1hbmNob3I9Im1pZGRsZSIKICAgICAgICBmb250LWZhbWlseT0iQXJpYWwsIEhlbHZldGljYSwgc2Fucy1zZXJpZiIgZm9udC13ZWlnaHQ9IjkwMCIKICAgICAgICBmb250LXNpemU9IjYyMCIgZmlsbD0iIzdFRDMyMSI+JDwvdGV4dD4KPC9zdmc+" alt="EYP" class="eyp-logo">
+      <div class="eyp-brand">ESCANEA Y <span>PAGA</span></div>
+    </div>
+    <div class="header-right" id="header-right" style="display:none">
+      <div class="neg-logo" id="header-logo" onclick="irA('perfil',document.querySelectorAll('.nav-item')[3])">🏪</div>
+      <div class="neg-nombre" id="header-nombre"></div>
+      <button onclick="cerrarSesion()" style="background:rgba(255,255,255,0.15);border:none;border-radius:8px;padding:6px 10px;color:#fff;font-size:11px;font-weight:600;cursor:pointer;font-family:'Poppins',sans-serif;">Salir</button>
+    </div>
+  </div>
+</header>
+
+<!-- Login -->
+<div id="login-wrap" style="max-width:420px;margin:40px auto;padding:0 20px;">
+  <div class="login-card">
+    <div class="login-logo-wrap">
+<img src="data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMTUwMCAxNTAwIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgogIDxyZWN0IHdpZHRoPSIxNTAwIiBoZWlnaHQ9IjE1MDAiIGZpbGw9IiMwQTFGNUMiLz4KCiAgPCEtLSBFc3F1aW5hIHN1cGVyaW9yIGl6cXVpZXJkYSAtLT4KICA8cGF0aCBkPSJNIDIyMCAzODAgTCAyMjAgMjgwIFEgMjIwIDIyMCAyODAgMjIwIEwgNTYwIDIyMCIKICAgICAgICBmaWxsPSJub25lIiBzdHJva2U9IiNGRkZGRkYiIHN0cm9rZS13aWR0aD0iNTUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgogIDxnPgogICAgPHJlY3QgeD0iMzc1IiB5PSI0MDAiIHdpZHRoPSI3MCIgaGVpZ2h0PSI3MCIgZmlsbD0iIzdFRDMyMSIvPgogICAgPHJlY3QgeD0iNDYwIiB5PSI0MDAiIHdpZHRoPSI3MCIgaGVpZ2h0PSI3MCIgZmlsbD0iI0ZGRkZGRiIvPgogICAgPHJlY3QgeD0iMzc1IiB5PSI0ODUiIHdpZHRoPSI3MCIgaGVpZ2h0PSI3MCIgZmlsbD0iI0ZGRkZGRiIvPgogICAgPHJlY3QgeD0iNDYwIiB5PSI0ODUiIHdpZHRoPSI3MCIgaGVpZ2h0PSI3MCIgZmlsbD0iIzdFRDMyMSIvPgogIDwvZz4KCiAgPCEtLSBFc3F1aW5hIHN1cGVyaW9yIGRlcmVjaGEgLS0+CiAgPHBhdGggZD0iTSAxMjgwIDM4MCBMIDEyODAgMjgwIFEgMTI4MCAyMjAgMTIyMCAyMjAgTCA5NDAgMjIwIgogICAgICAgIGZpbGw9Im5vbmUiIHN0cm9rZT0iI0ZGRkZGRiIgc3Ryb2tlLXdpZHRoPSI1NSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+CiAgPGc+CiAgICA8cmVjdCB4PSI5NzAiIHk9IjQwMCIgd2lkdGg9IjcwIiBoZWlnaHQ9IjcwIiBmaWxsPSIjN0VEMzIxIi8+CiAgICA8cmVjdCB4PSIxMDU1IiB5PSI0MDAiIHdpZHRoPSI3MCIgaGVpZ2h0PSI3MCIgZmlsbD0iI0ZGRkZGRiIvPgogICAgPHJlY3QgeD0iOTcwIiB5PSI0ODUiIHdpZHRoPSI3MCIgaGVpZ2h0PSI3MCIgZmlsbD0iI0ZGRkZGRiIvPgogICAgPHJlY3QgeD0iMTA1NSIgeT0iNDg1IiB3aWR0aD0iNzAiIGhlaWdodD0iNzAiIGZpbGw9IiM3RUQzMjEiLz4KICA8L2c+CgogIDwhLS0gRXNxdWluYSBpbmZlcmlvciBpenF1aWVyZGEgLS0+CiAgPHBhdGggZD0iTSAyMjAgMTEyMCBMIDIyMCAxMjIwIFEgMjIwIDEyODAgMjgwIDEyODAgTCA1NjAgMTI4MCIKICAgICAgICBmaWxsPSJub25lIiBzdHJva2U9IiNGRkZGRkYiIHN0cm9rZS13aWR0aD0iNTUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgogIDxnPgogICAgPHJlY3QgeD0iMzc1IiB5PSI5NDUiIHdpZHRoPSI3MCIgaGVpZ2h0PSI3MCIgZmlsbD0iIzdFRDMyMSIvPgogICAgPHJlY3QgeD0iNDYwIiB5PSI5NDUiIHdpZHRoPSI3MCIgaGVpZ2h0PSI3MCIgZmlsbD0iI0ZGRkZGRiIvPgogICAgPHJlY3QgeD0iMzc1IiB5PSIxMDMwIiB3aWR0aD0iNzAiIGhlaWdodD0iNzAiIGZpbGw9IiNGRkZGRkYiLz4KICAgIDxyZWN0IHg9IjQ2MCIgeT0iMTAzMCIgd2lkdGg9IjcwIiBoZWlnaHQ9IjcwIiBmaWxsPSIjN0VEMzIxIi8+CiAgPC9nPgoKICA8IS0tIEVzcXVpbmEgaW5mZXJpb3IgZGVyZWNoYSAtLT4KICA8cGF0aCBkPSJNIDEyODAgMTEyMCBMIDEyODAgMTIyMCBRIDEyODAgMTI4MCAxMjIwIDEyODAgTCA5NDAgMTI4MCIKICAgICAgICBmaWxsPSJub25lIiBzdHJva2U9IiNGRkZGRkYiIHN0cm9rZS13aWR0aD0iNTUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgogIDxnPgogICAgPHJlY3QgeD0iOTcwIiB5PSI5NDUiIHdpZHRoPSI3MCIgaGVpZ2h0PSI3MCIgZmlsbD0iIzdFRDMyMSIvPgogICAgPHJlY3QgeD0iMTA1NSIgeT0iOTQ1IiB3aWR0aD0iNzAiIGhlaWdodD0iNzAiIGZpbGw9IiNGRkZGRkYiLz4KICAgIDxyZWN0IHg9Ijk3MCIgeT0iMTAzMCIgd2lkdGg9IjcwIiBoZWlnaHQ9IjcwIiBmaWxsPSIjRkZGRkZGIi8+CiAgICA8cmVjdCB4PSIxMDU1IiB5PSIxMDMwIiB3aWR0aD0iNzAiIGhlaWdodD0iNzAiIGZpbGw9IiM3RUQzMjEiLz4KICA8L2c+CgogIDwhLS0gUHVudG9zIGxhdGVyYWxlcyAtLT4KICA8cmVjdCB4PSIyNTUiIHk9IjY3MCIgd2lkdGg9IjY1IiBoZWlnaHQ9IjY1IiBmaWxsPSIjRkZGRkZGIi8+CiAgPHJlY3QgeD0iMjU1IiB5PSI3NzAiIHdpZHRoPSI2NSIgaGVpZ2h0PSI2NSIgZmlsbD0iIzdFRDMyMSIvPgogIDxyZWN0IHg9IjExODAiIHk9IjY3MCIgd2lkdGg9IjY1IiBoZWlnaHQ9IjY1IiBmaWxsPSIjN0VEMzIxIi8+CiAgPHJlY3QgeD0iMTE4MCIgeT0iNzcwIiB3aWR0aD0iNjUiIGhlaWdodD0iNjUiIGZpbGw9IiNGRkZGRkYiLz4KCiAgPCEtLSBTaWdubyBkZSBkb2xhciBlbiBlbCBjZW50cm8sIHJlZW1wbGF6YW5kbyBlbCByYXlvIC0tPgogIDx0ZXh0IHg9Ijc1MCIgeT0iMTAxMCIgdGV4dC1hbmNob3I9Im1pZGRsZSIKICAgICAgICBmb250LWZhbWlseT0iQXJpYWwsIEhlbHZldGljYSwgc2Fucy1zZXJpZiIgZm9udC13ZWlnaHQ9IjkwMCIKICAgICAgICBmb250LXNpemU9IjYyMCIgZmlsbD0iIzdFRDMyMSI+JDwvdGV4dD4KPC9zdmc+" alt="Escanea y Paga" class="login-logo">
+    </div>
+    <h2>Iniciar sesión</h2>
+    <div class="fgroup"><label class="flabel">Correo electrónico</label><input type="email" id="login-correo" placeholder="tucorreo@ejemplo.com"></div>
+    <div class="fgroup">
+      <label class="flabel">Contraseña</label>
+      <div style="position:relative">
+        <input type="password" id="login-pass" placeholder="Tu contraseña" style="padding-right:40px">
+        <span onclick="togglePass('login-pass',this)" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:16px">👁</span>
+      </div>
+    </div>
+    <div style="text-align:right;margin-top:4px">
+      <a href="#" style="font-size:12px;color:var(--azul);text-decoration:none" onclick="recuperarPassword()">¿Olvidaste tu contraseña?</a>
+    </div>
+    <button class="btn-main" id="btn-login" onclick="iniciarSesion()">Entrar</button>
+    <p class="msg-err" id="login-err"></p>
+    <div class="register-link">¿No tienes cuenta? <a href="/registro-eyp.html">Regístrate gratis</a></div>
+  </div>
+</div>
+
+<!-- Nav -->
+<nav class="bottom-nav" id="bottom-nav">
+  <div class="bottom-nav-inner">
+    <button class="nav-item active" onclick="irA('resumen',this)"><span class="nav-icon">📊</span>Resumen</button>
+    <button class="nav-item" onclick="irA('cobrar',this)"><span class="nav-icon">💳</span>Cobrar</button>
+    <button class="nav-item" onclick="irA('historial',this)"><span class="nav-icon">📋</span>Historial</button>
+    <button class="nav-item" onclick="irA('perfil',this)"><span class="nav-icon">⚙️</span>Perfil</button>
+  </div>
+</nav>
+
+<!-- RESUMEN -->
+<div class="seccion" id="sec-resumen" style="display:none">
+  <div class="stats-grid">
+    <div class="stat-card"><div class="stat-val" id="stat-hoy">$0</div><div class="stat-lbl">Hoy</div></div>
+    <div class="stat-card"><div class="stat-val" id="stat-mes">$0</div><div class="stat-lbl">Este mes</div></div>
+    <div class="stat-card"><div class="stat-val" id="stat-total">$0</div><div class="stat-lbl">Total</div></div>
+  </div>
+  <div class="liq-card">
+    <div class="liq-title">📅 Próxima liquidación</div>
+    <div class="liq-fecha" id="prox-liquidacion">—</div>
+    <div class="liq-monto" id="monto-liquidacion">Calculando...</div>
+    <div id="liq-detalle" style="margin-top:8px;font-size:12px;color:#B9C2E8"></div>
+  </div>
+  <div class="card">
+    <div class="card-title">💡 Cómo cobrar</div>
+    <div style="font-size:13px;color:var(--gris);line-height:1.7">
+      <div>💳 <strong>Cobro abierto</strong> — Comparte tu link. El cliente escribe el monto.</div>
+      <div>⚡ <strong>Cobro exacto</strong> — Tú pones el monto y envías el link directo.</div>
+      <div>📱 <strong>Cobro con QR</strong> — El cliente escanea tu QR y paga desde su celular.</div>
+    </div>
+  </div>
+  <div class="card" id="card-stand" style="display:none">
+    <div id="stand-gratis">
+      <div style="background:linear-gradient(135deg,var(--verde),var(--verde-oscuro));border-radius:12px;padding:16px">
+        <div style="font-family:'Montserrat',sans-serif;font-weight:900;font-size:16px;color:var(--azul);margin-bottom:4px">🎁 ¡Tu stand de cobro gratis!</div>
+        <div style="font-size:12px;color:var(--azul);opacity:0.8;margin-bottom:14px">Recibe tu stand físico con tu QR. Primer stand gratis, llega en 5 días hábiles.</div>
+        <button onclick="abrirSolicitudStand()" style="background:var(--azul);border:none;border-radius:10px;color:#fff;font-family:'Montserrat',sans-serif;font-weight:800;font-size:13px;padding:12px 20px;cursor:pointer;width:100%">📦 Solicitar mi stand gratis</button>
+      </div>
+    </div>
+    <div id="stand-adicional" style="display:none">
+  <div style="font-family:'Montserrat',sans-serif;font-weight:900;font-size:15px;color:var(--azul);margin-bottom:4px">📦 Stand solicitado ✓</div>
+  <div style="font-size:12px;color:var(--gris);margin-bottom:14px">¿Necesitas otro stand? $5.99 cada uno.</div>
+  <button class="btn-verde" style="width:100%" onclick="toggleComprarStands()">+ Comprar stand adicional</button>
+  <div id="stand-comprar-wrap" style="display:none;margin-top:12px">
+    <div style="font-size:12px;font-weight:600;color:var(--gris);margin-bottom:8px">Selecciona la cantidad:</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+      <button class="btn-cantidad" onclick="seleccionarCantidad(1,this)">1</button>
+      <button class="btn-cantidad" onclick="seleccionarCantidad(2,this)">2</button>
+      <button class="btn-cantidad" onclick="seleccionarCantidad(3,this)">3</button>
+      <button class="btn-cantidad" onclick="seleccionarCantidad(5,this)">5</button>
+      <button class="btn-cantidad" onclick="seleccionarCantidad(10,this)">10</button>
+    </div>
+    <div id="stand-total" style="font-size:13px;color:var(--gris);margin-bottom:10px"></div>
+    <button class="btn-verde" style="width:100%" onclick="comprarStands()">💳 Pagar y solicitar</button>
+  </div>
+</div>
+  </div>
+</div>
+
+<!-- COBRAR -->
+<div class="seccion" id="sec-cobrar" style="display:none">
+  <div class="sec-title">💳 Cobrar</div>
+  <div class="card">
+    <div class="card-title">🔗 Cobro abierto — Link</div>
+    <div class="cobro-hint">Comparte tu link. El cliente entra, escribe el monto y paga.</div>
+    <div class="btn-row">
+      <button class="btn-verde" onclick="copiarLinkAbierto()">🔗 Copiar link</button>
+      <button class="btn-outline" onclick="compartirLinkAbierto()">↗ Compartir</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">📱 Cobro con QR — Presencial</div>
+    <div class="cobro-hint">El cliente escanea tu QR, escribe el monto y paga. Ideal para tu negocio físico.</div>
+    <div id="qr-container">
+      <canvas id="qr-canvas" style="display:none"></canvas>
+      <div id="qr-image-wrap" style="display:none;justify-content:center"></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn-verde" onclick="mostrarQR()">📱 Ver mi QR de cobro</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">⚡ Cobro con monto exacto</div>
+    <div style="font-size:12px;color:var(--gris);margin-bottom:12px">Escribe el monto y envía el link. El cliente solo paga ese monto.</div>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+      <span style="font-family:'Montserrat',sans-serif;font-weight:900;font-size:24px;color:var(--azul)">$</span>
+      <input type="number" id="monto-exacto" placeholder="0.00" min="0.01" step="0.01" style="max-width:160px;font-family:'Montserrat',sans-serif;font-weight:700;font-size:18px">
+    </div>
+    <p class="msg-err" id="msg-monto">Ingresa un monto válido</p>
+    <div class="btn-row">
+      <button class="btn-verde" onclick="compartirExacto()">↗ Compartir cobro</button>
+      <button class="btn-outline" onclick="copiarLinkExacto()">🔗 Copiar link</button>
+    </div>
+  </div>
+</div>
+
+<!-- PRODUCTOS -->
+<div class="seccion" id="sec-productos" style="display:none">
+  <div class="sec-title">🛍️ Mis productos</div>
+  <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
+    <a id="link-catalogo" href="#" target="_blank" class="btn-verde" style="text-decoration:none;font-size:13px;padding:10px 16px">🛍️ Ver mi catálogo</a>
+    <button class="btn-outline" onclick="compartirCatalogo()" style="font-size:13px;padding:10px 16px">↗ Compartir catálogo</button>
+  </div>
+  <div style="font-size:13px;color:var(--gris);margin-bottom:14px">Agrega tus productos. Cada uno tendrá su link de cobro con precio fijo.</div>
+  <div id="lista-productos"><div class="tx-empty">Aún no tienes productos.</div></div>
+  <button class="add-prod-btn" onclick="abrirModalProducto()">+ Agregar producto</button>
+</div>
+
+<!-- HISTORIAL -->
+<div class="seccion" id="sec-historial" style="display:none">
+  <div class="sec-title">📋 Historial de cobros</div>
+  <div id="historial-list"><div class="tx-empty">Cargando...</div></div>
+</div>
+
+<!-- PERFIL -->
+<div class="seccion" id="sec-perfil" style="display:none">
+  <div class="sec-title">⚙️ Mi perfil</div>
+  <div class="card">
+    <div class="card-title">Logo del negocio</div>
+    <div class="avatar-upload" id="avatar-upload" onclick="document.getElementById('avatar-file').click()">
+      <span id="avatar-emoji">🏪</span>
+      <input type="file" id="avatar-file" accept="image/*" onchange="subirLogo(this)" style="display:none">
+    </div>
+    <div style="font-size:11px;color:var(--gris);margin-bottom:14px">Toca la imagen para cambiar tu logo</div>
+    <div class="fgroup"><label class="flabel">Nombre del negocio</label><input type="text" id="perfil-negocio"></div>
+    <div class="fgroup"><label class="flabel">Correo (no editable)</label><input type="email" id="perfil-correo" disabled style="background:#f0f0f0;color:var(--gris)"></div>
+    <div class="fgroup"><label class="flabel">WhatsApp</label><input type="tel" id="perfil-whatsapp" placeholder="+507 6000-0000"></div>
+    <button class="btn-main" onclick="guardarPerfil()">Guardar cambios</button>
+    <p class="msg-ok" id="perfil-ok">✓ Perfil actualizado</p>
+    <p class="msg-err" id="perfil-err"></p>
+  </div>
+  <div class="card">
+    <div class="card-title">🔐 Cambiar contraseña</div>
+    <div class="fgroup"><label class="flabel">Contraseña actual</label><div style="position:relative"><input type="password" id="pass-actual" placeholder="Tu contraseña actual" style="padding-right:40px"><span onclick="togglePass('pass-actual',this)" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:16px">👁</span></div></div>
+    <div class="fgroup"><label class="flabel">Nueva contraseña</label><div style="position:relative"><input type="password" id="pass-nueva" placeholder="Mínimo 6 caracteres" style="padding-right:40px"><span onclick="togglePass('pass-nueva',this)" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:16px">👁</span></div></div>
+    <div class="fgroup"><label class="flabel">Confirmar nueva contraseña</label><div style="position:relative"><input type="password" id="pass-confirm" placeholder="Repite la nueva contraseña" style="padding-right:40px"><span onclick="togglePass('pass-confirm',this)" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:16px">👁</span></div></div>
+    <button class="btn-main" onclick="cambiarPassword()">Cambiar contraseña</button>
+    <p class="msg-ok" id="pass-ok">✓ Contraseña actualizada</p>
+    <p class="msg-err" id="pass-err"></p>
+  </div>
+  <button onclick="cerrarSesion()" style="width:100%;margin-top:4px;padding:12px;border:1.5px solid var(--borde);border-radius:10px;background:transparent;color:var(--gris);font-size:13px;font-family:'Poppins',sans-serif;font-weight:600;cursor:pointer">Cerrar sesión</button>
+</div>
+
+<!-- Modal producto -->
+<div class="modal-overlay" id="modal-producto">
+  <div class="modal">
+    <div class="modal-title">Agregar producto <button class="modal-close" onclick="cerrarModalProducto()">✕</button></div>
+    <div style="margin-bottom:12px">
+      <div class="card-title">Foto del producto</div>
+      <div class="foto-upload" id="foto-upload" onclick="document.getElementById('foto-file').click()">
+        <span id="foto-emoji">📷</span>
+        <input type="file" id="foto-file" accept="image/*" onchange="subirFotoProducto(this)" style="display:none">
+      </div>
+    </div>
+    <div class="fgroup"><label class="flabel">Nombre</label><input type="text" id="prod-nombre" placeholder="Ej: Corte de cabello, Almuerzo..."></div>
+    <div class="fgroup"><label class="flabel">Precio (USD)</label><input type="number" id="prod-precio" placeholder="0.00" min="0.01" step="0.01"></div>
+    <div class="fgroup"><label class="flabel">Descripción (opcional)</label><textarea id="prod-desc" placeholder="Describe el producto..."></textarea></div>
+    <button class="btn-verde" style="width:100%" onclick="guardarProducto()">Guardar producto</button>
+    <p class="msg-err" id="prod-err" style="margin-top:8px"></p>
+  </div>
+</div>
+
+<!-- Modal stand -->
+<div class="modal-overlay" id="modal-stand">
+  <div class="modal">
+    <div class="modal-title">📦 Solicitar stand de cobro <button class="modal-close" onclick="cerrarModalStand()">✕</button></div>
+    <div style="font-size:12px;color:var(--gris);margin-bottom:16px">Tu primer stand es gratis. Llega en 5 días hábiles con tu QR personalizado.</div>
+    <div class="fgroup"><label class="flabel">Ciudad</label><input type="text" id="stand-ciudad" placeholder="Ej: Ciudad de Panamá, David, Chitré..."></div>
+    <div class="fgroup"><label class="flabel">Dirección exacta</label><textarea id="stand-direccion" placeholder="Calle, edificio, referencia..."></textarea></div>
+    <div class="fgroup"><label class="flabel">Teléfono de contacto</label><input type="tel" id="stand-telefono" placeholder="+507 6000-0000"></div>
+    <button class="btn-verde" style="width:100%" onclick="solicitarStand()">Solicitar mi stand gratis</button>
+    <p class="msg-err" id="stand-err" style="margin-top:8px"></p>
+    <p class="msg-ok" id="stand-ok" style="margin-top:8px"></p>
+  </div>
+</div>
+
+<!-- QR Modal -->
+<div class="qr-modal" id="qr-modal">
+  <button class="qr-modal-close" onclick="cerrarQRModal()">✕</button>
+  <img id="qr-modal-logo" class="qr-modal-logo" style="display:none">
+  <div class="qr-modal-negocio" id="qr-modal-nombre"></div>
+  <div class="qr-modal-sub">📱 Ya puedes pagar — escanea el código</div>
+  <div class="qr-box"><div id="qr-modal-canvas"></div></div>
+</div>
+
+<script>
+var APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbybW_QELgLOCoPgFkJZ3oYspne-r4JLLg8CvicFL2IWpJFpoXse3bk0sBBlRNUsHJzsPQ/exec";
+fetch(APPS_SCRIPT_URL + '?action=ping').catch(function(){});
+var negocioData = null;
+var productos = [];
+var fotoProductoBase64 = null;
+var cantidadStands = 1;
+
+var params = new URLSearchParams(window.location.search);
+var correoParam = params.get('correo');
+if (correoParam) document.getElementById('login-correo').value = correoParam;
+
+var sesion = sessionStorage.getItem('eyp_sesion');
+if (sesion) { try { negocioData = JSON.parse(sesion); mostrarDashboard(); } catch(e) {} }
+
+function iniciarSesion() {
+  var correo = document.getElementById('login-correo').value.trim().toLowerCase();
+  var pass = document.getElementById('login-pass').value.trim();
+  var err = document.getElementById('login-err');
+  err.style.display = 'none';
+  if (!correo || !pass) { err.textContent = 'Ingresa tu correo y contraseña.'; err.style.display = 'block'; return; }
+  var btn = document.getElementById('btn-login');
+  btn.disabled = true; btn.textContent = '⏳ Verificando...';
+  var cbName = 'login_' + Date.now();
+  window[cbName] = function(resp) {
+    if (resp && resp.ok) {
+      negocioData = resp.negocio;
+      sessionStorage.setItem('eyp_sesion', JSON.stringify(negocioData));
+      mostrarDashboard();
+    } else {
+      err.textContent = 'Correo o contraseña incorrectos.';
+      err.style.display = 'block';
+      btn.disabled = false; btn.textContent = 'Entrar';
+    }
+    delete window[cbName];
+    if (document.body.contains(sc)) document.body.removeChild(sc);
+  };
+  var sc = document.createElement('script');
+  sc.src = APPS_SCRIPT_URL + "?action=loginEYP&callback=" + cbName + "&correo=" + encodeURIComponent(correo) + "&password=" + encodeURIComponent(pass);
+  sc.onerror = function() { err.textContent = 'Error de conexión.'; err.style.display = 'block'; btn.disabled = false; btn.textContent = 'Entrar'; };
+  document.body.appendChild(sc);
+}
+
+function mostrarDashboard() {
+  document.getElementById('login-wrap').style.display = 'none';
+  document.getElementById('bottom-nav').style.display = 'block';
+  document.getElementById('header-right').style.display = 'flex';
+  document.getElementById('sec-resumen').style.display = 'block';
+  document.getElementById('card-stand').style.display = 'block';
+  document.getElementById('header-nombre').textContent = negocioData.negocio || '';
+  actualizarLogo(negocioData.logo);
+  document.getElementById('perfil-negocio').value = negocioData.negocio || '';
+  document.getElementById('perfil-correo').value = negocioData.correo || '';
+  document.getElementById('perfil-whatsapp').value = negocioData.whatsapp || '';
+  var hoy = new Date();
+  var dv = (5 - hoy.getDay() + 7) % 7 || 7;
+  var vd = new Date(hoy); vd.setDate(hoy.getDate() + dv);
+  document.getElementById('prox-liquidacion').textContent = vd.toLocaleDateString('es', {weekday:'long', day:'numeric', month:'long'});
+  document.getElementById('link-catalogo').href = 'https://www.escaneaya.com/catalogo-eyp.html?negocio=' + encodeURIComponent(negocioData.correo);
+  if (negocioData.stand_solicitado === 'si') {
+    document.getElementById('stand-gratis').style.display = 'none';
+    document.getElementById('stand-adicional').style.display = 'block';
+  }
+  cargarTransacciones();
+  cargarLiquidaciones();
+}
+
+function actualizarLogo(url) {
+  var hdr = document.getElementById('header-logo');
+  var av = document.getElementById('avatar-upload');
+  if (url) {
+    hdr.innerHTML = '<img src="' + url + '" onerror="this.parentElement.innerHTML=\'🏪\'">';
+    av.innerHTML = '<img src="' + url + '" onerror="this.innerHTML=\'🏪\'"><input type="file" id="avatar-file" accept="image/*" onchange="subirLogo(this)" style="display:none">';
+  } else { hdr.innerHTML = '🏪'; }
+}
+
+function irA(sec, btn) {
+  window.scrollTo(0,0);
+  document.querySelectorAll('.seccion').forEach(function(s) { s.style.display = 'none'; s.classList.remove('active'); });
+  document.getElementById('sec-' + sec).style.display = 'block';
+  document.getElementById('sec-' + sec).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(function(b) { b.classList.remove('active'); });
+  if (btn) btn.classList.add('active');
+  if (sec === 'cobrar') setTimeout(generarQR, 300);
+}
+
+function getLinkBase() {
+  return 'https://www.escaneaya.com/escanea-y-paga.html?negocio=' + encodeURIComponent(negocioData.negocio) + '&email=' + encodeURIComponent(negocioData.correo);
+}
+
+function copiarLinkAbierto() { copiar(getLinkBase()); }
+function compartirLinkAbierto() {
+  if (navigator.share) navigator.share({ title: 'Paga a ' + negocioData.negocio, url: getLinkBase() });
+  else copiarLinkAbierto();
+}
+function compartirCatalogo() {
+  var link = 'https://www.escaneaya.com/catalogo-eyp.html?negocio=' + encodeURIComponent(negocioData.correo);
+  if (navigator.share) navigator.share({ title: 'Catálogo de ' + negocioData.negocio, url: link });
+  else copiar(link);
+}
+function compartirExacto() {
+  var m = parseFloat(document.getElementById('monto-exacto').value);
+  if (!m || m <= 0) { document.getElementById('msg-monto').style.display = 'block'; return; }
+  document.getElementById('msg-monto').style.display = 'none';
+  var link = getLinkBase() + '&monto=' + m.toFixed(2);
+  if (navigator.share) navigator.share({ title: 'Pago a ' + negocioData.negocio, url: link });
+  else copiar(link);
+}
+function copiarLinkExacto() {
+  var m = parseFloat(document.getElementById('monto-exacto').value);
+  var link = getLinkBase();
+  if (m && m > 0) link += '&monto=' + m.toFixed(2);
+  copiar(link);
+}
+function copiar(t) {
+  if (navigator.clipboard) navigator.clipboard.writeText(t).then(function() { alert('¡Link copiado!'); });
+  else { var el = document.createElement('textarea'); el.value = t; document.body.appendChild(el); el.select(); document.execCommand('copy'); document.body.removeChild(el); alert('¡Link copiado!'); }
+}
+
+function cargarTransacciones() {
+  var cb = 'tx_' + Date.now();
+  window[cb] = function(r) {
+    if (r && r.transacciones) { mostrarTransacciones(r.transacciones); calcularStats(r.transacciones); }
+    delete window[cb]; if (document.body.contains(sc)) document.body.removeChild(sc);
+  };
+  var sc = document.createElement('script');
+  sc.src = APPS_SCRIPT_URL + "?action=getTransaccionesEYP&callback=" + cb + "&email=" + encodeURIComponent(negocioData.correo);
+  document.body.appendChild(sc);
+}
+
+function mostrarTransacciones(txs) {
+  var l = document.getElementById('historial-list');
+  if (!txs || !txs.length) { l.innerHTML = '<div class="tx-empty">Aún no tienes cobros.</div>'; return; }
+  l.innerHTML = '';
+  txs.slice(0,30).forEach(function(tx) {
+    var d = document.createElement('div'); d.className = 'tx-card';
+    d.innerHTML = '<div><div class="tx-orden">' + (tx.orden||'—') + '</div><div class="tx-cliente">' + (tx.nombre_cliente||'Cliente') + '</div><div class="tx-fecha">' + (tx.fecha||'—') + '</div></div><div><div class="tx-monto">$' + parseFloat(tx.monto||0).toFixed(2) + '</div><div class="tx-estado">✓ Aprobado</div></div>';
+    l.appendChild(d);
+  });
+}
+
+function calcularStats(txs) {
+  var ahora = new Date();
+  var hoy = ahora.getDate();
+  var mes = ahora.getMonth();
+  var anio = ahora.getFullYear();
+  var meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+  var h=0,m=0,t=0;
+  txs.forEach(function(tx) {
+    var v = parseFloat(tx.monto||0); t += v;
+    var fecha = (tx.fecha||'').toLowerCase();
+    if (fecha.indexOf(hoy + ' de ' + meses[mes]) !== -1 || fecha.indexOf(hoy + ' de ' + meses[mes].substring(0,3)) !== -1) h+=v;
+    if (fecha.indexOf(meses[mes]) !== -1 && fecha.indexOf(anio.toString()) !== -1) m+=v;
+  });
+  document.getElementById('stat-hoy').textContent = '$'+h.toFixed(2);
+  document.getElementById('stat-mes').textContent = '$'+m.toFixed(2);
+  document.getElementById('stat-total').textContent = '$'+t.toFixed(2);
+}
+
+function cargarLiquidaciones() {
+  var cb = 'liq_' + Date.now();
+  window[cb] = function(r) {
+    if (r && r.ok) {
+      document.getElementById('monto-liquidacion').textContent = 'Estimado a liquidar: $' + r.neto + ' USD';
+      document.getElementById('liq-detalle').textContent = 'Total bruto: $' + r.total_bruto + ' · Comisión (5.5%): $' + r.comision;
+    }
+    delete window[cb]; if (document.body.contains(sc)) document.body.removeChild(sc);
+  };
+  var sc = document.createElement('script');
+  sc.src = APPS_SCRIPT_URL + "?action=getLiquidacionesEYP&callback=" + cb + "&email=" + encodeURIComponent(negocioData.correo);
+  document.body.appendChild(sc);
+}
+
+function cargarProductosSheets() {
+  var cb = 'cprod_' + Date.now();
+  window[cb] = function(r) {
+    if (r && r.ok) { productos = r.productos || []; renderProductos(); }
+    delete window[cb]; if (document.body.contains(sc)) document.body.removeChild(sc);
+  };
+  var sc = document.createElement('script');
+  sc.src = APPS_SCRIPT_URL + "?action=getCatalogoEYP&callback=" + cb + "&email=" + encodeURIComponent(negocioData.correo);
+  document.body.appendChild(sc);
+}
+
+function renderProductos() {
+  var l = document.getElementById('lista-productos');
+  if (!productos.length) { l.innerHTML = '<div class="tx-empty">Aún no tienes productos.</div>'; return; }
+  l.innerHTML = '';
+  productos.forEach(function(p, i) {
+    var d = document.createElement('div'); d.className = 'prod-card';
+    var imgHtml = p.foto ? '<div class="prod-img"><img src="' + p.foto + '"></div>' : '<div class="prod-img">🛍️</div>';
+    d.innerHTML = imgHtml + '<div class="prod-info"><div class="prod-nombre">' + p.nombre + '</div>' + (p.desc?'<div class="prod-desc">'+p.desc+'</div>':'') + '<div class="prod-precio">$' + parseFloat(p.precio).toFixed(2) + '</div><div class="prod-actions"><button class="btn-xs btn-xs-verde" onclick="copiarProducto('+i+',\''+p.id+'\')">🔗 Compartir link de cobro</button><button class="btn-xs btn-xs-red" onclick="eliminarProducto(\''+p.id+'\')">✕ Eliminar</button></div></div>';
+    l.appendChild(d);
+  });
+}
+
+function abrirModalProducto() {
+  document.getElementById('modal-producto').classList.add('open');
+  document.getElementById('prod-nombre').value = '';
+  document.getElementById('prod-precio').value = '';
+  document.getElementById('prod-desc').value = '';
+  document.getElementById('prod-err').style.display = 'none';
+  var fe = document.getElementById('foto-emoji');
+  if (fe) fe.textContent = '📷';
+  fotoProductoBase64 = null;
+}
+function cerrarModalProducto() { document.getElementById('modal-producto').classList.remove('open'); }
+
+function subirFotoProducto(input) {
+  if (!input.files || !input.files[0]) return;
+  var fd = new FormData();
+  fd.append('file', input.files[0]);
+  fd.append('upload_preset', 'vvliy4z0');
+  fetch('https://api.cloudinary.com/v1_1/ioao7nb6/image/upload', { method: 'POST', body: fd })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (data.secure_url) {
+      fotoProductoBase64 = data.secure_url;
+      document.getElementById('foto-upload').innerHTML = '<img src="' + data.secure_url + '" style="width:100%;height:100%;object-fit:cover;border-radius:10px"><input type="file" id="foto-file" accept="image/*" onchange="subirFotoProducto(this)" style="display:none">';
+    }
+  }).catch(function() { alert('Error al subir imagen.'); });
+}
+
+function guardarProducto() {
+  var nombre = document.getElementById('prod-nombre').value.trim();
+  var precio = parseFloat(document.getElementById('prod-precio').value);
+  var desc = document.getElementById('prod-desc').value.trim();
+  var err = document.getElementById('prod-err');
+  if (!nombre) { err.textContent = 'Ingresa el nombre.'; err.style.display = 'block'; return; }
+  if (!precio || precio <= 0) { err.textContent = 'Ingresa un precio válido.'; err.style.display = 'block'; return; }
+  var btnG = document.querySelector('#modal-producto .btn-verde');
+  btnG.disabled = true; btnG.textContent = '⏳ Guardando...';
+  var cb = 'prod_' + Date.now();
+  window[cb] = function(r) {
+    if (r && r.ok) { cerrarModalProducto(); cargarProductosSheets(); }
+    else { err.textContent = 'Error al guardar.'; err.style.display = 'block'; btnG.disabled = false; btnG.textContent = 'Guardar producto'; }
+    delete window[cb]; if (document.body.contains(sc)) document.body.removeChild(sc);
+  };
+  var sc = document.createElement('script');
+  sc.src = APPS_SCRIPT_URL + "?action=guardarProductoEYP&callback=" + cb + "&email=" + encodeURIComponent(negocioData.correo) + "&nombre=" + encodeURIComponent(nombre) + "&precio=" + precio.toFixed(2) + "&desc=" + encodeURIComponent(desc) + "&foto=" + encodeURIComponent(fotoProductoBase64 || '');
+  document.body.appendChild(sc);
+}
+
+function copiarProducto(i) {
+  var p = productos[i];
+  copiar(getLinkBase() + '&monto=' + parseFloat(p.precio).toFixed(2) + '&concepto=' + encodeURIComponent(p.nombre));
+}
+
+function eliminarProducto(id) {
+  if (!confirm('¿Eliminar este producto?')) return;
+  var cb = 'del_' + Date.now();
+  window[cb] = function(r) {
+    if (r && r.ok) cargarProductosSheets();
+    delete window[cb]; if (document.body.contains(sc)) document.body.removeChild(sc);
+  };
+  var sc = document.createElement('script');
+  sc.src = APPS_SCRIPT_URL + "?action=eliminarProductoEYP&callback=" + cb + "&email=" + encodeURIComponent(negocioData.correo) + "&id=" + encodeURIComponent(id);
+  document.body.appendChild(sc);
+}
+
+function subirLogo(input) {
+  if (!input.files || !input.files[0]) return;
+  var fd = new FormData();
+  fd.append('file', input.files[0]);
+  fd.append('upload_preset', 'vvliy4z0');
+  fetch('https://api.cloudinary.com/v1_1/ioao7nb6/image/upload', { method: 'POST', body: fd })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (data.secure_url) {
+      negocioData.logo = data.secure_url;
+      sessionStorage.setItem('eyp_sesion', JSON.stringify(negocioData));
+      actualizarLogo(negocioData.logo);
+      fetch(APPS_SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'actualizarPerfilEYP', correo: negocioData.correo, logo: data.secure_url }) });
+    }
+  }).catch(function() { alert('Error al subir imagen.'); });
+}
+
+function guardarPerfil() {
+  negocioData.negocio = document.getElementById('perfil-negocio').value.trim() || negocioData.negocio;
+  negocioData.whatsapp = document.getElementById('perfil-whatsapp').value.trim();
+  sessionStorage.setItem('eyp_sesion', JSON.stringify(negocioData));
+  document.getElementById('header-nombre').textContent = negocioData.negocio;
+  var btnP = document.querySelector('#sec-perfil .btn-main');
+  btnP.disabled = true; btnP.textContent = '⏳ Guardando...';
+  var cb = 'perfil_' + Date.now();
+  window[cb] = function(r) {
+    document.getElementById('perfil-ok').style.display = 'block';
+    setTimeout(function() { document.getElementById('perfil-ok').style.display='none'; }, 2000);
+    btnP.disabled = false; btnP.textContent = 'Guardar cambios';
+    delete window[cb]; if (document.body.contains(sc)) document.body.removeChild(sc);
+  };
+  var sc = document.createElement('script');
+  sc.src = APPS_SCRIPT_URL + "?action=actualizarPerfilEYP&callback=" + cb + "&correo=" + encodeURIComponent(negocioData.correo) + "&negocio=" + encodeURIComponent(negocioData.negocio) + "&whatsapp=" + encodeURIComponent(negocioData.whatsapp) + "&logo=" + encodeURIComponent(negocioData.logo || '');
+  document.body.appendChild(sc);
+}
+
+function cambiarPassword() {
+  var actual = document.getElementById('pass-actual').value.trim();
+  var nueva = document.getElementById('pass-nueva').value.trim();
+  var conf = document.getElementById('pass-confirm').value.trim();
+  var err = document.getElementById('pass-err');
+  var ok = document.getElementById('pass-ok');
+  err.style.display='none'; ok.style.display='none';
+  if (!actual || !nueva || !conf) { err.textContent='Completa todos los campos.'; err.style.display='block'; return; }
+  if (nueva.length < 6) { err.textContent='Mínimo 6 caracteres.'; err.style.display='block'; return; }
+  if (nueva !== conf) { err.textContent='Las contraseñas no coinciden.'; err.style.display='block'; return; }
+  var btnP = document.querySelectorAll('#sec-perfil .btn-main')[1];
+  btnP.disabled = true; btnP.textContent = '⏳ Cambiando...';
+  var cb = 'pass_' + Date.now();
+  window[cb] = function(r) {
+    if (r && r.ok) { ok.style.display='block'; document.getElementById('pass-actual').value=''; document.getElementById('pass-nueva').value=''; document.getElementById('pass-confirm').value=''; }
+    else { err.textContent = r && r.error === 'incorrecta' ? 'La contraseña actual es incorrecta.' : 'Error.'; err.style.display='block'; }
+    btnP.disabled = false; btnP.textContent = 'Cambiar contraseña';
+    delete window[cb]; if (document.body.contains(sc)) document.body.removeChild(sc);
+  };
+  var sc = document.createElement('script');
+  sc.src = APPS_SCRIPT_URL + "?action=cambiarPasswordEYP&callback=" + cb + "&correo=" + encodeURIComponent(negocioData.correo) + "&actual=" + encodeURIComponent(actual) + "&nueva=" + encodeURIComponent(nueva);
+  document.body.appendChild(sc);
+}
+
+function cerrarSesion() {
+  sessionStorage.removeItem('eyp_sesion');
+  negocioData = null;
+  document.getElementById('bottom-nav').style.display = 'none';
+  document.getElementById('header-right').style.display = 'none';
+  document.querySelectorAll('.seccion').forEach(function(s) { s.style.display = 'none'; s.classList.remove('active'); });
+  document.getElementById('login-wrap').style.display = 'block';
+  var b = document.getElementById('btn-login');
+  if (b) { b.disabled = false; b.textContent = 'Entrar'; }
+  document.getElementById('login-correo').value = '';
+  document.getElementById('login-pass').value = '';
+}
+
+function generarQR() {
+  var wrap = document.getElementById('qr-image-wrap');
+  if (!wrap || !negocioData) return;
+  wrap.innerHTML = '';
+  new QRCode(wrap, { text: getLinkBase(), width: 180, height: 180, colorDark: '#0A1F5C', colorLight: '#ffffff' });
+}
+
+function mostrarQR() {
+  document.getElementById('qr-modal-nombre').textContent = negocioData.negocio || '';
+  var logo = document.getElementById('qr-modal-logo');
+  if (negocioData.logo) { logo.src = negocioData.logo; logo.style.display = 'block'; }
+  var wrap = document.getElementById('qr-modal-canvas');
+  wrap.innerHTML = '';
+  new QRCode(wrap, { text: getLinkBase(), width: 200, height: 200, colorDark: '#0A1F5C', colorLight: '#ffffff' });
+  document.getElementById('qr-modal').classList.add('open');
+}
+
+function cerrarQRModal() { document.getElementById('qr-modal').classList.remove('open'); }
+
+function abrirSolicitudStand() {
+  document.getElementById('modal-stand').classList.add('open');
+  document.getElementById('stand-ciudad').value = '';
+  document.getElementById('stand-direccion').value = '';
+  document.getElementById('stand-telefono').value = negocioData.whatsapp || '';
+  document.getElementById('stand-err').style.display = 'none';
+  document.getElementById('stand-ok').style.display = 'none';
+}
+function cerrarModalStand() { document.getElementById('modal-stand').classList.remove('open'); }
+
+function solicitarStand() {
+  var ciudad = document.getElementById('stand-ciudad').value.trim();
+  var direccion = document.getElementById('stand-direccion').value.trim();
+  var telefono = document.getElementById('stand-telefono').value.trim();
+  var err = document.getElementById('stand-err');
+  var ok = document.getElementById('stand-ok');
+  err.style.display = 'none'; ok.style.display = 'none';
+  if (!ciudad) { err.textContent = 'Ingresa tu ciudad.'; err.style.display = 'block'; return; }
+  if (!direccion) { err.textContent = 'Ingresa tu dirección.'; err.style.display = 'block'; return; }
+  if (!telefono) { err.textContent = 'Ingresa tu teléfono.'; err.style.display = 'block'; return; }
+  var btn = document.querySelector('#modal-stand .btn-verde');
+  btn.disabled = true; btn.textContent = '⏳ Enviando solicitud...';
+  var cb = 'stand_' + Date.now();
+  window[cb] = function(r) {
+    if (r && r.ok) {
+      ok.textContent = '✓ Solicitud enviada. Tu stand llegará en 5 días hábiles.';
+      ok.style.display = 'block';
+      btn.textContent = 'Solicitud enviada ✓';
+      negocioData.stand_solicitado = 'si';
+      sessionStorage.setItem('eyp_sesion', JSON.stringify(negocioData));
+      document.getElementById('stand-gratis').style.display = 'none';
+      document.getElementById('stand-adicional').style.display = 'block';
+    } else {
+      err.textContent = 'Error al enviar.'; err.style.display = 'block';
+      btn.disabled = false; btn.textContent = 'Solicitar mi stand gratis';
+    }
+    delete window[cb]; if (document.body.contains(sc)) document.body.removeChild(sc);
+  };
+  var sc = document.createElement('script');
+  sc.src = APPS_SCRIPT_URL + "?action=solicitarStandEYP&callback=" + cb + "&email=" + encodeURIComponent(negocioData.correo) + "&negocio=" + encodeURIComponent(negocioData.negocio) + "&ciudad=" + encodeURIComponent(ciudad) + "&direccion=" + encodeURIComponent(direccion) + "&telefono=" + encodeURIComponent(telefono) + "&link=" + encodeURIComponent(getLinkBase());
+  document.body.appendChild(sc);
+}
+
+function seleccionarCantidad(n, el) {
+  cantidadStands = n;
+  document.querySelectorAll('.btn-cantidad').forEach(function(b) { b.classList.remove('active'); });
+  el.classList.add('active');
+  document.getElementById('stand-total').textContent = n + ' stand(s) = $' + (n * 5.99).toFixed(2) + ' USD';
+}
+
+function comprarStands() {
+  var total = (cantidadStands * 5.99).toFixed(2);
+  window.open('https://www.escaneaya.com/escanea-y-paga.html?negocio=Escanea%20y%20Paga&monto=' + total + '&email=escaneapagos%40gmail.com&concepto=' + encodeURIComponent(cantidadStands + ' stand(s) de cobro'), '_blank');
+}
+
+function togglePass(id, el) {
+  var input = document.getElementById(id);
+  if (input.type === 'password') { input.type = 'text'; el.textContent = '🙈'; }
+  else { input.type = 'password'; el.textContent = '👁'; }
+}
+
+function recuperarPassword() {
+  var correo = document.getElementById('login-correo').value.trim();
+  if (!correo) { alert('Ingresa tu correo primero.'); return; }
+  var cb = 'rec_' + Date.now();
+  window[cb] = function(r) {
+    if (r && r.ok) alert('Te enviamos un correo con tu contraseña a ' + correo);
+    else alert('No encontramos una cuenta con ese correo.');
+    delete window[cb];
+  };
+  var sc = document.createElement('script');
+  sc.src = APPS_SCRIPT_URL + "?action=recuperarPasswordEYP&callback=" + cb + "&correo=" + encodeURIComponent(correo);
+  document.body.appendChild(sc);
+}
+
+document.addEventListener('keydown', function(e) {
+  if (e.key==='Enter' && document.getElementById('login-wrap').style.display!=='none') iniciarSesion();
+});
+  function toggleComprarStands() {
+  var wrap = document.getElementById('stand-comprar-wrap');
+  wrap.style.display = wrap.style.display === 'none' ? 'block' : 'none';
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pago confirmado — Escanea y Paga</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@800;900&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --azul:#0A1F5C;--azul-suave:#12296e;--verde:#7ED321;--fondo:#F3F5F9;--texto:#16213E;--gris:#7A8194;--borde:#E1E5EE;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:'Poppins',sans-serif;background:var(--fondo);color:var(--texto);
+    display:flex;justify-content:center;padding:32px 16px;min-height:100vh;}
+  .card{width:100%;max-width:420px;background:#fff;border-radius:20px;
+    box-shadow:0 20px 50px rgba(10,31,92,0.10);overflow:hidden;}
+  .header{background:linear-gradient(135deg,var(--azul) 0%,var(--azul-suave) 100%);
+    padding:28px 28px 24px;color:#fff;}
+  .marca-wrap{display:flex;align-items:center;gap:10px;}
+  .logo-icono{width:64px;height:64px;border-radius:12px;flex-shrink:0;}
+  .marca-sub{font-size:9.5px;color:#8C9BD6;text-transform:uppercase;letter-spacing:0.6px;}
+  .marca-nombre{font-family:'Montserrat',sans-serif;font-weight:900;font-size:15px;letter-spacing:0.5px;margin-top:2px;}
+  .body{padding:28px;}
+  .check-icon{width:72px;height:72px;border-radius:50%;background:rgba(126,211,33,0.12);
+    border:2px solid var(--verde);display:flex;align-items:center;justify-content:center;
+    font-size:32px;margin:0 auto 20px;}
+  .titulo{font-family:'Montserrat',sans-serif;font-weight:900;font-size:22px;text-align:center;margin-bottom:6px;}
+  .subtitulo{font-size:13px;color:var(--gris);text-align:center;margin-bottom:24px;}
+  .recibo{background:var(--fondo);border-radius:14px;padding:20px;}
+  .recibo-fila{display:flex;justify-content:space-between;align-items:center;
+    padding:10px 0;border-bottom:1px solid var(--borde);font-size:13px;}
+  .recibo-fila:last-child{border-bottom:none;}
+  .recibo-fila .llave{color:var(--gris);font-weight:500;}
+  .recibo-fila .valor{font-weight:700;color:var(--texto);}
+  .monto-total{font-family:'Montserrat',sans-serif;font-weight:900;font-size:22px;color:var(--azul);}
+  .email-msg{margin-top:16px;font-size:12px;color:var(--gris);text-align:center;line-height:1.5;}
+  .seguridad{margin-top:20px;display:flex;align-items:center;justify-content:center;gap:6px;
+    font-size:11.5px;color:var(--gris);}
+  .estado-enviando{text-align:center;font-size:12px;color:var(--gris);margin-top:12px;}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="header">
+    <div class="marca-wrap">
+      <img src="data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMTUwMCAxNTAwIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgogIDxyZWN0IHdpZHRoPSIxNTAwIiBoZWlnaHQ9IjE1MDAiIGZpbGw9IiMwQTFGNUMiLz4KCiAgPCEtLSBFc3F1aW5hIHN1cGVyaW9yIGl6cXVpZXJkYSAtLT4KICA8cGF0aCBkPSJNIDIyMCAzODAgTCAyMjAgMjgwIFEgMjIwIDIyMCAyODAgMjIwIEwgNTYwIDIyMCIKICAgICAgICBmaWxsPSJub25lIiBzdHJva2U9IiNGRkZGRkYiIHN0cm9rZS13aWR0aD0iNTUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgogIDxnPgogICAgPHJlY3QgeD0iMzc1IiB5PSI0MDAiIHdpZHRoPSI3MCIgaGVpZ2h0PSI3MCIgZmlsbD0iIzdFRDMyMSIvPgogICAgPHJlY3QgeD0iNDYwIiB5PSI0MDAiIHdpZHRoPSI3MCIgaGVpZ2h0PSI3MCIgZmlsbD0iI0ZGRkZGRiIvPgogICAgPHJlY3QgeD0iMzc1IiB5PSI0ODUiIHdpZHRoPSI3MCIgaGVpZ2h0PSI3MCIgZmlsbD0iI0ZGRkZGRiIvPgogICAgPHJlY3QgeD0iNDYwIiB5PSI0ODUiIHdpZHRoPSI3MCIgaGVpZ2h0PSI3MCIgZmlsbD0iIzdFRDMyMSIvPgogIDwvZz4KCiAgPCEtLSBFc3F1aW5hIHN1cGVyaW9yIGRlcmVjaGEgLS0+CiAgPHBhdGggZD0iTSAxMjgwIDM4MCBMIDEyODAgMjgwIFEgMTI4MCAyMjAgMTIyMCAyMjAgTCA5NDAgMjIwIgogICAgICAgIGZpbGw9Im5vbmUiIHN0cm9rZT0iI0ZGRkZGRiIgc3Ryb2tlLXdpZHRoPSI1NSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+CiAgPGc+CiAgICA8cmVjdCB4PSI5NzAiIHk9IjQwMCIgd2lkdGg9IjcwIiBoZWlnaHQ9IjcwIiBmaWxsPSIjN0VEMzIxIi8+CiAgICA8cmVjdCB4PSIxMDU1IiB5PSI0MDAiIHdpZHRoPSI3MCIgaGVpZ2h0PSI3MCIgZmlsbD0iI0ZGRkZGRiIvPgogICAgPHJlY3QgeD0iOTcwIiB5PSI0ODUiIHdpZHRoPSI3MCIgaGVpZ2h0PSI3MCIgZmlsbD0iI0ZGRkZGRiIvPgogICAgPHJlY3QgeD0iMTA1NSIgeT0iNDg1IiB3aWR0aD0iNzAiIGhlaWdodD0iNzAiIGZpbGw9IiM3RUQzMjEiLz4KICA8L2c+CgogIDwhLS0gRXNxdWluYSBpbmZlcmlvciBpenF1aWVyZGEgLS0+CiAgPHBhdGggZD0iTSAyMjAgMTEyMCBMIDIyMCAxMjIwIFEgMjIwIDEyODAgMjgwIDEyODAgTCA1NjAgMTI4MCIKICAgICAgICBmaWxsPSJub25lIiBzdHJva2U9IiNGRkZGRkYiIHN0cm9rZS13aWR0aD0iNTUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgogIDxnPgogICAgPHJlY3QgeD0iMzc1IiB5PSI5NDUiIHdpZHRoPSI3MCIgaGVpZ2h0PSI3MCIgZmlsbD0iIzdFRDMyMSIvPgogICAgPHJlY3QgeD0iNDYwIiB5PSI5NDUiIHdpZHRoPSI3MCIgaGVpZ2h0PSI3MCIgZmlsbD0iI0ZGRkZGRiIvPgogICAgPHJlY3QgeD0iMzc1IiB5PSIxMDMwIiB3aWR0aD0iNzAiIGhlaWdodD0iNzAiIGZpbGw9IiNGRkZGRkYiLz4KICAgIDxyZWN0IHg9IjQ2MCIgeT0iMTAzMCIgd2lkdGg9IjcwIiBoZWlnaHQ9IjcwIiBmaWxsPSIjN0VEMzIxIi8+CiAgPC9nPgoKICA8IS0tIEVzcXVpbmEgaW5mZXJpb3IgZGVyZWNoYSAtLT4KICA8cGF0aCBkPSJNIDEyODAgMTEyMCBMIDEyODAgMTIyMCBRIDEyODAgMTI4MCAxMjIwIDEyODAgTCA5NDAgMTI4MCIKICAgICAgICBmaWxsPSJub25lIiBzdHJva2U9IiNGRkZGRkYiIHN0cm9rZS13aWR0aD0iNTUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgogIDxnPgogICAgPHJlY3QgeD0iOTcwIiB5PSI5NDUiIHdpZHRoPSI3MCIgaGVpZ2h0PSI3MCIgZmlsbD0iIzdFRDMyMSIvPgogICAgPHJlY3QgeD0iMTA1NSIgeT0iOTQ1IiB3aWR0aD0iNzAiIGhlaWdodD0iNzAiIGZpbGw9IiNGRkZGRkYiLz4KICAgIDxyZWN0IHg9Ijk3MCIgeT0iMTAzMCIgd2lkdGg9IjcwIiBoZWlnaHQ9IjcwIiBmaWxsPSIjRkZGRkZGIi8+CiAgICA8cmVjdCB4PSIxMDU1IiB5PSIxMDMwIiB3aWR0aD0iNzAiIGhlaWdodD0iNzAiIGZpbGw9IiM3RUQzMjEiLz4KICA8L2c+CgogIDwhLS0gUHVudG9zIGxhdGVyYWxlcyAtLT4KICA8cmVjdCB4PSIyNTUiIHk9IjY3MCIgd2lkdGg9IjY1IiBoZWlnaHQ9IjY1IiBmaWxsPSIjRkZGRkZGIi8+CiAgPHJlY3QgeD0iMjU1IiB5PSI3NzAiIHdpZHRoPSI2NSIgaGVpZ2h0PSI2NSIgZmlsbD0iIzdFRDMyMSIvPgogIDxyZWN0IHg9IjExODAiIHk9IjY3MCIgd2lkdGg9IjY1IiBoZWlnaHQ9IjY1IiBmaWxsPSIjN0VEMzIxIi8+CiAgPHJlY3QgeD0iMTE4MCIgeT0iNzcwIiB3aWR0aD0iNjUiIGhlaWdodD0iNjUiIGZpbGw9IiNGRkZGRkYiLz4KCiAgPCEtLSBTaWdubyBkZSBkb2xhciBlbiBlbCBjZW50cm8sIHJlZW1wbGF6YW5kbyBlbCByYXlvIC0tPgogIDx0ZXh0IHg9Ijc1MCIgeT0iMTAxMCIgdGV4dC1hbmNob3I9Im1pZGRsZSIKICAgICAgICBmb250LWZhbWlseT0iQXJpYWwsIEhlbHZldGljYSwgc2Fucy1zZXJpZiIgZm9udC13ZWlnaHQ9IjkwMCIKICAgICAgICBmb250LXNpemU9IjYyMCIgZmlsbD0iIzdFRDMyMSI+JDwvdGV4dD4KPC9zdmc+" alt="Escanea y Paga" class="logo-icono">
+      <div>
+        <div class="marca-sub">un producto de EscaneaYa</div>
+        <div class="marca-nombre">ESCANEA Y PAGA</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="body">
+    <div class="check-icon">✅</div>
+    <div class="titulo" id="titulo">¡Pago confirmado!</div>
+<div class="subtitulo" id="subtitulo">Tu pago fue procesado exitosamente.</div>
+
+    <div class="recibo">
+      <div class="recibo-fila">
+        <span class="llave">Negocio</span>
+        <span class="valor" id="r-negocio">—</span>
+      </div>
+      <div class="recibo-fila">
+        <span class="llave">Monto pagado</span>
+        <span class="valor monto-total" id="r-monto">—</span>
+      </div>
+      <div class="recibo-fila">
+        <span class="llave">Orden</span>
+        <span class="valor" id="r-orden" style="font-size:11px">—</span>
+      </div>
+      <div class="recibo-fila">
+        <span class="llave">Fecha</span>
+        <span class="valor" id="r-fecha">—</span>
+      </div>
+      <div class="recibo-fila">
+        <span class="llave">Estado</span>
+        <span class="valor" id="tx-estado" style="color:var(--verde)">✓ Aprobado</span>
+      </div>
+    </div>
+
+    <div class="email-msg" id="email-msg"></div>
+    <div class="estado-enviando" id="estado-enviando"></div>
+   <div id="btn-reintentar" style="display:none;margin-top:16px">
+  <button onclick="reintentar()" style="width:100%;border:none;border-radius:12px;background:var(--azul);color:#fff;font-family:'Montserrat',sans-serif;font-weight:800;font-size:14px;padding:14px;cursor:pointer">🔄 Intentar de nuevo</button>
+</div>
+<div style="margin-top:16px;background:linear-gradient(135deg,#0A1F5C,#12296e);border-radius:14px;padding:18px 20px;text-align:center;color:#fff">
+  <div style="font-size:12px;color:#B9C2E8;margin-bottom:6px">¿Tienes un negocio o emprendimiento?</div>
+  <div style="font-family:'Montserrat',sans-serif;font-weight:900;font-size:16px;margin-bottom:12px">¡Cobra con tarjeta así de fácil!</div>
+  <a href="/registro-eyp.html" style="display:inline-block;background:#7ED321;color:#0A1F5C;font-family:'Montserrat',sans-serif;font-weight:800;font-size:14px;padding:12px 24px;border-radius:10px;text-decoration:none">🚀 Regístrate gratis ahora</a>
+  <div style="font-size:11px;color:#8C9BD6;margin-top:10px">Sin mensualidad · Solo pagas por transacción</div>
+</div>
+    <div class="seguridad">🔒 Pago seguro · Escanea y Paga</div>
+  </div>
+</div>
+
+<script>
+var APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbybW_QELgLOCoPgFkJZ3oYspne-r4JLLg8CvicFL2IWpJFpoXse3bk0sBBlRNUsHJzsPQ/exec";
+var params = new URLSearchParams(window.location.search);
+  var negocio     = params.get('negocio') || 'Negocio';
+var monto       = params.get('monto') || '0';
+var orden       = params.get('orden') || params.get('orderNumber') || '—';
+var codigoRespuesta = params.get('code') || '0';
+var descripcion = params.get('description') || '';
+
+if (codigoRespuesta !== '1') {
+  document.querySelector('.check-icon').textContent = '❌';
+  document.getElementById('titulo').textContent = 'Pago no procesado';
+  document.getElementById('subtitulo').textContent = 'No se pudo completar el pago. Verifica los datos de tu tarjeta e intenta de nuevo.';
+  document.getElementById('tx-estado').textContent = '✗ Rechazado';
+  document.getElementById('tx-estado').style.color = '#C0392B';
+  document.getElementById('tx-estado').style.background = 'rgba(192,57,43,0.1)';
+  document.getElementById('btn-reintentar').style.display = 'block';
+} else {
+  var emailNegocio = params.get('email_negocio') || '';
+
+// Recuperar datos del cliente desde sessionStorage
+var correoCliente = params.get('correo') || '';
+var nombreCliente = params.get('nombre') || '';
+
+// Mostrar datos en pantalla
+document.getElementById('r-negocio').textContent = negocio;
+document.getElementById('r-monto').textContent = '$' + parseFloat(monto).toFixed(2) + ' USD';
+document.getElementById('r-orden').textContent = orden;
+
+var ahora = new Date();
+var fechaStr = ahora.toLocaleDateString('es', {day:'2-digit',month:'long',year:'numeric'}) + ' · ' + ahora.toLocaleTimeString('es', {hour:'2-digit',minute:'2-digit'});
+document.getElementById('r-fecha').textContent = fechaStr;
+
+if (correoCliente) {
+  document.getElementById('email-msg').textContent = 'Enviamos el recibo a: ' + correoCliente;
+  document.getElementById('subtitulo').textContent = 'Hola ' + (nombreCliente.split(' ')[0] || 'Cliente') + ', tu pago fue procesado exitosamente.';
+  
+  // Enviar recibo por correo via Apps Script
+  document.getElementById('estado-enviando').textContent = 'Enviando recibo...';
+  
+  var cbName = 'recibo_cb_' + Date.now();
+  window[cbName] = function(resp) {
+    if (resp && resp.ok) {
+      document.getElementById('estado-enviando').textContent = '✓ Recibo enviado a ' + correoCliente;
+    } else {
+      document.getElementById('estado-enviando').textContent = '';
+    }
+    delete window[cbName];
+    if (document.body.contains(sc)) document.body.removeChild(sc);
+  };
+  
+  var sc = document.createElement('script');
+  sc.src = APPS_SCRIPT_URL + 
+    "?action=enviarRecibo" +
+    "&callback=" + cbName +
+    "&correo=" + encodeURIComponent(correoCliente) +
+    "&nombre=" + encodeURIComponent(nombreCliente) +
+    "&negocio=" + encodeURIComponent(negocio) +
+    "&monto=" + encodeURIComponent(monto) +
+    "&orden=" + encodeURIComponent(orden) +
+    "&fecha=" + encodeURIComponent(fechaStr) +
+    "&email_negocio=" + encodeURIComponent(emailNegocio);
+  sc.onerror = function() {
+    document.getElementById('estado-enviando').textContent = '';
+  };
+  document.body.appendChild(sc);
+}
+}
+// Limpiar sessionStorage
+sessionStorage.removeItem('eyp_correo_cliente');
+sessionStorage.removeItem('eyp_nombre_cliente');
+  function reintentar() {
+  var link = 'https://www.escaneaya.com/escanea-y-paga.html?negocio=' + encodeURIComponent(negocio) + '&monto=' + monto + '&email=' + encodeURIComponent(params.get('email_negocio') || '');
+  window.location.href = link;
+}
+</script>
+</body>
+</html>

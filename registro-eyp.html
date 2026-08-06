@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Registro — Escanea y Paga</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@800;900&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --azul:#0A1F5C;--azul-suave:#12296e;--verde:#7ED321;--verde-oscuro:#5FA818;
+    --fondo:#F3F5F9;--texto:#16213E;--gris:#7A8194;--borde:#E1E5EE;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:'Poppins',sans-serif;background:var(--fondo);color:var(--texto);
+    display:flex;justify-content:center;padding:32px 16px;min-height:100vh;}
+  .card{width:100%;max-width:440px;background:#fff;border-radius:20px;
+    box-shadow:0 20px 50px rgba(10,31,92,0.10);overflow:hidden;}
+  .header{background:linear-gradient(135deg,var(--azul) 0%,var(--azul-suave) 100%);
+    padding:28px 28px 24px;color:#fff;}
+  .marca-wrap{display:flex;align-items:center;gap:10px;}
+  .logo-icono{width:52px;height:52px;border-radius:10px;flex-shrink:0;}
+  .marca-sub{font-size:9.5px;color:#8C9BD6;text-transform:uppercase;letter-spacing:0.6px;}
+  .marca-nombre{font-family:'Montserrat',sans-serif;font-weight:900;font-size:14px;letter-spacing:0.5px;margin-top:2px;}
+  .header-titulo{margin-top:20px;}
+  .header-titulo h1{font-family:'Montserrat',sans-serif;font-weight:900;font-size:22px;margin:0 0 4px;}
+  .header-titulo p{font-size:13px;color:#B9C2E8;margin:0;}
+  .body{padding:28px;}
+  .flabel{font-size:12px;font-weight:600;color:var(--gris);margin-bottom:6px;display:block;}
+  .fgroup{margin-bottom:16px;}
+  input{width:100%;border:1.5px solid var(--borde);border-radius:10px;padding:13px 14px;
+    font-size:14px;color:var(--texto);background:#FBFCFE;font-family:'Poppins',sans-serif;}
+  input:focus{outline:none;border-color:var(--azul);}
+  .logo-preview-wrap{margin-top:8px;display:flex;align-items:center;gap:12px;}
+  .logo-preview{width:52px;height:52px;border-radius:10px;background:var(--fondo);
+    border:2px dashed var(--borde);display:flex;align-items:center;justify-content:center;
+    font-size:22px;overflow:hidden;flex-shrink:0;}
+  .logo-preview img{width:100%;height:100%;object-fit:cover;}
+  .logo-hint{font-size:11px;color:var(--gris);line-height:1.4;}
+  .divider{border:none;border-top:1px solid var(--borde);margin:20px 0;}
+  .terminos{font-size:11.5px;color:var(--gris);line-height:1.5;margin-bottom:16px;}
+  .terminos a{color:var(--azul);text-decoration:none;}
+  .terminos label{display:flex;align-items:flex-start;gap:8px;cursor:pointer;}
+  .terminos input[type=checkbox]{width:16px;height:16px;margin-top:2px;flex-shrink:0;accent-color:var(--azul);}
+  .btn{width:100%;border:none;border-radius:12px;background:var(--verde);color:var(--azul);
+    font-family:'Montserrat',sans-serif;font-weight:800;font-size:15px;padding:15px;
+    cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;}
+  .btn:hover{background:var(--verde-oscuro);color:#fff;}
+  .btn:disabled{opacity:0.6;cursor:not-allowed;}
+  .msg-err{display:none;font-size:13px;color:#C0392B;margin-top:10px;text-align:center;}
+  .msg-ok{display:none;font-size:13px;color:var(--verde-oscuro);margin-top:10px;text-align:center;}
+  .login-link{text-align:center;margin-top:16px;font-size:13px;color:var(--gris);}
+  .login-link a{color:var(--azul);font-weight:600;text-decoration:none;}
+  .seguridad{margin-top:16px;display:flex;align-items:center;justify-content:center;gap:6px;
+    font-size:11px;color:var(--gris);}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="header">
+    <div class="marca-wrap">
+      <img src="data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMTUwMCAxNTAwIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgogIDxyZWN0IHdpZHRoPSIxNTAwIiBoZWlnaHQ9IjE1MDAiIGZpbGw9IiMwQTFGNUMiLz4KCiAgPCEtLSBFc3F1aW5hIHN1cGVyaW9yIGl6cXVpZXJkYSAtLT4KICA8cGF0aCBkPSJNIDIyMCAzODAgTCAyMjAgMjgwIFEgMjIwIDIyMCAyODAgMjIwIEwgNTYwIDIyMCIKICAgICAgICBmaWxsPSJub25lIiBzdHJva2U9IiNGRkZGRkYiIHN0cm9rZS13aWR0aD0iNTUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgogIDxnPgogICAgPHJlY3QgeD0iMzc1IiB5PSI0MDAiIHdpZHRoPSI3MCIgaGVpZ2h0PSI3MCIgZmlsbD0iIzdFRDMyMSIvPgogICAgPHJlY3QgeD0iNDYwIiB5PSI0MDAiIHdpZHRoPSI3MCIgaGVpZ2h0PSI3MCIgZmlsbD0iI0ZGRkZGRiIvPgogICAgPHJlY3QgeD0iMzc1IiB5PSI0ODUiIHdpZHRoPSI3MCIgaGVpZ2h0PSI3MCIgZmlsbD0iI0ZGRkZGRiIvPgogICAgPHJlY3QgeD0iNDYwIiB5PSI0ODUiIHdpZHRoPSI3MCIgaGVpZ2h0PSI3MCIgZmlsbD0iIzdFRDMyMSIvPgogIDwvZz4KCiAgPCEtLSBFc3F1aW5hIHN1cGVyaW9yIGRlcmVjaGEgLS0+CiAgPHBhdGggZD0iTSAxMjgwIDM4MCBMIDEyODAgMjgwIFEgMTI4MCAyMjAgMTIyMCAyMjAgTCA5NDAgMjIwIgogICAgICAgIGZpbGw9Im5vbmUiIHN0cm9rZT0iI0ZGRkZGRiIgc3Ryb2tlLXdpZHRoPSI1NSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+CiAgPGc+CiAgICA8cmVjdCB4PSI5NzAiIHk9IjQwMCIgd2lkdGg9IjcwIiBoZWlnaHQ9IjcwIiBmaWxsPSIjN0VEMzIxIi8+CiAgICA8cmVjdCB4PSIxMDU1IiB5PSI0MDAiIHdpZHRoPSI3MCIgaGVpZ2h0PSI3MCIgZmlsbD0iI0ZGRkZGRiIvPgogICAgPHJlY3QgeD0iOTcwIiB5PSI0ODUiIHdpZHRoPSI3MCIgaGVpZ2h0PSI3MCIgZmlsbD0iI0ZGRkZGRiIvPgogICAgPHJlY3QgeD0iMTA1NSIgeT0iNDg1IiB3aWR0aD0iNzAiIGhlaWdodD0iNzAiIGZpbGw9IiM3RUQzMjEiLz4KICA8L2c+CgogIDwhLS0gRXNxdWluYSBpbmZlcmlvciBpenF1aWVyZGEgLS0+CiAgPHBhdGggZD0iTSAyMjAgMTEyMCBMIDIyMCAxMjIwIFEgMjIwIDEyODAgMjgwIDEyODAgTCA1NjAgMTI4MCIKICAgICAgICBmaWxsPSJub25lIiBzdHJva2U9IiNGRkZGRkYiIHN0cm9rZS13aWR0aD0iNTUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgogIDxnPgogICAgPHJlY3QgeD0iMzc1IiB5PSI5NDUiIHdpZHRoPSI3MCIgaGVpZ2h0PSI3MCIgZmlsbD0iIzdFRDMyMSIvPgogICAgPHJlY3QgeD0iNDYwIiB5PSI5NDUiIHdpZHRoPSI3MCIgaGVpZ2h0PSI3MCIgZmlsbD0iI0ZGRkZGRiIvPgogICAgPHJlY3QgeD0iMzc1IiB5PSIxMDMwIiB3aWR0aD0iNzAiIGhlaWdodD0iNzAiIGZpbGw9IiNGRkZGRkYiLz4KICAgIDxyZWN0IHg9IjQ2MCIgeT0iMTAzMCIgd2lkdGg9IjcwIiBoZWlnaHQ9IjcwIiBmaWxsPSIjN0VEMzIxIi8+CiAgPC9nPgoKICA8IS0tIEVzcXVpbmEgaW5mZXJpb3IgZGVyZWNoYSAtLT4KICA8cGF0aCBkPSJNIDEyODAgMTEyMCBMIDEyODAgMTIyMCBRIDEyODAgMTI4MCAxMjIwIDEyODAgTCA5NDAgMTI4MCIKICAgICAgICBmaWxsPSJub25lIiBzdHJva2U9IiNGRkZGRkYiIHN0cm9rZS13aWR0aD0iNTUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgogIDxnPgogICAgPHJlY3QgeD0iOTcwIiB5PSI5NDUiIHdpZHRoPSI3MCIgaGVpZ2h0PSI3MCIgZmlsbD0iIzdFRDMyMSIvPgogICAgPHJlY3QgeD0iMTA1NSIgeT0iOTQ1IiB3aWR0aD0iNzAiIGhlaWdodD0iNzAiIGZpbGw9IiNGRkZGRkYiLz4KICAgIDxyZWN0IHg9Ijk3MCIgeT0iMTAzMCIgd2lkdGg9IjcwIiBoZWlnaHQ9IjcwIiBmaWxsPSIjRkZGRkZGIi8+CiAgICA8cmVjdCB4PSIxMDU1IiB5PSIxMDMwIiB3aWR0aD0iNzAiIGhlaWdodD0iNzAiIGZpbGw9IiM3RUQzMjEiLz4KICA8L2c+CgogIDwhLS0gUHVudG9zIGxhdGVyYWxlcyAtLT4KICA8cmVjdCB4PSIyNTUiIHk9IjY3MCIgd2lkdGg9IjY1IiBoZWlnaHQ9IjY1IiBmaWxsPSIjRkZGRkZGIi8+CiAgPHJlY3QgeD0iMjU1IiB5PSI3NzAiIHdpZHRoPSI2NSIgaGVpZ2h0PSI2NSIgZmlsbD0iIzdFRDMyMSIvPgogIDxyZWN0IHg9IjExODAiIHk9IjY3MCIgd2lkdGg9IjY1IiBoZWlnaHQ9IjY1IiBmaWxsPSIjN0VEMzIxIi8+CiAgPHJlY3QgeD0iMTE4MCIgeT0iNzcwIiB3aWR0aD0iNjUiIGhlaWdodD0iNjUiIGZpbGw9IiNGRkZGRkYiLz4KCiAgPCEtLSBTaWdubyBkZSBkb2xhciBlbiBlbCBjZW50cm8sIHJlZW1wbGF6YW5kbyBlbCByYXlvIC0tPgogIDx0ZXh0IHg9Ijc1MCIgeT0iMTAxMCIgdGV4dC1hbmNob3I9Im1pZGRsZSIKICAgICAgICBmb250LWZhbWlseT0iQXJpYWwsIEhlbHZldGljYSwgc2Fucy1zZXJpZiIgZm9udC13ZWlnaHQ9IjkwMCIKICAgICAgICBmb250LXNpemU9IjYyMCIgZmlsbD0iIzdFRDMyMSI+JDwvdGV4dD4KPC9zdmc+" alt="Escanea y Paga" class="logo-icono">
+      <div>
+        <div class="marca-sub">un producto de EscaneaYa</div>
+        <div class="marca-nombre">ESCANEA Y PAGA</div>
+      </div>
+    </div>
+    <div class="header-titulo">
+      <h1>Crea tu cuenta gratis</h1>
+      <p>Empieza a cobrar con tarjeta hoy mismo</p>
+    </div>
+  </div>
+
+  <div class="body">
+    <div class="fgroup">
+      <label class="flabel">Nombre de tu negocio</label>
+      <input type="text" id="negocio" placeholder="Ej: Café Los Almendros">
+    </div>
+    <div class="fgroup">
+      <label class="flabel">Correo electrónico</label>
+      <input type="email" id="correo" placeholder="tucorreo@ejemplo.com">
+    </div>
+  <div class="fgroup">
+  <label class="flabel">Contraseña</label>
+  <div style="position:relative">
+    <input type="password" id="password" placeholder="Mínimo 6 caracteres" style="padding-right:40px">
+    <span onclick="togglePass('password',this)" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:16px">👁</span>
+  </div>
+</div>
+    <div class="fgroup">
+      <label class="flabel">WhatsApp</label>
+      <input type="tel" id="whatsapp" placeholder="+507 6000-0000">
+    </div>
+        </div>
+
+    <hr class="divider">
+
+    <div class="terminos">
+      <label>
+        <input type="checkbox" id="acepto-terminos">
+        <span>Acepto los <a href="#" onclick="alert('Términos próximamente')">Términos y Condiciones</a> de Escanea y Paga. Entiendo que se cobrará una comisión del 5.5% por cada transacción procesada.</span>
+      </label>
+    </div>
+
+    <button class="btn" id="btn-registro" onclick="registrar()">🚀 Crear mi cuenta gratis</button>
+    <p class="msg-err" id="msg-err"></p>
+    <p class="msg-ok" id="msg-ok"></p>
+
+    <div class="login-link">¿Ya tienes cuenta? <a href="/dashboard-eyp.html">Inicia sesión</a></div>
+    <div class="seguridad">🔒 Registro seguro · Escanea y Paga</div>
+  </div>
+</div>
+
+<script>
+var APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbybW_QELgLOCoPgFkJZ3oYspne-r4JLLg8CvicFL2IWpJFpoXse3bk0sBBlRNUsHJzsPQ/exec";
+function registrar() {
+  var negocio = document.getElementById('negocio').value.trim();
+  var correo = document.getElementById('correo').value.trim().toLowerCase();
+  var password = document.getElementById('password').value.trim();
+  var whatsapp = document.getElementById('whatsapp').value.trim();
+  var logoUrl = '';
+  var acepto = document.getElementById('acepto-terminos').checked;
+  var msgErr = document.getElementById('msg-err');
+  var msgOk = document.getElementById('msg-ok');
+
+  msgErr.style.display = 'none';
+  msgOk.style.display = 'none';
+
+  if (!negocio) { msgErr.textContent = 'Ingresa el nombre de tu negocio.'; msgErr.style.display = 'block'; return; }
+  if (!correo || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) { msgErr.textContent = 'Ingresa un correo válido.'; msgErr.style.display = 'block'; return; }
+  if (!password || password.length < 6) { msgErr.textContent = 'La contraseña debe tener al menos 6 caracteres.'; msgErr.style.display = 'block'; return; }
+  if (!whatsapp) { msgErr.textContent = 'Ingresa tu WhatsApp.'; msgErr.style.display = 'block'; return; }
+  if (!acepto) { msgErr.textContent = 'Debes aceptar los términos y condiciones.'; msgErr.style.display = 'block'; return; }
+
+  var btn = document.getElementById('btn-registro');
+  btn.disabled = true;
+  btn.textContent = '⏳ Creando cuenta...';
+
+  var cbName = 'reg_cb_' + Date.now();
+  window[cbName] = function(resp) {
+    if (resp && resp.ok) {
+      msgOk.textContent = '✓ Cuenta creada exitosamente. Redirigiendo...';
+      msgOk.style.display = 'block';
+      setTimeout(function() {
+        window.location.href = '/dashboard-eyp.html?correo=' + encodeURIComponent(correo);
+      }, 1500);
+    } else if (resp && resp.error === 'existe') {
+      msgErr.textContent = 'Ya existe una cuenta con ese correo. Inicia sesión.';
+      msgErr.style.display = 'block';
+      btn.disabled = false;
+      btn.textContent = '🚀 Crear mi cuenta gratis';
+    } else {
+      msgErr.textContent = 'Error al crear la cuenta. Intenta de nuevo.';
+      msgErr.style.display = 'block';
+      btn.disabled = false;
+      btn.textContent = '🚀 Crear mi cuenta gratis';
+    }
+    delete window[cbName];
+    if (document.body.contains(sc)) document.body.removeChild(sc);
+  };
+
+  var sc = document.createElement('script');
+  sc.src = APPS_SCRIPT_URL +
+    "?action=registrarNegocioEYP&callback=" + cbName +
+    "&negocio=" + encodeURIComponent(negocio) +
+    "&correo=" + encodeURIComponent(correo) +
+    "&password=" + encodeURIComponent(password) +
+    "&whatsapp=" + encodeURIComponent(whatsapp) +
+    "&logo=" + encodeURIComponent(logoUrl);
+  sc.onerror = function() {
+    msgErr.textContent = 'Error de conexión. Intenta de nuevo.';
+    msgErr.style.display = 'block';
+    btn.disabled = false;
+    btn.textContent = '🚀 Crear mi cuenta gratis';
+  };
+  document.body.appendChild(sc);
+}
+function togglePass(id, el) {
+  var input = document.getElementById(id);
+  if (input.type === 'password') { input.type = 'text'; el.textContent = '🙈'; }
+  else { input.type = 'password'; el.textContent = '👁'; }
+}
+</script>
+</body>
+</html>
