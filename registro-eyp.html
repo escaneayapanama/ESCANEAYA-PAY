@@ -106,7 +106,7 @@
     <p class="msg-err" id="msg-err"></p>
     <p class="msg-ok" id="msg-ok"></p>
 
-    <div class="login-link">¿Ya tienes cuenta? <a href="/dashboard-eyp.html">Inicia sesión</a></div>
+    <div class="login-link">¿Ya tienes cuenta? <a href="https://escaneayapay.com/dashboard-eyp.html">Inicia sesión</a></div>
     <div class="seguridad">🔒 Registro seguro · Escanea y Paga</div>
   </div>
 </div>
@@ -142,7 +142,7 @@ function registrar() {
       msgOk.textContent = '✓ Cuenta creada exitosamente. Redirigiendo...';
       msgOk.style.display = 'block';
       setTimeout(function() {
-        window.location.href = '/dashboard-eyp.html?correo=' + encodeURIComponent(correo);
+        window.location.href = 'https://escaneayapay.com/dashboard-eyp.html?correo=' + encodeURIComponent(correo);
       }, 1500);
     } else if (resp && resp.error === 'existe') {
       msgErr.textContent = 'Ya existe una cuenta con ese correo. Inicia sesión.';
