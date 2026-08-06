@@ -140,7 +140,7 @@
     </div>
     <button class="btn-main" id="btn-login" onclick="iniciarSesion()">Entrar</button>
     <p class="msg-err" id="login-err"></p>
-    <div class="register-link">¿No tienes cuenta? <a href="/registro-eyp.html">Regístrate gratis</a></div>
+    <div class="register-link">¿No tienes cuenta? <a href="https://escaneayapay.com/registro-eyp.html">Regístrate gratis</a></div>
   </div>
 </div>
 
@@ -387,7 +387,7 @@ function mostrarDashboard() {
   var dv = (5 - hoy.getDay() + 7) % 7 || 7;
   var vd = new Date(hoy); vd.setDate(hoy.getDate() + dv);
   document.getElementById('prox-liquidacion').textContent = vd.toLocaleDateString('es', {weekday:'long', day:'numeric', month:'long'});
-  document.getElementById('link-catalogo').href = 'https://www.escaneaya.com/catalogo-eyp.html?negocio=' + encodeURIComponent(negocioData.correo);
+  document.getElementById('link-catalogo').href = 'https://escaneayapay.com/catalogo-eyp.html?negocio=' + encodeURIComponent(negocioData.correo);
   if (negocioData.stand_solicitado === 'si') {
     document.getElementById('stand-gratis').style.display = 'none';
     document.getElementById('stand-adicional').style.display = 'block';
@@ -416,7 +416,7 @@ function irA(sec, btn) {
 }
 
 function getLinkBase() {
-  return 'https://www.escaneaya.com/escanea-y-paga.html?negocio=' + encodeURIComponent(negocioData.negocio) + '&email=' + encodeURIComponent(negocioData.correo);
+  return 'https://escaneayapay.com/escanea-y-paga.html?negocio=' + encodeURIComponent(negocioData.negocio) + '&email=' + encodeURIComponent(negocioData.correo);
 }
 
 function copiarLinkAbierto() { copiar(getLinkBase()); }
@@ -425,7 +425,7 @@ function compartirLinkAbierto() {
   else copiarLinkAbierto();
 }
 function compartirCatalogo() {
-  var link = 'https://www.escaneaya.com/catalogo-eyp.html?negocio=' + encodeURIComponent(negocioData.correo);
+  var link = 'https://escaneayapay.com/catalogo-eyp.html?negocio=' + encodeURIComponent(negocioData.correo);
   if (navigator.share) navigator.share({ title: 'Catálogo de ' + negocioData.negocio, url: link });
   else copiar(link);
 }
@@ -733,7 +733,7 @@ function seleccionarCantidad(n, el) {
 
 function comprarStands() {
   var total = (cantidadStands * 5.99).toFixed(2);
-  window.open('https://www.escaneaya.com/escanea-y-paga.html?negocio=Escanea%20y%20Paga&monto=' + total + '&email=escaneapagos%40gmail.com&concepto=' + encodeURIComponent(cantidadStands + ' stand(s) de cobro'), '_blank');
+  window.open('https://escaneayapay.com/escanea-y-paga.html?negocio=Escanea%20y%20Paga&monto=' + total + '&email=escaneapagos%40gmail.com&concepto=' + encodeURIComponent(cantidadStands + ' stand(s) de cobro'), '_blank');
 }
 
 function togglePass(id, el) {
