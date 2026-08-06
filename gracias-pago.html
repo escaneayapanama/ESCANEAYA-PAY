@@ -88,7 +88,7 @@
 <div style="margin-top:16px;background:linear-gradient(135deg,#0A1F5C,#12296e);border-radius:14px;padding:18px 20px;text-align:center;color:#fff">
   <div style="font-size:12px;color:#B9C2E8;margin-bottom:6px">¿Tienes un negocio o emprendimiento?</div>
   <div style="font-family:'Montserrat',sans-serif;font-weight:900;font-size:16px;margin-bottom:12px">¡Cobra con tarjeta así de fácil!</div>
-  <a href="/registro-eyp.html" style="display:inline-block;background:#7ED321;color:#0A1F5C;font-family:'Montserrat',sans-serif;font-weight:800;font-size:14px;padding:12px 24px;border-radius:10px;text-decoration:none">🚀 Regístrate gratis ahora</a>
+  <a href="https://escaneayapay.com/registro-eyp.html" style="display:inline-block;background:#7ED321;color:#0A1F5C;font-family:'Montserrat',sans-serif;font-weight:800;font-size:14px;padding:12px 24px;border-radius:10px;text-decoration:none">🚀 Regístrate gratis ahora</a>
   <div style="font-size:11px;color:#8C9BD6;margin-top:10px">Sin mensualidad · Solo pagas por transacción</div>
 </div>
     <div class="seguridad">🔒 Pago seguro · Escanea y Paga</div>
@@ -167,7 +167,7 @@ if (correoCliente) {
 sessionStorage.removeItem('eyp_correo_cliente');
 sessionStorage.removeItem('eyp_nombre_cliente');
   function reintentar() {
-  var link = 'https://www.escaneaya.com/escanea-y-paga.html?negocio=' + encodeURIComponent(negocio) + '&monto=' + monto + '&email=' + encodeURIComponent(params.get('email_negocio') || '');
+  var link = 'https://escaneayapay.com/escanea-y-paga.html?negocio=' + encodeURIComponent(negocio) + '&monto=' + monto + '&email=' + encodeURIComponent(params.get('email_negocio') || '');
   window.location.href = link;
 }
 </script>
