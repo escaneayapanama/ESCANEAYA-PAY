@@ -838,9 +838,66 @@ function recuperarPassword() {
 document.addEventListener('keydown', function(e) {
   if (e.key==='Enter' && document.getElementById('login-wrap').style.display!=='none') iniciarSesion();
 });
-  function toggleComprarStands() {
+function toggleComprarStands() {
   var wrap = document.getElementById('stand-comprar-wrap');
   wrap.style.display = wrap.style.display === 'none' ? 'block' : 'none';
+}
+
+function subirDocumento(input, tipo) {
+  if (!input.files || !input.files[0]) return;
+  var fd = new FormData();
+  fd.append('file', input.files[0]);
+  fd.append('upload_preset', 'vvliy4z0');
+  var uploadId = tipo === 'cedula' ? 'cedula-upload' : 'aviso-upload';
+  document.getElementById(uploadId).innerHTML = '⏳ Subiendo...';
+  fetch('https://api.cloudinary.com/v1_1/ioao7nb6/image/upload', { method: 'POST', body: fd })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (data.secure_url) {
+      if (tipo === 'cedula') { window._cedulaUrl = data.secure_url; document.getElementById('cedula-upload').innerHTML = '✅ Cédula subida'; }
+      else { window._avisoUrl = data.secure_url; document.getElementById('aviso-upload').innerHTML = '✅ Aviso subido'; }
+    }
+  }).catch(function() { document.getElementById(uploadId).innerHTML = '❌ Error al subir'; });
+}
+
+function guardarKYC() {
+  if (!window._cedulaUrl) { document.getElementById('kyc-err').textContent = 'Sube tu cédula.'; document.getElementById('kyc-err').style.display = 'block'; return; }
+  if (!window._avisoUrl) { document.getElementById('kyc-err').textContent = 'Sube tu aviso de operación.'; document.getElementById('kyc-err').style.display = 'block'; return; }
+  var btn = document.querySelector('#kyc-wrap .btn-main');
+  btn.disabled = true; btn.textContent = '⏳ Enviando...';
+  var cb = 'kyc_' + Date.now();
+  window[cb] = function(r) {
+    if (r && r.ok) { document.getElementById('kyc-wrap').style.display = 'none'; document.getElementById('kyc-done').style.display = 'block'; negocioData.kyc_enviado = 'si'; sessionStorage.setItem('eyp_sesion', JSON.stringify(negocioData)); }
+    else { document.getElementById('kyc-err').textContent = 'Error al enviar.'; document.getElementById('kyc-err').style.display = 'block'; btn.disabled = false; btn.textContent = 'Enviar documentos'; }
+    delete window[cb]; if (document.body.contains(sc)) document.body.removeChild(sc);
+  };
+  var sc = document.createElement('script');
+  sc.src = APPS_SCRIPT_URL + "?action=guardarKYC&callback=" + cb + "&correo=" + encodeURIComponent(negocioData.correo) + "&cedula=" + encodeURIComponent(window._cedulaUrl) + "&aviso=" + encodeURIComponent(window._avisoUrl);
+  document.body.appendChild(sc);
+}
+
+function guardarBanco() {
+  var banco = document.getElementById('perfil-banco').value;
+  var titular = document.getElementById('perfil-titular').value.trim();
+  var cuenta = document.getElementById('perfil-cuenta').value.trim();
+  var tipo = document.getElementById('perfil-tipo-cuenta').value;
+  var err = document.getElementById('banco-err');
+  err.style.display = 'none';
+  if (!banco) { err.textContent = 'Selecciona tu banco.'; err.style.display = 'block'; return; }
+  if (!titular) { err.textContent = 'Ingresa el nombre del titular.'; err.style.display = 'block'; return; }
+  if (!cuenta) { err.textContent = 'Ingresa tu número de cuenta.'; err.style.display = 'block'; return; }
+  if (!tipo) { err.textContent = 'Selecciona el tipo de cuenta.'; err.style.display = 'block'; return; }
+  var btn = document.querySelector('#banco-wrap .btn-main');
+  btn.disabled = true; btn.textContent = '⏳ Guardando...';
+  var cb = 'banco_' + Date.now();
+  window[cb] = function(r) {
+    if (r && r.ok) { document.getElementById('banco-wrap').style.display = 'none'; document.getElementById('banco-done').style.display = 'block'; document.getElementById('banco-resumen').innerHTML = '<strong>' + banco + '</strong><br>' + titular + '<br>' + cuenta + '<br>' + tipo; negocioData.banco_guardado = 'si'; sessionStorage.setItem('eyp_sesion', JSON.stringify(negocioData)); }
+    else { err.textContent = 'Error al guardar.'; err.style.display = 'block'; btn.disabled = false; btn.textContent = 'Guardar datos bancarios'; }
+    delete window[cb]; if (document.body.contains(sc)) document.body.removeChild(sc);
+  };
+  var sc = document.createElement('script');
+  sc.src = APPS_SCRIPT_URL + "?action=guardarBancoEYP&callback=" + cb + "&correo=" + encodeURIComponent(negocioData.correo) + "&banco=" + encodeURIComponent(banco) + "&titular=" + encodeURIComponent(titular) + "&cuenta=" + encodeURIComponent(cuenta) + "&tipo=" + encodeURIComponent(tipo);
+  document.body.appendChild(sc);
 }
 </script>
 </body>
