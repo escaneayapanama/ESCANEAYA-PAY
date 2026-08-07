@@ -134,7 +134,12 @@ if (correoCliente) {
   
   // Enviar recibo por correo via Apps Script
   document.getElementById('estado-enviando').textContent = 'Enviando recibo...';
-  
+  // Evitar duplicados al refrescar
+var ordenKey = 'eyp_enviado_' + orden;
+if (sessionStorage.getItem(ordenKey)) {
+  document.getElementById('estado-enviando').textContent = '';
+} else {
+  sessionStorage.setItem(ordenKey, '1');
   var cbName = 'recibo_cb_' + Date.now();
   window[cbName] = function(resp) {
     if (resp && resp.ok) {
