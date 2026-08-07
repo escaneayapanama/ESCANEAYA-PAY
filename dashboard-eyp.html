@@ -276,6 +276,85 @@
     <p class="msg-err" id="perfil-err"></p>
   </div>
   <div class="card">
+    <div class="card-title">🛡️ Verificación de identidad</div>
+    <div style="font-size:12px;color:var(--gris);margin-bottom:14px">Sube tu cédula y aviso de operación para verificar tu cuenta. Una vez enviados no se pueden cambiar.</div>
+    <div id="kyc-wrap">
+      <div class="fgroup">
+        <label class="flabel">Foto de cédula</label>
+        <div id="cedula-upload" onclick="document.getElementById('cedula-file').click()" style="width:100%;height:80px;border:2px dashed var(--borde);border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;color:var(--gris)">
+          📷 Toca para subir foto de cédula
+          <input type="file" id="cedula-file" accept="image/*" onchange="subirDocumento(this,'cedula')" style="display:none">
+        </div>
+      </div>
+      <div class="fgroup">
+        <label class="flabel">Aviso de operación</label>
+        <div id="aviso-upload" onclick="document.getElementById('aviso-file').click()" style="width:100%;height:80px;border:2px dashed var(--borde);border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;color:var(--gris)">
+          📄 Toca para subir aviso de operación (foto o PDF)
+          <input type="file" id="aviso-file" accept="image/*,.pdf" onchange="subirDocumento(this,'aviso')" style="display:none">
+        </div>
+      </div>
+      <button class="btn-main" onclick="guardarKYC()">Enviar documentos</button>
+      <p class="msg-ok" id="kyc-ok" style="display:none">✓ Documentos enviados. Tu cuenta será verificada pronto.</p>
+      <p class="msg-err" id="kyc-err" style="display:none"></p>
+    </div>
+    <div id="kyc-done" style="display:none;background:rgba(126,211,33,0.08);border-radius:10px;padding:14px;text-align:center">
+      <div style="font-size:20px;margin-bottom:6px">✅</div>
+      <div style="font-size:13px;font-weight:600;color:var(--verde-oscuro)">Verificación enviada</div>
+      <div style="font-size:12px;color:var(--gris);margin-top:4px">Para cambiar tus documentos escribe a <a href="mailto:soporte@escaneayapay.com" style="color:var(--azul)">soporte@escaneayapay.com</a></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🏦 Datos bancarios</div>
+    <div style="font-size:12px;color:var(--gris);margin-bottom:14px">Para recibir tus liquidaciones. Una vez guardados no se pueden cambiar desde aquí.</div>
+    <div id="banco-wrap">
+      <div class="fgroup">
+        <label class="flabel">Banco</label>
+        <select id="perfil-banco" style="width:100%;border:1.5px solid var(--borde);border-radius:10px;padding:12px 14px;font-size:14px;font-family:'Poppins',sans-serif;background:#FBFCFE;">
+          <option value="">Selecciona tu banco</option>
+          <option>Banco General</option>
+          <option>Banistmo</option>
+          <option>BAC Credomatic</option>
+          <option>Banco Nacional de Panamá</option>
+          <option>Caja de Ahorros</option>
+          <option>Global Bank</option>
+          <option>Multibank</option>
+          <option>Banesco</option>
+          <option>Banco Delta</option>
+          <option>Capital Bank</option>
+          <option>Banco Aliado</option>
+          <option>Banco Lafise</option>
+          <option>Banisi</option>
+          <option>BCT Bank</option>
+          <option>Banco Pichincha</option>
+          <option>Banco Azteca</option>
+          <option>Unibank</option>
+          <option>MMG Bank</option>
+          <option>Metrobank</option>
+          <option>Otro</option>
+        </select>
+      </div>
+      <div class="fgroup"><label class="flabel">Nombre completo del titular</label><input type="text" id="perfil-titular" placeholder="Nombre completo como aparece en la cuenta"></div>
+      <div class="fgroup"><label class="flabel">Número de cuenta</label><input type="text" id="perfil-cuenta" placeholder="Número de cuenta bancaria"></div>
+      <div class="fgroup">
+        <label class="flabel">Tipo de cuenta</label>
+        <select id="perfil-tipo-cuenta" style="width:100%;border:1.5px solid var(--borde);border-radius:10px;padding:12px 14px;font-size:14px;font-family:'Poppins',sans-serif;background:#FBFCFE;">
+          <option value="">Selecciona el tipo</option>
+          <option>Cuenta de ahorros</option>
+          <option>Cuenta corriente</option>
+        </select>
+      </div>
+      <button class="btn-main" onclick="guardarBanco()">Guardar datos bancarios</button>
+      <p class="msg-ok" id="banco-ok" style="display:none">✓ Datos bancarios guardados.</p>
+      <p class="msg-err" id="banco-err" style="display:none"></p>
+    </div>
+    <div id="banco-done" style="display:none;background:rgba(126,211,33,0.08);border-radius:10px;padding:14px">
+      <div style="font-size:13px;font-weight:600;color:var(--verde-oscuro);margin-bottom:8px">✅ Datos bancarios registrados</div>
+      <div id="banco-resumen" style="font-size:13px;color:var(--texto)"></div>
+      <div style="font-size:12px;color:var(--gris);margin-top:8px">Para cambiar tus datos bancarios escribe a <a href="mailto:soporte@escaneayapay.com" style="color:var(--azul)">soporte@escaneayapay.com</a></div>
+    </div>
+  </div>
+  <div class="card">
     <div class="card-title">🔐 Cambiar contraseña</div>
     <div class="fgroup"><label class="flabel">Contraseña actual</label><div style="position:relative"><input type="password" id="pass-actual" placeholder="Tu contraseña actual" style="padding-right:40px"><span onclick="togglePass('pass-actual',this)" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:16px">👁</span></div></div>
     <div class="fgroup"><label class="flabel">Nueva contraseña</label><div style="position:relative"><input type="password" id="pass-nueva" placeholder="Mínimo 6 caracteres" style="padding-right:40px"><span onclick="togglePass('pass-nueva',this)" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:16px">👁</span></div></div>
