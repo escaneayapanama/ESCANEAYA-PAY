@@ -23,13 +23,21 @@ html{scroll-behavior:smooth;}
 body{font-family:'Inter',sans-serif;color:var(--texto);background:var(--blanco);overflow-x:hidden;}
 
 /* NAV */
-nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;background:rgba(10,31,92,0.97);backdrop-filter:blur(10px);}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;background:rgba(10,31,92,0.97);backdrop-filter:blur(10px);}
 .nav-logo{display:flex;align-items:center;gap:10px;}
-.nav-logo-img{width:32px;height:32px;border-radius:8px;}
-.nav-brand{font-family:'Montserrat',sans-serif;font-weight:900;font-size:14px;color:var(--blanco);}
+.nav-logo-img{width:30px;height:30px;border-radius:7px;flex-shrink:0;}
+.nav-brand{font-family:'Montserrat',sans-serif;font-weight:900;font-size:13px;color:var(--blanco);letter-spacing:0.01em;}
 .nav-brand span{color:var(--verde);}
-.nav-cta{background:var(--verde);color:var(--azul);font-family:'Montserrat',sans-serif;font-weight:800;font-size:13px;padding:10px 20px;border-radius:8px;text-decoration:none;border:none;cursor:pointer;}
+.nav-right{display:flex;align-items:center;gap:16px;}
+.nav-login{font-size:13px;font-weight:500;color:rgba(255,255,255,0.65);text-decoration:none;white-space:nowrap;}
+.nav-login:hover{color:#fff;}
+.nav-cta{background:var(--verde);color:var(--azul);font-family:'Montserrat',sans-serif;font-weight:800;font-size:13px;padding:10px 20px;border-radius:8px;text-decoration:none;white-space:nowrap;}
 .nav-cta:hover{background:var(--verde2);color:#fff;}
+@media(max-width:480px){
+  .nav-login{display:none;}
+  .nav-brand{font-size:12px;}
+  .nav-cta{font-size:12px;padding:9px 16px;}
+}
 
 /* HERO */
 .hero{min-height:100vh;background:linear-gradient(135deg,var(--azul) 0%,var(--azul2) 60%,#1a3580 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:100px 24px 60px;text-align:center;position:relative;overflow:hidden;}
@@ -130,8 +138,10 @@ footer a{color:var(--verde);text-decoration:none;}
     <img src="data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMTUwMCAxNTAwIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgogIDxyZWN0IHdpZHRoPSIxNTAwIiBoZWlnaHQ9IjE1MDAiIGZpbGw9IiMwQTFGNUMiLz4KICA8cGF0aCBkPSJNIDIyMCAzODAgTCAyMjAgMjgwIFEgMjIwIDIyMCAyODAgMjIwIEwgNTYwIDIyMCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjRkZGRkZGIiBzdHJva2Utd2lkdGg9IjU1IiBzdHJva2UtbGluZWNhcD0icm91bmQiLz48cGF0aCBkPSJNIDEyODAgMzgwIEwgMTI4MCAyODAgUSAxMjgwIDIyMCAxMjIwIDIyMCBMIDk0MCAyMjAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI0ZGRkZGRiIgc3Ryb2tlLXdpZHRoPSI1NSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+PHBhdGggZD0iTSAyMjAgMTEyMCBMIDIyMCAxMjIwIFEgMjIwIDEyODAgMjgwIDEyODAgTCA1NjAgMTI4MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjRkZGRkZGIiBzdHJva2Utd2lkdGg9IjU1IiBzdHJva2UtbGluZWNhcD0icm91bmQiLz48cGF0aCBkPSJNIDEyODAgMTEyMCBMIDEyODAgMTIyMCBRIDEyODAgMTI4MCAxMjIwIDEyODAgTCA5NDAgMTI4MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjRkZGRkZGIiBzdHJva2Utd2lkdGg9IjU1IiBzdHJva2UtbGluZWNhcD0icm91bmQiLz48dGV4dCB4PSI3NTAiIHk9IjEwMTAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSI2MjAiIGZpbGw9IiM3RUQzMjEiPiQ8L3RleHQ+PC9zdmc+" alt="EscaneaYa Pay" class="nav-logo-img">
     <div class="nav-brand">ESCANEAYA <span>PAY</span></div>
   </div>
-  <a href="https://escaneayapay.com/dashboard-eyp.html" class="nav-cta-outline">Iniciar sesión</a>
-<a href="https://escaneayapay.com/registro-eyp.html" class="nav-cta">Regístrate gratis</a>
+  <div class="nav-right">
+    <a href="https://escaneayapay.com/dashboard-eyp.html" class="nav-login">Iniciar sesión</a>
+    <a href="https://escaneayapay.com/registro-eyp.html" class="nav-cta">Regístrate gratis</a>
+  </div>
 </nav>
 
 <!-- HERO -->
