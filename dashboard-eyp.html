@@ -462,8 +462,8 @@ function mostrarDashboard() {
   return;
 }
 if (negocioData.estado === 'retenido') {
-  document.getElementById('monto-liquidacion').textContent = '⚠️ Liquidaciones retenidas';
-  document.getElementById('liq-detalle').textContent = 'Tus liquidaciones están retenidas. Escribe a soporte@escaneayapay.com';
+  document.getElementById('monto-liquidacion').textContent = '⏸️ Liquidación en revisión';
+  document.getElementById('liq-detalle').innerHTML = 'Tu cuenta está en revisión — seguirás cobrando con normalidad. Escríbenos a <a href="mailto:soporte@escaneayapay.com" style="color:#7ED321">soporte@escaneayapay.com</a> para resolverlo rápido. ¡Estamos aquí para ayudarte!';
 }
   document.getElementById('login-wrap').style.display = 'none';
   document.getElementById('bottom-nav').style.display = 'block';
