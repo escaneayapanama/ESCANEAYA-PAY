@@ -545,10 +545,14 @@ function irA(sec, btn) {
 }
 
 function getLinkBase() {
+  return 'https://escaneayapay.com/escanea-y-paga.html?negocio=' + encodeURIComponent(negocioData.negocio) + '&email=' + encodeURIComponent(negocioData.correo);
+}
+
+function getLinkCorto() {
   if (negocioData.alias) {
     return 'https://escaneayapay.com/p/' + negocioData.alias;
   }
-  return 'https://escaneayapay.com/escanea-y-paga.html?negocio=' + encodeURIComponent(negocioData.negocio) + '&email=' + encodeURIComponent(negocioData.correo);
+  return getLinkBase();
 }
 
 function copiarLinkAbierto() { copiar(getLinkBase()); }
