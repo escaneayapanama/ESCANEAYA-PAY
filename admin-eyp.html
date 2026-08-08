@@ -372,21 +372,27 @@ function descargarQR(alias, negocio) {
   qr.make();
   
   var moduleCount = qr.getModuleCount();
-  var cellSize = 1;
-  var size = moduleCount * cellSize;
+  var cell = 10;
+  var size = moduleCount * cell;
   var pathData = '';
   
   for (var row = 0; row < moduleCount; row++) {
-    for (var col = 0; col < moduleCount; col++) {
+    var col = 0;
+    while (col < moduleCount) {
       if (qr.isDark(row, col)) {
-        var x = col * cellSize;
-        var y = row * cellSize;
-        pathData += 'M' + x + ' ' + y + 'h1v1h-1z';
+        var startCol = col;
+        while (col < moduleCount && qr.isDark(row, col)) col++;
+        var x = startCol * cell;
+        var y = row * cell;
+        var w = (col - startCol) * cell;
+        pathData += 'M' + x + ',' + y + 'h' + w + 'v' + cell + 'h-' + w + 'z';
+      } else {
+        col++;
       }
     }
   }
   
-  var svg = '<?xml version="1.0" encoding="UTF-8"?>\n<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + size + ' ' + size + '" width="500" height="500" shape-rendering="crispEdges">\n<rect fill="#ffffff" x="0" y="0" width="' + size + '" height="' + size + '"/>\n<path fill="#000000" d="' + pathData + '"/>\n</svg>';
+  var svg = '<?xml version="1.0" encoding="UTF-8"?>\n<svg id="qr_code" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + size + ' ' + size + '">\n  <defs>\n    <style>.qr{fill:#000000;}.bg{fill:#ffffff;}</style>\n  </defs>\n  <rect class="bg" x="0" y="0" width="' + size + '" height="' + size + '"/>\n  <path class="qr" d="' + pathData + '"/>\n</svg>';
   
   var blob = new Blob([svg], {type: 'image/svg+xml'});
   var url = URL.createObjectURL(blob);
