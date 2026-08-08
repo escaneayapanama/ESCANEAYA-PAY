@@ -495,8 +495,11 @@ if (negocioData.estado === 'retenido') {
   cargarLiquidaciones();
   // Verificar estado cada 30 segundos
 setInterval(verificarEstado, 30000);
+if (deferredPrompt) {
+  var btnPerfil = document.getElementById('btn-instalar-perfil');
+  if (btnPerfil) btnPerfil.style.display = 'block';
 }
-
+}
 function mostrarTransacciones(txs) {
   verificarNuevosPageos(txs);
   var l = document.getElementById('historial-list');
