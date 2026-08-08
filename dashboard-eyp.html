@@ -926,15 +926,14 @@ function guardarBanco() {
   window[cb] = function(r) {
     if (r && r.ok) {
       var estadoActual = r.estado || 'activo';
-      if (estadoActual !== negocioData.estado) {
+   var estadoAnterior = negocioData.estado;
+      if (estadoActual !== estadoAnterior) {
         negocioData.estado = estadoActual;
         sessionStorage.setItem('eyp_sesion', JSON.stringify(negocioData));
         if (estadoActual === 'bloqueado') {
           sessionStorage.removeItem('eyp_sesion');
-          window.location.reload();
-        } else {
-          window.location.reload();
         }
+        window.location.reload();
       }
     }
     delete window[cb];
