@@ -1,0 +1,6 @@
+{
+  "rewrites": [
+    { "source": "/p/:alias", "destination": "/p.html" },
+    { "source": "/p/:alias/:extra", "destination": "/p.html" }
+  ]
+}
