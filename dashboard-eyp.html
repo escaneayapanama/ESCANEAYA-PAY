@@ -494,11 +494,15 @@ if (negocioData.estado === 'retenido') {
   cargarTransacciones();
   cargarLiquidaciones();
   // Verificar estado cada 30 segundos
-setInterval(verificarEstado, 30000);
+  var esIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
 if (deferredPrompt) {
   var btnPerfil = document.getElementById('btn-instalar-perfil');
   if (btnPerfil) btnPerfil.style.display = 'block';
+} else if (esIOS) {
+  var iosMsg = document.getElementById('pwa-ios-msg');
+  if (iosMsg) iosMsg.style.display = 'block';
 }
+setInterval(verificarEstado, 30000);
 }
 function mostrarTransacciones(txs) {
   verificarNuevosPageos(txs);
