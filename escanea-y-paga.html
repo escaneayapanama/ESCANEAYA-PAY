@@ -155,6 +155,8 @@ if (alias) {
 }
 
 function inicializarPagina() {
+  inicializarPagina();
+delete window[cbAlias];
   document.getElementById('nombre-negocio').textContent = NEGOCIO && NEGOCIO !== 'Mi Negocio' ? NEGOCIO : '...';
   document.getElementById('monto-visible').innerHTML = '$' + MONTO.toFixed(2) + ' <span>USD</span>';
   if (MONTO_LIBRE) {
