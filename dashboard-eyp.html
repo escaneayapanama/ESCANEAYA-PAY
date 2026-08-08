@@ -466,8 +466,6 @@ function iniciarSesion() {
 }
 
 function mostrarDashboard() {
-  function mostrarTransacciones(txs) {
-  verificarNuevosPageos(txs);
   if (negocioData.estado === 'bloqueado') {
   document.getElementById('login-wrap').style.display = 'none';
   document.getElementById('bottom-nav').style.display = 'none';
@@ -504,6 +502,18 @@ if (negocioData.estado === 'retenido') {
   cargarLiquidaciones();
   // Verificar estado cada 30 segundos
 setInterval(verificarEstado, 30000);
+}
+
+function mostrarTransacciones(txs) {
+  verificarNuevosPageos(txs);
+  var l = document.getElementById('historial-list');
+  if (!txs || !txs.length) { l.innerHTML = '<div class="tx-empty">Aún no tienes cobros.</div>'; return; }
+  l.innerHTML = '';
+  txs.slice(0,30).forEach(function(tx) {
+    var d = document.createElement('div'); d.className = 'tx-card';
+    d.innerHTML = '<div><div class="tx-orden">' + (tx.orden||'—') + '</div><div class="tx-cliente">' + (tx.nombre_cliente||'Cliente') + '</div><div class="tx-fecha">' + (tx.fecha||'—') + '</div></div><div><div class="tx-monto">$' + parseFloat(tx.monto||0).toFixed(2) + '</div><div class="tx-estado">✓ Aprobado</div></div>';
+    l.appendChild(d);
+  });
 }
 
 function actualizarLogo(url) {
