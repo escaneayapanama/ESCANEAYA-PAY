@@ -86,9 +86,10 @@
   <div class="container">
 
     <div class="tabs">
-      <button class="tab active" onclick="cambiarTab('liquidaciones',this)">💰 Liquidar</button>
-      <button class="tab" onclick="cambiarTab('historial',this)">📊 Historial</button>
-    </div>
+  <button class="tab active" onclick="cambiarTab('liquidaciones',this)">💰 Liquidar</button>
+  <button class="tab" onclick="cambiarTab('historial',this)">📊 Historial</button>
+  <button class="tab" onclick="cambiarTab('usuarios',this)">👥 Usuarios</button>
+</div>
 
     <!-- TAB LIQUIDACIONES -->
     <div class="tab-content active" id="tab-liquidaciones">
@@ -113,7 +114,12 @@
       <div class="card">
         <div class="card-title">📋 Historial de liquidaciones</div>
         <div id="lista-historial"><div class="empty">Cargando...</div></div>
-      </div>
+   </div>
+    </div>
+
+    <!-- TAB USUARIOS -->
+    <div class="tab-content" id="tab-usuarios">
+      <div id="lista-usuarios"><div class="empty">Cargando usuarios...</div></div>
     </div>
 
   </div>
@@ -146,6 +152,7 @@ function cambiarTab(tab, btn) {
   document.querySelectorAll('.tab-content').forEach(function(t) { t.classList.remove('active'); });
   btn.classList.add('active');
   document.getElementById('tab-' + tab).classList.add('active');
+  if (tab === 'usuarios') cargarUsuarios();
 }
 
 function cambiarEstado(email, estado) {
@@ -315,6 +322,44 @@ function renderHistorial(liquidaciones) {
       '</div>';
   });
   document.getElementById('lista-historial').innerHTML = html;
+}
+  function cargarUsuarios() {
+  document.getElementById('lista-usuarios').innerHTML = '<div class="empty">Cargando...</div>';
+  var cb = 'usr_' + Date.now();
+  window[cb] = function(r) {
+    if (r && r.ok) renderUsuarios(r.negocios);
+    else document.getElementById('lista-usuarios').innerHTML = '<div class="empty">Error al cargar.</div>';
+    delete window[cb];
+    if (document.body.contains(sc)) document.body.removeChild(sc);
+  };
+  var sc = document.createElement('script');
+  sc.src = APPS_SCRIPT_URL + "?action=getTodosNegociosEYP&callback=" + cb;
+  document.body.appendChild(sc);
+}
+
+function renderUsuarios(negocios) {
+  var lista = document.getElementById('lista-usuarios');
+  if (!negocios || !negocios.length) { lista.innerHTML = '<div class="empty">No hay usuarios registrados.</div>'; return; }
+  lista.innerHTML = '';
+  negocios.forEach(function(n, i) {
+    var div = document.createElement('div');
+    div.className = 'negocio-card';
+    div.innerHTML = 
+      '<div class="negocio-nombre">' + n.negocio + '</div>' +
+      '<div class="negocio-email">' + n.correo + '</div>' +
+      '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">' +
+        '<div style="display:inline-block;padding:3px 8px;border-radius:999px;font-size:11px;font-weight:700;' + (n.estado === 'bloqueado' ? 'background:rgba(192,57,43,0.12);color:#C0392B' : n.estado === 'retenido' ? 'background:rgba(230,126,34,0.12);color:#e67e22' : 'background:rgba(126,211,33,0.12);color:#5FA818') + '">' + (n.estado === 'bloqueado' ? '🚫 Bloqueado' : n.estado === 'retenido' ? '⏸️ Retenido' : '✅ Activo') + '</div>' +
+        '<div style="display:inline-block;padding:3px 8px;border-radius:999px;font-size:11px;font-weight:700;background:' + (n.kyc_enviado === 'si' ? 'rgba(126,211,33,0.12);color:#5FA818' : 'rgba(192,57,43,0.08);color:#C0392B') + '">KYC ' + (n.kyc_enviado === 'si' ? '✅' : '❌') + '</div>' +
+        '<div style="display:inline-block;padding:3px 8px;border-radius:999px;font-size:11px;font-weight:700;background:' + (n.banco_guardado === 'si' ? 'rgba(126,211,33,0.12);color:#5FA818' : 'rgba(192,57,43,0.08);color:#C0392B') + '">Banco ' + (n.banco_guardado === 'si' ? '✅' : '❌') + '</div>' +
+      '</div>' +
+      '<div style="font-size:12px;color:var(--gris);margin-bottom:10px">Ventas totales: <strong>$' + n.total_ventas + '</strong> · Registrado: ' + (n.fecha_registro || '—').toString().substring(0,10) + '</div>' +
+      '<div style="display:flex;gap:8px">' +
+        '<button onclick="cambiarEstado(\'' + n.correo + '\',\'bloqueado\')" style="flex:1;border:none;border-radius:8px;background:rgba(192,57,43,0.1);color:#C0392B;font-weight:700;font-size:12px;padding:8px;cursor:pointer">🚫 Bloquear</button>' +
+        '<button onclick="cambiarEstado(\'' + n.correo + '\',\'retenido\')" style="flex:1;border:none;border-radius:8px;background:rgba(255,165,0,0.1);color:#e67e22;font-weight:700;font-size:12px;padding:8px;cursor:pointer">⏸️ Retener</button>' +
+        '<button onclick="cambiarEstado(\'' + n.correo + '\',\'activo\')" style="flex:1;border:none;border-radius:8px;background:rgba(126,211,33,0.1);color:#5FA818;font-weight:700;font-size:12px;padding:8px;cursor:pointer">✅ Activar</button>' +
+      '</div>';
+    lista.appendChild(div);
+  });
 }
 </script>
 </body>
