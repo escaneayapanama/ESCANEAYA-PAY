@@ -1,0 +1,22 @@
+{
+  "name": "EscaneaYa Pay",
+  "short_name": "EscaneaYa Pay",
+  "description": "Cobra con tarjeta en segundos",
+  "start_url": "/dashboard-eyp.html",
+  "display": "standalone",
+  "background_color": "#0A1F5C",
+  "theme_color": "#0A1F5C",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "https://res.cloudinary.com/ioao7nb6/image/upload/v1/eyp-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://res.cloudinary.com/ioao7nb6/image/upload/v1/eyp-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
