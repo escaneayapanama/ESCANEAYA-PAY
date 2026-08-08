@@ -1,6 +1,6 @@
 {
   "rewrites": [
-    { "source": "/p/:alias", "destination": "/p.html" },
-    { "source": "/p/:alias/:extra", "destination": "/p.html" }
+    { "source": "/p/:alias", "destination": "/escanea-y-paga.html?alias=:alias" },
+    { "source": "/p/:alias/:extra", "destination": "/escanea-y-paga.html?alias=:alias&extra=:extra" }
   ]
 }
