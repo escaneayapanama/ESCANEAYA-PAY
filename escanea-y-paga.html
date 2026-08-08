@@ -142,9 +142,10 @@ if (alias) {
         if (!isNaN(montoExtra) && montoExtra > 0) {
           MONTO = montoExtra;
           MONTO_LIBRE = false;
-        }
+         }
       }
     }
+    inicializarPagina();
     delete window[cbAlias];
     if (document.body.contains(scAlias)) document.body.removeChild(scAlias);
   };
@@ -153,11 +154,13 @@ if (alias) {
   document.body.appendChild(scAlias);
 }
 
-document.getElementById('nombre-negocio').textContent = NEGOCIO;
-document.getElementById('monto-visible').innerHTML = '$' + MONTO.toFixed(2) + ' <span>USD</span>';
+function inicializarPagina() {
+  document.getElementById('nombre-negocio').textContent = NEGOCIO;
+  document.getElementById('monto-visible').innerHTML = '$' + MONTO.toFixed(2) + ' <span>USD</span>';
   if (MONTO_LIBRE) {
-  document.getElementById('monto-libre-wrap').style.display = 'block';
-  document.getElementById('monto-visible').style.display = 'none';
+    document.getElementById('monto-libre-wrap').style.display = 'block';
+    document.getElementById('monto-visible').style.display = 'none';
+  }
 }
 
 var tilopayListo = false;
