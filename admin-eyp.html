@@ -384,7 +384,7 @@ function renderUsuarios(negocios) {
     }
   }
   
-  var svg = '<?xml version="1.0" encoding="UTF-8"?><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + size + ' ' + size + '" width="500" height="500" shape-rendering="crispEdges"><rect width="' + size + '" height="' + size + '" fill="white"/><g fill="black">' + rects + '</g></svg>';
+  var svg = '<?xml version="1.0" encoding="UTF-8"?>\n<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + size + ' ' + size + '" width="500" height="500" shape-rendering="crispEdges">\n
   
   var blob = new Blob([svg], {type: 'image/svg+xml'});
   var url = URL.createObjectURL(blob);
