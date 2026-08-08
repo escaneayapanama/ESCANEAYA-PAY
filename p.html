@@ -5,12 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>EscaneaYa Pay</title>
 <style>
-body{margin:0;font-family:'Poppins',sans-serif;background:#0A1F5C;display:flex;align-items:center;justify-content:center;min-height:100vh;text-align:center;padding:20px;}
-.wrap{color:#fff;}
-.logo{font-size:48px;margin-bottom:16px;}
-.titulo{font-family:Arial,sans-serif;font-weight:900;font-size:20px;color:#7ED321;margin-bottom:8px;}
-.sub{font-size:14px;color:rgba(255,255,255,0.6);}
-.error{font-size:14px;color:#ff6b6b;margin-top:16px;}
+body{margin:0;background:#fff;}
+.wrap{display:none;}
+.error{font-size:14px;color:#ff6b6b;margin:20px;font-family:Arial,sans-serif;}
 </style>
 </head>
 <body>
@@ -48,7 +45,7 @@ if (!alias) {
           destino = base + '&concepto=' + encodeURIComponent(extra);
         }
       }
-      window.location.href = destino;
+      window.location.replace(destino);
     } else {
       document.getElementById('err').textContent = 'Negocio no encontrado.';
       document.getElementById('err').style.display = 'block';
