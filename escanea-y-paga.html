@@ -151,6 +151,13 @@ if (alias) {
   };
   var scAlias = document.createElement('script');
   scAlias.src = APPS_SCRIPT_URL + "?action=getNegocioPorAlias&callback=" + cbAlias + "&alias=" + encodeURIComponent(alias);
+  scAlias.onerror = function() {
+  inicializarPagina();
+};
+setTimeout(function() {
+  if (!EMAIL_NEGOCIO) inicializarPagina();
+}, 3000);
+document.body.appendChild(scAlias);
   document.body.appendChild(scAlias);
 }
 
