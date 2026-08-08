@@ -199,7 +199,8 @@ function renderNegocios(negocios) {
       txHtml += '<div class="tx-mini-row"><span>' + (tx.fecha||'—').toString().substring(0,20) + ' — ' + (tx.orden||'—') + '</span><span>$' + parseFloat(tx.monto||0).toFixed(2) + '</span></div>';
     });
     div.innerHTML = '<div class="negocio-nombre">' + n.negocio + '</div>' +
-      '<div class="negocio-email">' + n.email + '</div>' +
+'<div class="negocio-email">' + n.email + '</div>' +
+'<div style="display:inline-block;padding:4px 10px;border-radius:999px;font-size:11px;font-weight:700;margin-bottom:10px;' + (n.estado === 'bloqueado' ? 'background:rgba(192,57,43,0.12);color:#C0392B' : n.estado === 'retenido' ? 'background:rgba(230,126,34,0.12);color:#e67e22' : 'background:rgba(126,211,33,0.12);color:#5FA818') + '">' + (n.estado === 'bloqueado' ? '🚫 Bloqueado' : n.estado === 'retenido' ? '⏸️ Retenido' : '✅ Activo') + '</div>' +
       '<div class="montos-grid">' +
         '<div class="monto-box"><div class="monto-val">$' + n.total_bruto + '</div><div class="monto-lbl">Total bruto</div></div>' +
         '<div class="monto-box"><div class="monto-val rojo">-$' + n.comision + '</div><div class="monto-lbl">Comisión 5.5%</div></div>' +
