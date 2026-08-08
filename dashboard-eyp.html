@@ -368,6 +368,7 @@
     <p class="msg-ok" id="pass-ok">✓ Contraseña actualizada</p>
     <p class="msg-err" id="pass-err"></p>
   </div>
+  <button id="btn-instalar-perfil" onclick="instalarApp()" style="display:none;width:100%;margin-top:4px;padding:12px;border:none;border-radius:10px;background:var(--azul);color:#fff;font-family:'Montserrat',sans-serif;font-weight:800;font-size:13px;cursor:pointer">📲 Instalar app en tu celular</button>
   <a href="mailto:soporte@escaneayapay.com" style="display:block;width:100%;margin-top:4px;padding:12px;border:1.5px solid var(--borde);border-radius:10px;background:transparent;color:var(--azul);font-size:13px;font-family:'Poppins',sans-serif;font-weight:600;cursor:pointer;text-align:center;text-decoration:none;">💬 Contactar soporte</a>
   <button onclick="cerrarSesion()" style="width:100%;margin-top:4px;padding:12px;border:1.5px solid var(--borde);border-radius:10px;background:transparent;color:var(--gris);font-size:13px;font-family:'Poppins',sans-serif;font-weight:600;cursor:pointer">Cerrar sesión</button>
 </div>
@@ -1004,19 +1005,21 @@ window.addEventListener('beforeinstallprompt', function(e) {
   e.preventDefault();
   deferredPrompt = e;
   if (negocioData) {
-    document.getElementById('pwa-banner').style.display = 'flex';
+    var btnPerfil = document.getElementById('btn-instalar-perfil');
+    if (btnPerfil) btnPerfil.style.display = 'block';
   }
 });
 
-document.getElementById('btn-instalar').addEventListener('click', function() {
+function instalarApp() {
   if (deferredPrompt) {
     deferredPrompt.prompt();
     deferredPrompt.userChoice.then(function() {
       deferredPrompt = null;
-      document.getElementById('pwa-banner').style.display = 'none';
+      var btnPerfil = document.getElementById('btn-instalar-perfil');
+      if (btnPerfil) btnPerfil.style.display = 'none';
     });
   }
-});
+}
 </script>
 </body>
 </html>
