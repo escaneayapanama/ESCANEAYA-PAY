@@ -155,7 +155,7 @@ if (alias) {
 }
 
 function inicializarPagina() {
-  document.getElementById('nombre-negocio').textContent = NEGOCIO === 'Mi Negocio' ? '...' : NEGOCIO;
+  document.getElementById('nombre-negocio').textContent = NEGOCIO && NEGOCIO !== 'Mi Negocio' ? NEGOCIO : '...';
   document.getElementById('monto-visible').innerHTML = '$' + MONTO.toFixed(2) + ' <span>USD</span>';
   if (MONTO_LIBRE) {
     document.getElementById('monto-libre-wrap').style.display = 'block';
