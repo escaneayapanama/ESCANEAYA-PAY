@@ -128,6 +128,30 @@ var MONTO = parseFloat(params.get('monto')) || 0;
 var MONTO_LIBRE = !params.get('monto');
 var EMAIL_NEGOCIO = params.get('email') || '';
 var ORDEN_UNICA = "EYP-" + Date.now();
+  // Resolver alias si viene por link corto
+var alias = params.get('alias') || '';
+var extra = params.get('extra') || '';
+if (alias) {
+  var cbAlias = 'alias_' + Date.now();
+  window[cbAlias] = function(r) {
+    if (r && r.ok) {
+      NEGOCIO = r.negocio;
+      EMAIL_NEGOCIO = r.correo;
+      if (extra) {
+        var montoExtra = parseFloat(extra);
+        if (!isNaN(montoExtra) && montoExtra > 0) {
+          MONTO = montoExtra;
+          MONTO_LIBRE = false;
+        }
+      }
+    }
+    delete window[cbAlias];
+    if (document.body.contains(scAlias)) document.body.removeChild(scAlias);
+  };
+  var scAlias = document.createElement('script');
+  scAlias.src = APPS_SCRIPT_URL + "?action=getNegocioPorAlias&callback=" + cbAlias + "&alias=" + encodeURIComponent(alias);
+  document.body.appendChild(scAlias);
+}
 
 document.getElementById('nombre-negocio').textContent = NEGOCIO;
 document.getElementById('monto-visible').innerHTML = '$' + MONTO.toFixed(2) + ' <span>USD</span>';
