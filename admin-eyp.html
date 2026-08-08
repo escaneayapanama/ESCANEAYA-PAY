@@ -148,6 +148,20 @@ function cambiarTab(tab, btn) {
   document.getElementById('tab-' + tab).classList.add('active');
 }
 
+function cambiarEstado(email, estado) {
+  if (!confirm('¿Cambiar estado de ' + email + ' a ' + estado + '?')) return;
+  var cb = 'estado_' + Date.now();
+  window[cb] = function(r) {
+    if (r && r.ok) { alert('✓ Estado actualizado a: ' + estado); cargarNegocios(); }
+    else alert('Error al actualizar.');
+    delete window[cb];
+    if (document.body.contains(sc)) document.body.removeChild(sc);
+  };
+  var sc = document.createElement('script');
+  sc.src = APPS_SCRIPT_URL + "?action=cambiarEstadoEYP&callback=" + cb + "&email=" + encodeURIComponent(email) + "&estado=" + encodeURIComponent(estado);
+  document.body.appendChild(sc);
+}
+
 function cargarNegocios() {
   document.getElementById('lista-negocios').innerHTML = '<div class="empty">Cargando negocios...</div>';
   var cb = 'admin_' + Date.now();
@@ -193,7 +207,12 @@ function renderNegocios(negocios) {
       '</div>' +
       '<div class="tx-mini">' + (txHtml || '<div style="padding:4px 0;color:var(--gris)">Sin transacciones</div>') + '</div>' +
       '<div class="comprobante-wrap"><label class="comprobante-label">Número o referencia de transferencia</label><input type="text" id="comp-' + i + '" placeholder="Ej: TRF-12345"></div>' +
-      '<button class="btn-pagar" id="btn-' + i + '" onclick="pagarNegocio(' + i + ',\'' + n.email + '\',\'' + n.negocio + '\',\'' + n.total_bruto + '\',\'' + n.comision + '\',\'' + n.total_neto + '\')">💸 Marcar como pagado y notificar</button>';
+     '<button class="btn-pagar" id="btn-' + i + '" onclick="pagarNegocio(' + i + ',\'' + n.email + '\',\'' + n.negocio + '\',\'' + n.total_bruto + '\',\'' + n.comision + '\',\'' + n.total_neto + '\')">💸 Marcar como pagado y notificar</button>' +
+'<div style="display:flex;gap:8px;margin-top:8px">' +
+'<button onclick="cambiarEstado(\'' + n.email + '\',\'bloqueado\')" style="flex:1;border:none;border-radius:8px;background:rgba(192,57,43,0.1);color:#C0392B;font-weight:700;font-size:12px;padding:8px;cursor:pointer">🚫 Bloquear</button>' +
+'<button onclick="cambiarEstado(\'' + n.email + '\',\'retenido\')" style="flex:1;border:none;border-radius:8px;background:rgba(255,165,0,0.1);color:#e67e22;font-weight:700;font-size:12px;padding:8px;cursor:pointer">⏸️ Retener</button>' +
+'<button onclick="cambiarEstado(\'' + n.email + '\',\'activo\')" style="flex:1;border:none;border-radius:8px;background:rgba(126,211,33,0.1);color:#5FA818;font-weight:700;font-size:12px;padding:8px;cursor:pointer">✅ Activar</button>' +
+'</div>';
     lista.appendChild(div);
   });
 }
