@@ -355,17 +355,17 @@ function renderUsuarios(negocios) {
       '</div>' +
       '<div style="font-size:12px;color:var(--gris);margin-bottom:10px">Ventas totales: <strong>$' + n.total_ventas + '</strong> · Registrado: ' + (n.fecha_registro || '—').toString().substring(0,10) + '</div>' +
       '<div style="display:flex;gap:8px">' +
-      '<button onclick="descargarQR(\'' + n.correo + '\',\'' + n.negocio + '\')" style="width:100%;border:none;border-radius:8px;background:rgba(10,31,92,0.08);color:#0A1F5C;font-weight:700;font-size:12px;padding:8px;cursor:pointer;margin-bottom:8px">📥 Descargar QR para stand</button>' +
-        '<button onclick="cambiarEstado(\'' + n.correo + '\',\'bloqueado\')" style="flex:1;border:none;border-radius:8px;background:rgba(192,57,43,0.1);color:#C0392B;font-weight:700;font-size:12px;padding:8px;cursor:pointer">🚫 Bloquear</button>' +
+   '<button onclick="descargarQR(\'' + (n.alias || '') + '\',\'' + n.negocio + '\')" style="width:100%;border:none;border-radius:8px;background:rgba(10,31,92,0.08);color:#0A1F5C;font-weight:700;font-size:12px;padding:8px;cursor:pointer;margin-bottom:8px">📥 Descargar QR</button>' +
+'<button onclick="cambiarEstado(\'' + n.correo + '\',\'bloqueado\')" style="flex:1;border:none;border-radius:8px;background:rgba(192,57,43,0.1);color:#C0392B;font-weight:700;font-size:12px;padding:8px;cursor:pointer">🚫 Bloquear</button>' +
         '<button onclick="cambiarEstado(\'' + n.correo + '\',\'retenido\')" style="flex:1;border:none;border-radius:8px;background:rgba(255,165,0,0.1);color:#e67e22;font-weight:700;font-size:12px;padding:8px;cursor:pointer">⏸️ Retener</button>' +
         '<button onclick="cambiarEstado(\'' + n.correo + '\',\'activo\')" style="flex:1;border:none;border-radius:8px;background:rgba(126,211,33,0.1);color:#5FA818;font-weight:700;font-size:12px;padding:8px;cursor:pointer">✅ Activar</button>' +
       '</div>';
     lista.appendChild(div);
   });
 }
-  function descargarQR(correo, negocio) {
-  var alias = correo.split('@')[0];
+  function descargarQR(alias, negocio) {
   var link = 'https://escaneayapay.com/p/' + alias;
+
   
   var tempDiv = document.createElement('div');
   tempDiv.style.position = 'fixed';
