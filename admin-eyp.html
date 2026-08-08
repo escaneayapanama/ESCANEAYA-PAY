@@ -367,56 +367,32 @@ function renderUsuarios(negocios) {
   if (!alias) { alert('Este negocio no tiene alias configurado.'); return; }
   var link = 'https://escaneayapay.com/p/' + alias;
   
-  var tempDiv = document.createElement('div');
-  tempDiv.style.position = 'fixed';
-  tempDiv.style.left = '-9999px';
-  document.body.appendChild(tempDiv);
+  var qr = qrcode(0, 'M');
+  qr.addData(link);
+  qr.make();
   
-  new QRCode(tempDiv, {
-    text: link,
-    width: 512,
-    height: 512,
-    colorDark: '#000000',
-    colorLight: '#ffffff'
-  });
+  var moduleCount = qr.getModuleCount();
+  var cellSize = 10;
+  var size = moduleCount * cellSize;
+  var rects = '';
   
-  setTimeout(function() {
-    var canvas = tempDiv.querySelector('canvas');
-    if (canvas) {
-      var ctx = canvas.getContext('2d');
-      var size = canvas.width;
-      var modules = 0;
-      // Detectar tamaño de módulo
-      for (var x = 0; x < size; x++) {
-        var pixel = ctx.getImageData(x, 0, 1, 1).data;
-        if (pixel[0] === 0) { modules = x; break; }
+  for (var row = 0; row < moduleCount; row++) {
+    for (var col = 0; col < moduleCount; col++) {
+      if (qr.isDark(row, col)) {
+        rects += '<rect x="' + (col * cellSize) + '" y="' + (row * cellSize) + '" width="' + cellSize + '" height="' + cellSize + '"/>';
       }
-      if (!modules) modules = 16;
-      var cellSize = modules;
-      var numCells = Math.round(size / cellSize);
-      
-      var rects = '';
-      for (var row = 0; row < numCells; row++) {
-        for (var col = 0; col < numCells; col++) {
-          var px = ctx.getImageData(col * cellSize + Math.floor(cellSize/2), row * cellSize + Math.floor(cellSize/2), 1, 1).data;
-          if (px[0] === 0) {
-            rects += '<rect x="' + col + '" y="' + row + '" width="1" height="1"/>';
-          }
-        }
-      }
-      
-      var svgContent = '<?xml version="1.0" encoding="UTF-8"?><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + numCells + ' ' + numCells + '" width="500" height="500" shape-rendering="crispEdges"><rect width="' + numCells + '" height="' + numCells + '" fill="white"/><g fill="black">' + rects + '</g></svg>';
-      
-      var blob = new Blob([svgContent], {type: 'image/svg+xml'});
-      var url = URL.createObjectURL(blob);
-      var a = document.createElement('a');
-      a.href = url;
-      a.download = 'qr-' + negocio.replace(/\s+/g,'-').toLowerCase() + '.svg';
-      a.click();
-      URL.revokeObjectURL(url);
     }
-    document.body.removeChild(tempDiv);
-  }, 500);
+  }
+  
+  var svg = '<?xml version="1.0" encoding="UTF-8"?><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + size + ' ' + size + '" width="500" height="500" shape-rendering="crispEdges"><rect width="' + size + '" height="' + size + '" fill="white"/><g fill="black">' + rects + '</g></svg>';
+  
+  var blob = new Blob([svg], {type: 'image/svg+xml'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = 'qr-' + negocio.replace(/\s+/g,'-').toLowerCase() + '.svg';
+  a.click();
+  URL.revokeObjectURL(url);
 }
 </script>
 </body>
