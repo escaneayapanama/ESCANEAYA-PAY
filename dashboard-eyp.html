@@ -2,6 +2,12 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
+  <link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#0A1F5C">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="EscaneaYa Pay">
+<link rel="apple-touch-icon" href="https://res.cloudinary.com/ioao7nb6/image/upload/v1786158445/escanea-y-paga-logo_1_iv9ode.svg">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>Dashboard — EscaneaYa Pay</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -119,7 +125,14 @@
     </div>
   </div>
 </header>
-
+<!-- Banner PWA -->
+<div id="pwa-banner" style="display:none;background:linear-gradient(135deg,var(--azul),var(--azul-suave));padding:12px 20px;display:flex;align-items:center;justify-content:space-between;max-width:600px;margin:0 auto;">
+  <div style="font-size:13px;color:#fff;font-weight:600">📲 Instala EscaneaYa Pay en tu pantalla de inicio</div>
+  <div style="display:flex;gap:8px">
+    <button id="btn-instalar" style="background:#7ED321;border:none;border-radius:8px;color:#0A1F5C;font-family:'Montserrat',sans-serif;font-weight:800;font-size:12px;padding:8px 14px;cursor:pointer">Instalar</button>
+    <button onclick="document.getElementById('pwa-banner').style.display='none'" style="background:rgba(255,255,255,0.15);border:none;border-radius:8px;color:#fff;font-size:12px;padding:8px 10px;cursor:pointer">✕</button>
+  </div>
+</div>
 <!-- Login -->
 <div id="login-wrap" style="max-width:420px;margin:40px auto;padding:0 20px;">
   <div class="login-card">
@@ -985,6 +998,22 @@ function verificarNuevosPageos(txs) {
     reproducirSonidoCobro();
   }
 }
+  var deferredPrompt;
+window.addEventListener('beforeinstallprompt', function(e) {
+  e.preventDefault();
+  deferredPrompt = e;
+  document.getElementById('pwa-banner').style.display = 'flex';
+});
+
+document.getElementById('btn-instalar').addEventListener('click', function() {
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(function() {
+      deferredPrompt = null;
+      document.getElementById('pwa-banner').style.display = 'none';
+    });
+  }
+});
 </script>
 </body>
 </html>
