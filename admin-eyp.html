@@ -366,15 +366,30 @@ function renderUsuarios(negocios) {
   function descargarQR(correo, negocio) {
   var alias = correo.split('@')[0];
   var link = 'https://escaneayapay.com/p/' + alias;
-  var qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=180x180&amp;data=' + encodeURIComponent(link);
-  var svgContent = '<?xml version="1.0" encoding="UTF-8"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 200 200"><rect width="200" height="200" fill="white"/><image xlink:href="' + qrUrl + '" x="10" y="10" width="180" height="180"/></svg>';
-  var blob = new Blob([svgContent], {type: 'image/svg+xml'});
-  var url = URL.createObjectURL(blob);
-  var a = document.createElement('a');
-  a.href = url;
-  a.download = 'qr-' + negocio.replace(/\s+/g,'-').toLowerCase() + '.svg';
-  a.click();
-  URL.revokeObjectURL(url);
+  
+  var tempDiv = document.createElement('div');
+  tempDiv.style.position = 'fixed';
+  tempDiv.style.left = '-9999px';
+  document.body.appendChild(tempDiv);
+  
+  new QRCode(tempDiv, {
+    text: link,
+    width: 1024,
+    height: 1024,
+    colorDark: '#000000',
+    colorLight: '#ffffff'
+  });
+  
+  setTimeout(function() {
+    var canvas = tempDiv.querySelector('canvas');
+    if (canvas) {
+      var a = document.createElement('a');
+      a.href = canvas.toDataURL('image/png');
+      a.download = 'qr-' + negocio.replace(/\s+/g,'-').toLowerCase() + '.png';
+      a.click();
+    }
+    document.body.removeChild(tempDiv);
+  }, 500);
 }
 </script>
 </body>
