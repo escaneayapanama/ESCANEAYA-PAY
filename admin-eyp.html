@@ -365,7 +365,8 @@ function renderUsuarios(negocios) {
   function descargarQR(correo, negocio) {
   var alias = correo.split('@')[0];
   var link = 'https://escaneayapay.com/p/' + alias;
-  var svgContent = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><rect width="200" height="200" fill="white"/><image href="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=' + encodeURIComponent(link) + '" x="10" y="10" width="180" height="180"/></svg>';
+  var qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=180x180&amp;data=' + encodeURIComponent(link);
+  var svgContent = '<?xml version="1.0" encoding="UTF-8"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 200 200"><rect width="200" height="200" fill="white"/><image xlink:href="' + qrUrl + '" x="10" y="10" width="180" height="180"/></svg>';
   var blob = new Blob([svgContent], {type: 'image/svg+xml'});
   var url = URL.createObjectURL(blob);
   var a = document.createElement('a');
