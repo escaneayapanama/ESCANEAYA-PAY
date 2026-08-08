@@ -363,7 +363,7 @@ function renderUsuarios(negocios) {
     lista.appendChild(div);
   });
 }
- function descargarQR(alias, negocio) {
+function descargarQR(alias, negocio) {
   if (!alias) { alert('Este negocio no tiene alias configurado.'); return; }
   var link = 'https://escaneayapay.com/p/' + alias;
   
@@ -374,19 +374,19 @@ function renderUsuarios(negocios) {
   var moduleCount = qr.getModuleCount();
   var cellSize = 1;
   var size = moduleCount * cellSize;
-  var rects = '';
+  var pathData = '';
   
   for (var row = 0; row < moduleCount; row++) {
     for (var col = 0; col < moduleCount; col++) {
       if (qr.isDark(row, col)) {
         var x = col * cellSize;
         var y = row * cellSize;
-        rects += '<rect fill="#000000" x="' + x + '" y="' + y + '" width="' + cellSize + '" height="' + cellSize + '"/>';
+        pathData += 'M' + x + ' ' + y + 'h1v1h-1z';
       }
     }
   }
   
-  var svg = '<?xml version="1.0" encoding="UTF-8"?>\n<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + size + ' ' + size + '" width="500" height="500">\n<rect fill="#ffffff" x="0" y="0" width="' + size + '" height="' + size + '"/>\n' + rects + '\n</svg>';
+  var svg = '<?xml version="1.0" encoding="UTF-8"?>\n<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + size + ' ' + size + '" width="500" height="500" shape-rendering="crispEdges">\n<rect fill="#ffffff" x="0" y="0" width="' + size + '" height="' + size + '"/>\n<path fill="#000000" d="' + pathData + '"/>\n</svg>';
   
   var blob = new Blob([svg], {type: 'image/svg+xml'});
   var url = URL.createObjectURL(blob);
