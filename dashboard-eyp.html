@@ -587,6 +587,13 @@ function cargarLiquidaciones() {
   var cb = 'liq_' + Date.now();
   window[cb] = function(r) {
     if (r && r.ok) {
+      // KYC progresivo
+var totalBruto = parseFloat(r.total_bruto || 0);
+if (totalBruto >= 100 && negocioData.kyc_enviado !== 'si') {
+  document.getElementById('monto-liquidacion').textContent = '⚠️ Verificación requerida';
+  document.getElementById('liq-detalle').innerHTML = 'Has superado $100 en ventas. Para recibir tu liquidación completa tu verificación en <a href="#" onclick="irA(\'perfil\',document.querySelectorAll(\'.nav-item\')[3])" style="color:#7ED321;font-weight:600">Perfil → Verificación de identidad →</a>';
+  return;
+}
       if (negocioData.estado === 'retenido') {
   document.getElementById('monto-liquidacion').textContent = '⏸️ Liquidación en revisión — $' + r.neto + ' USD';
   document.getElementById('liq-detalle').innerHTML = 'Tu pago está pendiente de revisión. Seguirás cobrando con normalidad. Escríbenos a <a href="mailto:soporte@escaneayapay.com" style="color:#7ED321">soporte@escaneayapay.com</a> para resolverlo rápido.';
