@@ -932,7 +932,7 @@ function guardarBanco() {
         if (estadoActual === 'bloqueado') {
           sessionStorage.removeItem('eyp_sesion');
           window.location.reload();
-        } else if (estadoActual === 'activo' && negocioData.estado !== 'activo') {
+        } else {
           window.location.reload();
         }
       }
