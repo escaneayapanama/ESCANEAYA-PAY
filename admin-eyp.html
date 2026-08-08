@@ -372,19 +372,21 @@ function descargarQR(alias, negocio) {
   qr.make();
   
   var moduleCount = qr.getModuleCount();
-  var cell = 10;
+  var cell = 2.58;
   var size = moduleCount * cell;
   var rects = '';
   
   for (var row = 0; row < moduleCount; row++) {
     for (var col = 0; col < moduleCount; col++) {
       if (qr.isDark(row, col)) {
-        rects += '<rect x="' + (col*cell) + '" y="' + (row*cell) + '" width="' + cell + '" height="' + cell + '"/>';
+        var x = (col * cell).toFixed(2);
+        var y = (row * cell).toFixed(2);
+        rects += '<rect x="' + x + '" y="' + y + '" width="' + cell + '" height="' + cell + '"/>\n';
       }
     }
   }
   
-  var svg = '<?xml version="1.0" encoding="UTF-8"?><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + size + ' ' + size + '"><rect width="' + size + '" height="' + size + '" fill="#fff"/><g fill="#000">' + rects + '</g></svg>';
+  var svg = '<?xml version="1.0" encoding="UTF-8"?>\n<svg id="qr_1" xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 ' + size.toFixed(2) + ' ' + size.toFixed(2) + '">\n' + rects + '</svg>';
   
   var blob = new Blob([svg], {type:'image/svg+xml'});
   var url = URL.createObjectURL(blob);
