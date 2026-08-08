@@ -491,6 +491,14 @@ if (negocioData.estado === 'retenido') {
     document.getElementById('stand-gratis').style.display = 'none';
     document.getElementById('stand-adicional').style.display = 'block';
   }
+  if (negocioData.kyc_enviado === 'si') {
+  document.getElementById('kyc-wrap').style.display = 'none';
+  document.getElementById('kyc-done').style.display = 'block';
+}
+if (negocioData.banco_guardado === 'si') {
+  document.getElementById('banco-wrap').style.display = 'none';
+  document.getElementById('banco-done').style.display = 'block';
+}
   cargarTransacciones();
   cargarLiquidaciones();
   // Verificar estado cada 30 segundos
