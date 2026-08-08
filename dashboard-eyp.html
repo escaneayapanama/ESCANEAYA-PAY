@@ -585,12 +585,12 @@ function cargarLiquidaciones() {
   window[cb] = function(r) {
     if (r && r.ok) {
       if (negocioData.estado === 'retenido') {
-        document.getElementById('monto-liquidacion').textContent = '⏸️ Liquidación en revisión';
-        document.getElementById('liq-detalle').innerHTML = 'Tu cuenta está en revisión — seguirás cobrando con normalidad. Escríbenos a <a href="mailto:soporte@escaneayapay.com" style="color:#7ED321">soporte@escaneayapay.com</a> para resolverlo rápido. ¡Estamos aquí para ayudarte!';
-      } else {
-        document.getElementById('monto-liquidacion').textContent = 'Estimado a liquidar: $' + r.neto + ' USD';
-        document.getElementById('liq-detalle').textContent = 'Total bruto: $' + r.total_bruto + ' · Comisión (5.5%): $' + r.comision;
-      }
+  document.getElementById('monto-liquidacion').textContent = '⏸️ Liquidación en revisión — $' + r.neto + ' USD';
+  document.getElementById('liq-detalle').innerHTML = 'Tu pago está pendiente de revisión. Seguirás cobrando con normalidad. Escríbenos a <a href="mailto:soporte@escaneayapay.com" style="color:#7ED321">soporte@escaneayapay.com</a> para resolverlo rápido.';
+} else {
+  document.getElementById('monto-liquidacion').textContent = 'Estimado a liquidar: $' + r.neto + ' USD';
+  document.getElementById('liq-detalle').textContent = 'Total bruto: $' + r.total_bruto + ' · Comisión (5.5%): $' + r.comision;
+}
     }
     delete window[cb]; if (document.body.contains(sc)) document.body.removeChild(sc);
   };
