@@ -1011,7 +1011,9 @@ function verificarNuevosPageos(txs) {
 window.addEventListener('beforeinstallprompt', function(e) {
   e.preventDefault();
   deferredPrompt = e;
-  document.getElementById('pwa-banner').style.display = 'flex';
+  if (negocioData) {
+    document.getElementById('pwa-banner').style.display = 'flex';
+  }
 });
 
 document.getElementById('btn-instalar').addEventListener('click', function() {
