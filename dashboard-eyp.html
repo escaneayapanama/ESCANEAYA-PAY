@@ -917,6 +917,30 @@ function guardarBanco() {
   sc.src = APPS_SCRIPT_URL + "?action=guardarBancoEYP&callback=" + cb + "&correo=" + encodeURIComponent(negocioData.correo) + "&banco=" + encodeURIComponent(banco) + "&titular=" + encodeURIComponent(titular) + "&cuenta=" + encodeURIComponent(cuenta) + "&tipo=" + encodeURIComponent(tipo);
   document.body.appendChild(sc);
 }
+  function verificarEstado() {
+  if (!negocioData) return;
+  var cb = 'est_' + Date.now();
+  window[cb] = function(r) {
+    if (r && r.ok) {
+      var estadoActual = r.estado || 'activo';
+      if (estadoActual !== negocioData.estado) {
+        negocioData.estado = estadoActual;
+        sessionStorage.setItem('eyp_sesion', JSON.stringify(negocioData));
+        if (estadoActual === 'bloqueado') {
+          sessionStorage.removeItem('eyp_sesion');
+          window.location.reload();
+        } else if (estadoActual === 'activo' && negocioData.estado !== 'activo') {
+          window.location.reload();
+        }
+      }
+    }
+    delete window[cb];
+    if (document.body.contains(sc)) document.body.removeChild(sc);
+  };
+  var sc = document.createElement('script');
+  sc.src = APPS_SCRIPT_URL + "?action=getEstadoEYP&callback=" + cb + "&correo=" + encodeURIComponent(negocioData.correo);
+  document.body.appendChild(sc);
+}
 </script>
 </body>
 </html>
