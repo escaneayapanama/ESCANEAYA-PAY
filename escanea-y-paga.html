@@ -62,7 +62,7 @@
         <div class="marca-nombre">EscaneaYa Pay</div>
       </div>
     </div>
-    <div class="negocio">Vas a pagarle a <strong id="nombre-negocio">...</strong></div>
+    <div class="negocio">Vas a pagarle a <strong id="nombre-negocio"></strong></div>
     <div class="monto-box">
       <div class="label">Monto a pagar</div>
       <div class="valor" id="monto-visible">$... <span>USD</span></div>
@@ -155,7 +155,7 @@ if (alias) {
 }
 
 function inicializarPagina() {
-  document.getElementById('nombre-negocio').textContent = NEGOCIO;
+  document.getElementById('nombre-negocio').textContent = NEGOCIO === 'Mi Negocio' ? '...' : NEGOCIO;
   document.getElementById('monto-visible').innerHTML = '$' + MONTO.toFixed(2) + ' <span>USD</span>';
   if (MONTO_LIBRE) {
     document.getElementById('monto-libre-wrap').style.display = 'block';
