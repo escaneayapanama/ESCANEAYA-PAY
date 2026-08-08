@@ -486,6 +486,8 @@ if (negocioData.estado === 'retenido') {
   }
   cargarTransacciones();
   cargarLiquidaciones();
+  // Verificar estado cada 30 segundos
+setInterval(verificarEstado, 30000);
 }
 
 function actualizarLogo(url) {
