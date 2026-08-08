@@ -453,6 +453,18 @@ function iniciarSesion() {
 }
 
 function mostrarDashboard() {
+  if (negocioData.estado === 'bloqueado') {
+  document.getElementById('login-wrap').style.display = 'none';
+  document.getElementById('bottom-nav').style.display = 'none';
+  document.getElementById('header-right').style.display = 'flex';
+  document.getElementById('header-nombre').textContent = negocioData.negocio || '';
+  document.body.innerHTML = '<div style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;background:#F3F5F9;text-align:center"><div style="font-size:48px;margin-bottom:16px">🚫</div><div style="font-family:Montserrat,sans-serif;font-weight:900;font-size:22px;color:#0A1F5C;margin-bottom:12px">Cuenta bloqueada</div><div style="font-size:14px;color:#7A8194;max-width:360px;line-height:1.6;margin-bottom:24px">Tu cuenta ha sido suspendida temporalmente. Escribe a <a href="mailto:soporte@escaneayapay.com" style="color:#0A1F5C;font-weight:600">soporte@escaneayapay.com</a> para más información.</div></div>';
+  return;
+}
+if (negocioData.estado === 'retenido') {
+  document.getElementById('monto-liquidacion').textContent = '⚠️ Liquidaciones retenidas';
+  document.getElementById('liq-detalle').textContent = 'Tus liquidaciones están retenidas. Escribe a soporte@escaneayapay.com';
+}
   document.getElementById('login-wrap').style.display = 'none';
   document.getElementById('bottom-nav').style.display = 'block';
   document.getElementById('header-right').style.display = 'flex';
