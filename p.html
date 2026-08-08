@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EscaneaYa Pay</title>
+<style>
+body{margin:0;font-family:'Poppins',sans-serif;background:#0A1F5C;display:flex;align-items:center;justify-content:center;min-height:100vh;text-align:center;padding:20px;}
+.wrap{color:#fff;}
+.logo{font-size:48px;margin-bottom:16px;}
+.titulo{font-family:Arial,sans-serif;font-weight:900;font-size:20px;color:#7ED321;margin-bottom:8px;}
+.sub{font-size:14px;color:rgba(255,255,255,0.6);}
+.error{font-size:14px;color:#ff6b6b;margin-top:16px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="logo">⚡</div>
+  <div class="titulo">EscaneaYa Pay</div>
+  <div class="sub" id="msg">Redirigiendo...</div>
+  <div class="error" id="err" style="display:none"></div>
+</div>
+<script>
+var APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzBFpeOPTCBA1eN4qhuYjPUmgmJNT4hAF5xlJYGQPaVlOIwQK8zo0ylv6EpsK-w1Yu_rg/exec";
+
+// Parsear la URL: /p/alias o /p/alias/extra
+var path = window.location.pathname;
+var parts = path.split('/').filter(function(p) { return p !== ''; });
+// parts = ['p', 'alias'] o ['p', 'alias', 'monto_o_producto']
+var alias = parts[1] || '';
+var extra = parts[2] || '';
+
+if (!alias) {
+  document.getElementById('err').textContent = 'Link no válido.';
+  document.getElementById('err').style.display = 'block';
+  document.getElementById('msg').style.display = 'none';
+} else {
+  var cb = 'alias_' + Date.now();
+  window[cb] = function(r) {
+    if (r && r.ok) {
+      var base = 'https://escaneayapay.com/escanea-y-paga.html?negocio=' + encodeURIComponent(r.negocio) + '&email=' + encodeURIComponent(r.correo);
+      var destino = base;
+      if (extra) {
+        var monto = parseFloat(extra);
+        if (!isNaN(monto) && monto > 0) {
+          destino = base + '&monto=' + monto.toFixed(2);
+        } else {
+          destino = base + '&concepto=' + encodeURIComponent(extra);
+        }
+      }
+      window.location.href = destino;
+    } else {
+      document.getElementById('err').textContent = 'Negocio no encontrado.';
+      document.getElementById('err').style.display = 'block';
+      document.getElementById('msg').style.display = 'none';
+    }
+    delete window[cb];
+    if (document.body.contains(sc)) document.body.removeChild(sc);
+  };
+  var sc = document.createElement('script');
+  sc.src = APPS_SCRIPT_URL + "?action=getNegocioPorAlias&callback=" + cb + "&alias=" + encodeURIComponent(alias);
+  sc.onerror = function() {
+    document.getElementById('err').textContent = 'Error de conexión.';
+    document.getElementById('err').style.display = 'block';
+    document.getElementById('msg').style.display = 'none';
+  };
+  document.body.appendChild(sc);
+}
+</script>
+</body>
+</html>
