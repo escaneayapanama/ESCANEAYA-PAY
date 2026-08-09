@@ -168,10 +168,31 @@ if (sessionStorage.getItem(ordenKey)) {
   document.body.appendChild(sc);
 }
 }
+// Guardar transaccion en Sheets
+var ordenTxKey = 'eyp_tx_' + orden;
+if (!sessionStorage.getItem(ordenTxKey)) {
+  sessionStorage.setItem(ordenTxKey, '1');
+  var cbTx = 'tx_' + Date.now();
+  window[cbTx] = function(r) {
+    delete window[cbTx];
+    if (document.body.contains(scTx)) document.body.removeChild(scTx);
+  };
+  var scTx = document.createElement('script');
+  scTx.src = APPS_SCRIPT_URL + "?action=guardarTransaccion&callback=" + cbTx +
+    "&negocio=" + encodeURIComponent(negocio) +
+    "&email_negocio=" + encodeURIComponent(emailNegocio) +
+    "&monto=" + encodeURIComponent(monto) +
+    "&orden=" + encodeURIComponent(orden) +
+    "&correo_cliente=" + encodeURIComponent(correoCliente) +
+    "&nombre_cliente=" + encodeURIComponent(nombreCliente) +
+    "&fecha=" + encodeURIComponent(fechaStr);
+  document.body.appendChild(scTx);
+}
 // Limpiar sessionStorage
 sessionStorage.removeItem('eyp_correo_cliente');
 sessionStorage.removeItem('eyp_nombre_cliente');
-  function reintentar() {
+}
+function reintentar() {
   var link = 'https://escaneayapay.com/escanea-y-paga.html?negocio=' + encodeURIComponent(negocio) + '&monto=' + monto + '&email=' + encodeURIComponent(params.get('email_negocio') || '');
   window.location.href = link;
 }
