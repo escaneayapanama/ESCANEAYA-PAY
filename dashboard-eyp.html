@@ -563,13 +563,13 @@ function compartirExacto() {
   var m = parseFloat(document.getElementById('monto-exacto').value);
   if (!m || m <= 0) { document.getElementById('msg-monto').style.display = 'block'; return; }
   document.getElementById('msg-monto').style.display = 'none';
-  var link = negocioData.alias ? 'https://escaneayapay.com/p/' + negocioData.alias + '/' + m.toFixed(2) : getLinkBase() + '&monto=' + m.toFixed(2);
+  var link = getLinkBase() + '&monto=' + m.toFixed(2);
   if (navigator.share) navigator.share({ title: 'Pago a ' + negocioData.negocio, url: link });
   else copiar(link);
 }
 function copiarLinkExacto() {
   var m = parseFloat(document.getElementById('monto-exacto').value);
-  var link = negocioData.alias ? 'https://escaneayapay.com/p/' + negocioData.alias + '/' + m.toFixed(2) : getLinkBase() + '&monto=' + m.toFixed(2);
+  var link = getLinkBase() + '&monto=' + m.toFixed(2);
   copiar(link);
 }
 function copiar(t) {
