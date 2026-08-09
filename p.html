@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EscaneaYa Pay</title>
+<style>
+body{margin:0;background:#fff;}
+.wrap{display:none;}
+.error{font-size:14px;color:#ff6b6b;margin:20px;font-family:Arial,sans-serif;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="error" id="err" style="display:none"></div>
+</div>
+<script>
+var APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzBQeQxY2jOKz5yjqG5CHwIUForpSjIj7aJhgZz2vgJ-KOWAC01PFRsx7MnYtT6TbrAnQ/exec";
+var path = window.location.pathname;
+var parts = path.split('/').filter(function(p) { return p !== ''; });
+var alias = parts[1] || '';
+var extra = parts[2] || '';
+
+if (!alias) {
+  window.location.replace('https://escaneayapay.com');
+} else {
+  var cb = 'alias_' + Date.now();
+  window[cb] = function(r) {
+    if (r && r.ok) {
+      var base = 'https://escaneayapay.com/escanea-y-paga.html?negocio=' + encodeURIComponent(r.negocio) + '&email=' + encodeURIComponent(r.correo);
+      var destino = base;
+      if (extra) {
+        var monto = parseFloat(extra);
+        if (!isNaN(monto) && monto > 0) {
+          destino = base + '&monto=' + monto.toFixed(2);
+        }
+      }
+      window.location.replace(destino);
+    } else {
+      document.getElementById('err').textContent = 'Negocio no encontrado.';
+      document.getElementById('err').style.display = 'block';
+    }
+    delete window[cb];
+    if (document.body.contains(sc)) document.body.removeChild(sc);
+  };
+  var sc = document.createElement('script');
+  sc.src = APPS_SCRIPT_URL + "?action=getNegocioPorAlias&callback=" + cb + "&alias=" + encodeURIComponent(alias);
+  sc.onerror = function() {
+    window.location.replace('https://escaneayapay.com');
+  };
+  document.body.appendChild(sc);
+}
+</script>
+</body>
+</html>
