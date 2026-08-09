@@ -549,17 +549,10 @@ function getLinkBase() {
   return 'https://escaneayapay.com/escanea-y-paga.html?negocio=' + encodeURIComponent(negocioData.negocio) + '&email=' + encodeURIComponent(negocioData.correo);
 }
 
-function getLinkCorto() {
-  if (negocioData.alias) {
-    return 'https://escaneayapay.com/p/' + negocioData.alias;
-  }
-  return getLinkBase();
-}
-
-function copiarLinkAbierto() { copiar(getLinkCorto()); }
+function copiarLinkAbierto() { copiar(getLinkBase()); }
 function compartirLinkAbierto() {
-  if (navigator.share) navigator.share({ title: 'Paga a ' + negocioData.negocio, url: getLinkCorto() });
-  else copiar(getLinkCorto());
+  if (navigator.share) navigator.share({ title: 'Paga a ' + negocioData.negocio, url: getLinkBase() });
+  else copiar(getLinkBase());
 }
 function compartirCatalogo() {
   var link = 'https://escaneayapay.com/catalogo-eyp.html?negocio=' + encodeURIComponent(negocioData.correo);
@@ -823,7 +816,7 @@ function mostrarQR() {
   if (negocioData.logo) { logo.src = negocioData.logo; logo.style.display = 'block'; }
   var wrap = document.getElementById('qr-modal-canvas');
   wrap.innerHTML = '';
-  new QRCode(wrap, { text: getLinkCorto(), width: 200, height: 200, colorDark: '#0A1F5C', colorLight: '#ffffff' });
+  new QRCode(wrap, { text: getLinkBase(), width: 200, height: 200, colorDark: '#0A1F5C', colorLight: '#ffffff' });
   document.getElementById('qr-modal').classList.add('open');
 }
 
