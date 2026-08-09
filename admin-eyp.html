@@ -355,7 +355,7 @@ function renderUsuarios(negocios) {
       '</div>' +
       '<div style="font-size:12px;color:var(--gris);margin-bottom:10px">Ventas totales: <strong>$' + n.total_ventas + '</strong> · Registrado: ' + (n.fecha_registro || '—').toString().substring(0,10) + '</div>' +
       '<div style="display:flex;gap:8px">' +
-   '<button onclick="descargarQR(\'' + (n.alias || '') + '\',\'' + n.negocio + '\')" style="width:100%;border:none;border-radius:8px;background:rgba(10,31,92,0.08);color:#0A1F5C;font-weight:700;font-size:12px;padding:8px;cursor:pointer;margin-bottom:8px">📥 Descargar QR</button>' +
+   '<button onclick="descargarQR(\'' + encodeURIComponent(n.negocio) + '\',\'' + encodeURIComponent(n.correo) + '\')" style="width:100%;border:none;border-radius:8px;background:rgba(10,31,92,0.08);color:#0A1F5C;font-weight:700;font-size:12px;padding:8px;cursor:pointer;margin-bottom:8px">📥 Descargar QR</button>' +
 '<button onclick="cambiarEstado(\'' + n.correo + '\',\'bloqueado\')" style="flex:1;border:none;border-radius:8px;background:rgba(192,57,43,0.1);color:#C0392B;font-weight:700;font-size:12px;padding:8px;cursor:pointer">🚫 Bloquear</button>' +
         '<button onclick="cambiarEstado(\'' + n.correo + '\',\'retenido\')" style="flex:1;border:none;border-radius:8px;background:rgba(255,165,0,0.1);color:#e67e22;font-weight:700;font-size:12px;padding:8px;cursor:pointer">⏸️ Retener</button>' +
         '<button onclick="cambiarEstado(\'' + n.correo + '\',\'activo\')" style="flex:1;border:none;border-radius:8px;background:rgba(126,211,33,0.1);color:#5FA818;font-weight:700;font-size:12px;padding:8px;cursor:pointer">✅ Activar</button>' +
@@ -363,12 +363,11 @@ function renderUsuarios(negocios) {
     lista.appendChild(div);
   });
 }
-function descargarQR(alias, negocio) {
-  if (!alias) { alert('Este negocio no tiene alias configurado.'); return; }
-  var link = 'https://escaneayapay.com/p/' + alias;
+function descargarQR(negocio, correo) {
+  var link = 'https://escaneayapay.com/escanea-y-paga.html?negocio=' + negocio + '&email=' + correo;
   
   var qr = qrcode(0, 'M');
-  qr.addData(link);
+  qr.addData(decodeURIComponent(link));
   qr.make();
   
   var moduleCount = qr.getModuleCount();
@@ -379,20 +378,18 @@ function descargarQR(alias, negocio) {
   for (var row = 0; row < moduleCount; row++) {
     for (var col = 0; col < moduleCount; col++) {
       if (qr.isDark(row, col)) {
-        var x = (col * cell).toFixed(2);
-        var y = (row * cell).toFixed(2);
-        rects += '<rect x="' + x + '" y="' + y + '" width="' + cell + '" height="' + cell + '"/>\n';
+        rects += '<rect x="' + (col*cell).toFixed(2) + '" y="' + (row*cell).toFixed(2) + '" width="' + cell + '" height="' + cell + '"/>\n';
       }
     }
   }
   
-  var svg = '<?xml version="1.0" encoding="UTF-8"?>\n<svg id="qr_1" xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 ' + size.toFixed(2) + ' ' + size.toFixed(2) + '">\n' + rects + '</svg>';
+var svg = '<?xml version="1.0" encoding="UTF-8"?>\n<svg id="qr_1" xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 ' + size.toFixed(2) + ' ' + size.toFixed(2) + '">\n' + rects + '</svg>';
   
   var blob = new Blob([svg], {type:'image/svg+xml'});
   var url = URL.createObjectURL(blob);
   var a = document.createElement('a');
   a.href = url;
-  a.download = 'qr-' + negocio.replace(/\s+/g,'-').toLowerCase() + '.svg';
+  a.download = 'qr-' + decodeURIComponent(negocio).replace(/\s+/g,'-').toLowerCase() + '.svg';
   a.click();
   URL.revokeObjectURL(url);
 }
