@@ -50,6 +50,7 @@
   .marca-sub{font-size:9.5px;color:#8C9BD6;text-transform:uppercase;letter-spacing:0.6px;}
   .marca-nombre{font-family:'Montserrat',sans-serif;font-weight:900;font-size:15px;letter-spacing:0.5px;margin-top:2px;}
   .loading-text{text-align:center;color:var(--gris);font-size:13px;padding:20px 0;}
+  @keyframes spin{to{transform:rotate(360deg);}}
 </style>
 </head>
 <body>
@@ -227,7 +228,8 @@ function pagar() {
 
   var boton = document.getElementById('btn-pagar');
   boton.disabled = true;
-  boton.textContent = "Procesando...";
+  boton.disabled = true;
+  boton.innerHTML = '<span style="display:inline-flex;align-items:center;gap:10px"><span style="width:18px;height:18px;border:3px solid rgba(10,31,92,0.3);border-top-color:#0A1F5C;border-radius:50%;display:inline-block;animation:spin 0.8s linear infinite"></span>Procesando...</span>';
 
   try {
     sessionStorage.setItem('eyp_correo_cliente', correoVal);
