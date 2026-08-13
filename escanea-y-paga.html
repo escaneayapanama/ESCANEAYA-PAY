@@ -249,6 +249,7 @@ var init = Tilopay.Init({
     billToCountry: 'PA',
     orderNumber: ORDEN_UNICA,
     capture: 1,
+    container: 'tilopay-3ds-container',
     redirect: window.location.origin + "/gracias-pago.html?negocio=" + encodeURIComponent(NEGOCIO) + "&monto=" + MONTO + "&orden=" + ORDEN_UNICA + "&email_negocio=" + encodeURIComponent(EMAIL_NEGOCIO) + "&correo=" + encodeURIComponent(correoVal) + "&nombre=" + encodeURIComponent(nombreVal)
   });
   if (init && init.methods && init.methods.length > 0) {
@@ -264,6 +265,7 @@ var init = Tilopay.Init({
 
   console.log('Init result:', init);
   var respuesta = Tilopay.startPayment();
+  document.getElementById('tilopay-3ds-container').style.display = 'block';
   console.log('Payment result:', respuesta);
   setTimeout(function() {
   if (boton.disabled) {
