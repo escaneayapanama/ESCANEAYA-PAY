@@ -262,6 +262,13 @@ var init = Tilopay.Init({
   }
 
   var respuesta = Tilopay.startPayment();
+  setTimeout(function() {
+  if (boton.disabled) {
+    boton.disabled = false;
+    boton.innerHTML = "🔒 Pagar ahora";
+    mostrarError("El pago tardó más de lo esperado. Verifica con tu banco si fue cobrado.");
+  }
+}, 30000);
   if (respuesta && respuesta.message && respuesta.message !== "Success") {
     mostrarError(respuesta.message);
     boton.disabled = false;
