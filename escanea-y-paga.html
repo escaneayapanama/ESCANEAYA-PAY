@@ -261,7 +261,9 @@ var init = Tilopay.Init({
     });
   }
 
+  console.log('Init result:', init);
   var respuesta = Tilopay.startPayment();
+  console.log('Payment result:', respuesta);
   setTimeout(function() {
   if (boton.disabled) {
     boton.disabled = false;
