@@ -180,9 +180,29 @@ function inicializarPagina() {
 }
 
 var tilopayListo = false;
-
 var TOKEN_TILOPAY = null;
 
+// Intentar usar token cacheado
+var tokenCache = null;
+try {
+  var cached = localStorage.getItem('eyp_token');
+  if (cached) {
+    var parsed = JSON.parse(cached);
+    if (parsed.expires && new Date(parsed.expires) > new Date()) {
+      tokenCache = parsed.token;
+    }
+  }
+} catch(e) {}
+
+if (tokenCache) {
+  TOKEN_TILOPAY = tokenCache;
+  document.getElementById('loading-text').style.display = 'none';
+  document.getElementById('form-pago').style.display = 'block';
+  if (MONTO_LIBRE) {
+    document.getElementById('monto-libre-wrap').style.display = 'block';
+    document.getElementById('monto-visible').style.display = 'none';
+  }
+} else {
 var cbName = 'tilopay_cb_' + Date.now();
 window[cbName] = function(data) {
   if (!data || !data.access_token) {
@@ -192,12 +212,18 @@ window[cbName] = function(data) {
     return;
   }
   TOKEN_TILOPAY = data.access_token;
+  try {
+    localStorage.setItem('eyp_token', JSON.stringify({
+      token: data.access_token,
+      expires: new Date(Date.now() + 180000).toISOString()
+    }));
+  } catch(e) {}
   document.getElementById('loading-text').style.display = 'none';
   document.getElementById('form-pago').style.display = 'block';
   if (MONTO_LIBRE) {
-  document.getElementById('monto-libre-wrap').style.display = 'block';
-  document.getElementById('monto-visible').style.display = 'none';
-}
+    document.getElementById('monto-libre-wrap').style.display = 'block';
+    document.getElementById('monto-visible').style.display = 'none';
+  }
   delete window[cbName];
   if (document.body.contains(sc)) document.body.removeChild(sc);
 };
