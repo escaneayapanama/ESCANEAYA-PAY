@@ -116,7 +116,7 @@
         <input type="email" id="correo-cliente" placeholder="tucorreo@ejemplo.com">
       </fieldset>
 
-      <button class="btn-pagar" id="btn-pagar" onclick="pagar()">🔒 Pagar ahora</button>
+     <button class="btn-pagar" id="btn-pagar" onclick="pagar()" ontouchstart="this.style.opacity='0.7'">🔒 Pagar ahora</button>
       <div id="tilopay-3ds-container" style="display:none;margin-top:16px;width:100%;min-height:400px;border-radius:12px;overflow:hidden;"></div>
     </div>
 
@@ -237,6 +237,7 @@ sc.onerror = function() {
 document.body.appendChild(sc);
 }
 function pagar() {
+  document.getElementById('btn-pagar').style.opacity = '1';
   if (!TOKEN_TILOPAY) {
     mostrarError("Espera un momento...");
     return;
