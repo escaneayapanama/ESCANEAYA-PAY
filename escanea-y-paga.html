@@ -293,7 +293,6 @@ var init = Tilopay.Init({
     billToCountry: 'PA',
     orderNumber: ORDEN_UNICA,
     capture: 1,
-    container: 'tilopay-3ds-container',
     redirect: window.location.origin + "/gracias-pago.html?negocio=" + encodeURIComponent(NEGOCIO) + "&monto=" + MONTO + "&orden=" + ORDEN_UNICA + "&email_negocio=" + encodeURIComponent(EMAIL_NEGOCIO) + "&correo=" + encodeURIComponent(correoVal) + "&nombre=" + encodeURIComponent(nombreVal)
   });
   if (init && init.methods && init.methods.length > 0) {
