@@ -116,7 +116,7 @@
         <input type="email" id="correo-cliente" placeholder="tucorreo@ejemplo.com">
       </fieldset>
 
-     <button class="btn-pagar" id="btn-pagar" onclick="pagar()" ontouchstart="this.style.opacity='0.7'">🔒 Pagar ahora</button>
+     <button class="btn-pagar" id="btn-pagar" onclick="pagar()" ontouchstart="this.innerHTML='<span style=&quot;display:inline-flex;align-items:center;gap:10px&quot;><span style=&quot;width:18px;height:18px;border:3px solid rgba(10,31,92,0.3);border-top-color:#0A1F5C;border-radius:50%;display:inline-block;animation:spin 0.8s linear infinite&quot;></span>Procesando...</span>';this.disabled=true;">🔒 Pagar ahora</button>
       <div id="tilopay-3ds-container" style="display:none;margin-top:16px;width:100%;min-height:400px;border-radius:12px;overflow:hidden;"></div>
     </div>
 
