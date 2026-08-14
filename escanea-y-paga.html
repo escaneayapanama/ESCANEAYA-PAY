@@ -278,7 +278,8 @@ function pagar() {
     sessionStorage.setItem('eyp_nombre_cliente', nombreVal);
   } catch(e) {}
 
-var init = Tilopay.Init({
+setTimeout(function() {
+  var init = Tilopay.Init({
     token: TOKEN_TILOPAY,
     currency: "USD",
     language: "es",
@@ -307,16 +308,16 @@ var init = Tilopay.Init({
   }
 
   console.log('Init result:', init);
-  var respuesta = Tilopay.startPayment();
-  document.getElementById('tilopay-3ds-container').style.display = 'block';
+var respuesta = Tilopay.startPayment();
   console.log('Payment result:', respuesta);
   setTimeout(function() {
-  if (boton.disabled) {
-    boton.disabled = false;
-    boton.innerHTML = "🔒 Pagar ahora";
-    mostrarError("El pago tardó más de lo esperado. Verifica con tu banco si fue cobrado.");
-  }
-}, 30000);
+    if (boton.disabled) {
+      boton.disabled = false;
+      boton.innerHTML = "🔒 Pagar ahora";
+      mostrarError("El pago tardó más de lo esperado. Verifica con tu banco si fue cobrado.");
+    }
+  }, 30000);
+  }, 0);
   if (respuesta && respuesta.message && respuesta.message !== "Success") {
     mostrarError(respuesta.message);
     boton.disabled = false;
