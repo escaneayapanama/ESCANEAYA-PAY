@@ -317,12 +317,7 @@ var respuesta = Tilopay.startPayment();
       mostrarError("El pago tardó más de lo esperado. Verifica con tu banco si fue cobrado.");
     }
   }, 30000);
-  }, 0);
-  if (respuesta && respuesta.message && respuesta.message !== "Success") {
-    mostrarError(respuesta.message);
-    boton.disabled = false;
-    boton.innerHTML = "🔒 Pagar ahora";
-  }
+    }, 0);
 }
   
 function mostrarError(msg) {
