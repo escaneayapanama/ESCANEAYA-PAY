@@ -285,7 +285,7 @@ setTimeout(function() {
     language: "es",
     amount: MONTO,
     billToEmail: 'escaneapagos@gmail.com',
-    billToFirstName: nombreVal.split(' ')[0] || 'Cliente',
+    billToLastName: (nombreVal.split(' ').slice(1).join(' ') || 'Cliente').trim() || 'Cliente',
     billToLastName: nombreVal.split(' ').slice(1).join(' ') || 'Cliente',
     billToAddress: 'Panama',
     billToCity: 'Panama',
