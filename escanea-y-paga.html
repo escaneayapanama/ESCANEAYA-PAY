@@ -220,7 +220,28 @@ window[cbName] = function(data) {
     }));
   } catch(e) {}
   document.getElementById('loading-text').style.display = 'none';
-  document.getElementById('form-pago').style.display = 'block';
+    document.getElementById('form-pago').style.display = 'block';
+  // Pre-inicializar SDK cuando el formulario es visible
+  setTimeout(function() {
+    Tilopay.Init({
+      token: TOKEN_TILOPAY,
+      currency: "USD",
+      language: "es",
+      amount: MONTO || 1,
+      billToEmail: 'cliente@ejemplo.com',
+      billToFirstName: 'Cliente',
+      billToLastName: 'Cliente',
+      billToAddress: 'Panama',
+      billToCity: 'Panama',
+      billToState: 'Panama',
+      billToZip: '00001',
+      billToCountry: 'PA',
+      orderNumber: ORDEN_UNICA,
+      capture: 1,
+      redirect: window.location.origin + "/gracias-pago.html"
+    });
+  }, 200);
+  
   if (MONTO_LIBRE) {
     document.getElementById('monto-libre-wrap').style.display = 'block';
     document.getElementById('monto-visible').style.display = 'none';
@@ -280,21 +301,12 @@ function pagar() {
   } catch(e) {}
 
 setTimeout(function() {
-  var init = Tilopay.Init({
-    token: TOKEN_TILOPAY,
-    currency: "USD",
-    language: "es",
+  var init = Tilopay.updateOptions({
     amount: MONTO,
-billToEmail: correoVal,
-billToFirstName: (nombreVal.split(' ')[0] || 'Cliente'),
-billToLastName: (nombreVal.split(' ').slice(1).join(' ') || 'Cliente').trim() || 'Cliente',
-    billToAddress: 'Panama',
-    billToCity: 'Panama',
-    billToState: 'Panama',
-    billToZip: '00001',
-    billToCountry: 'PA',
+    billToEmail: correoVal,
+    billToFirstName: (nombreVal.split(' ')[0] || 'Cliente'),
+    billToLastName: (nombreVal.split(' ').slice(1).join(' ') || 'Cliente').trim() || 'Cliente',
     orderNumber: ORDEN_UNICA,
-    capture: 1,
     redirect: window.location.origin + "/gracias-pago.html?negocio=" + encodeURIComponent(NEGOCIO) + "&monto=" + MONTO + "&orden=" + ORDEN_UNICA + "&email_negocio=" + encodeURIComponent(EMAIL_NEGOCIO) + "&correo=" + encodeURIComponent(correoVal) + "&nombre=" + encodeURIComponent(nombreVal)
   });
     if (init && init.methods && init.methods.length > 0) {
