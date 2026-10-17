@@ -175,7 +175,7 @@ if (alias) {
   var cbAlias = 'eyp_alias_' + Date.now();
   window[cbAlias] = function(r) {
     if (r && r.ok) {
-      NEGOCIO   = r.negocio;
+      NEGOCIO   = r.nombre || r.negocio;
       EMAIL_NEG = r.email || r.correo;
       if (extra) {
         var m = parseFloat(extra);
