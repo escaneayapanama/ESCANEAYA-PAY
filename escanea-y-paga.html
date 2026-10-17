@@ -89,7 +89,7 @@
 
     <!-- FORMULARIO TILOPAY — IDs exactos que espera el SDK -->
     <!-- Oculto con visibility+height en lugar de display:none para que el SDK encuentre los campos -->
-    <div id="form-pago" class="payFormTilopay" style="visibility:hidden;height:0;overflow:hidden">
+    <form id="form-pago" class="payFormTilopay" style="visibility:hidden;height:0;overflow:hidden" onsubmit="return false">
       <!-- Campos ocultos requeridos por el SDK -->
       <select name="tlpy_payment_method" id="tlpy_payment_method" style="display:none"></select>
       <select name="tlpy_saved_cards"    id="tlpy_saved_cards"    style="display:none"></select>
@@ -131,7 +131,7 @@
       </fieldset>
 
       <button class="btn-pagar" id="btn-pagar" onclick="pagar()">🔒 Pagar ahora</button>
-    </div>
+    </form>
 
     <!-- Div requerido por el SDK para inyectar iframes de 3DS -->
     <div id="responseTilopay"></div>
@@ -262,8 +262,12 @@ function mostrarFormulario() {
   requestAnimationFrame(function() {
     setTimeout(function() {
       console.log('[EYP] tlpy_cc_number:', document.getElementById('tlpy_cc_number'));
+      console.log('[EYP] tlpy_cc_expiration_date:', document.getElementById('tlpy_cc_expiration_date'));
       console.log('[EYP] tlpy_cvv:', document.getElementById('tlpy_cvv'));
-      console.log('[EYP] form-pago visible:', document.getElementById('form-pago').style.visibility);
+      console.log('[EYP] tlpy_payment_method:', document.getElementById('tlpy_payment_method'));
+      console.log('[EYP] tlpy_saved_cards:', document.getElementById('tlpy_saved_cards'));
+      console.log('[EYP] responseTilopay:', document.getElementById('responseTilopay'));
+      console.log('[EYP] form-pago tag:', document.getElementById('form-pago').tagName);
       Tilopay.Init({
         token:            TOKEN,
         currency:         "USD",
