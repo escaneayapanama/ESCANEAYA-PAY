@@ -481,17 +481,23 @@ function calcularDivision(montoTotal) {
 // ============================================================
 function getTilopaySDKToken() {
   try {
-    var apiToken = _obtenerTokenAPI();
-    if (!apiToken) return { error: 'No se pudo autenticar con Tilopay' };
-
-    var resp = UrlFetchApp.fetch(CONFIG.TILOPAY_BASE_URL + '/sdk/token', {
-      method:  'GET',
-      headers: { 'Authorization': 'Bearer ' + apiToken },
+    var resp = UrlFetchApp.fetch(CONFIG.TILOPAY_BASE_URL + '/loginSdk', {
+      method:      'POST',
+      contentType: 'application/json',
+      payload:     JSON.stringify({
+        apiuser:  CONFIG.TILOPAY_API_USER,
+        password: CONFIG.TILOPAY_API_PASS,
+        key:      CONFIG.TILOPAY_API_KEY
+      }),
       muteHttpExceptions: true
     });
 
     var body = JSON.parse(resp.getContentText());
-    return body; // Devuelve el token SDK al frontend directamente
+    // Normalizar: devolver siempre como { token: '...' } para el frontend
+    if (body && body.access_token) {
+      return { token: body.access_token, expires_in: body.expires_in };
+    }
+    return { error: body.error || 'No se pudo obtener SDK token' };
 
   } catch (err) {
     Logger.log('getTilopaySDKToken error: ' + err.toString());
@@ -516,15 +522,15 @@ function _obtenerTokenAPI() {
       method:      'POST',
       contentType: 'application/json',
       payload:     JSON.stringify({
-        user:     CONFIG.TILOPAY_API_USER,
+        apiuser:  CONFIG.TILOPAY_API_USER,
         password: CONFIG.TILOPAY_API_PASS,
         apikey:   CONFIG.TILOPAY_API_KEY
       }),
       muteHttpExceptions: true
     });
     var body = JSON.parse(resp.getContentText());
-    if (body && body.token) {
-      _tok = body.token; _tokTime = ahora;
+    if (body && body.access_token) {
+      _tok = body.access_token; _tokTime = ahora;
       return _tok;
     }
     Logger.log('Login Tilopay fallido: ' + JSON.stringify(body));
