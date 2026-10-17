@@ -301,7 +301,7 @@ async function pagar() {
     sessionStorage.setItem('eyp_nombre_cliente', nombreVal);
   } catch(e) {}
 
-setTimeout(function() {
+setTimeout(async function() {
     var init = await Tilopay.updateOptions({
     amount: MONTO,
     billToEmail: correoVal,
