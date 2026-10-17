@@ -88,7 +88,8 @@
     </div>
 
     <!-- FORMULARIO TILOPAY — IDs exactos que espera el SDK -->
-    <div id="form-pago" class="payFormTilopay" style="display:none">
+    <!-- Oculto con visibility+height en lugar de display:none para que el SDK encuentre los campos -->
+    <div id="form-pago" class="payFormTilopay" style="visibility:hidden;height:0;overflow:hidden">
       <!-- Campos ocultos requeridos por el SDK -->
       <select name="tlpy_payment_method" id="tlpy_payment_method" style="display:none"></select>
       <select name="tlpy_saved_cards"    id="tlpy_saved_cards"    style="display:none"></select>
@@ -251,9 +252,40 @@ function cargarToken() {
 ═══════════════════════════════════════════════════════ */
 function mostrarFormulario() {
   document.getElementById('loading-text').style.display = 'none';
-  document.getElementById('form-pago').style.display   = 'block';
-  // SDK_LISTO queda false — el Init completo ocurre en pagar()
-  console.log('[EYP] Formulario visible, listo para pagar');
+  var form = document.getElementById('form-pago');
+  form.style.visibility = 'visible';
+  form.style.height     = 'auto';
+  form.style.overflow   = 'visible';
+  console.log('[EYP] Formulario visible, iniciando SDK...');
+
+  // Init del SDK ahora que los campos son visibles en el DOM
+  requestAnimationFrame(function() {
+    setTimeout(function() {
+      Tilopay.Init({
+        token:            TOKEN,
+        currency:         "USD",
+        language:         "es",
+        amount:           MONTO || 1,
+        billToEmail:      "cliente@ejemplo.com",
+        billToFirstName:  "Cliente",
+        billToLastName:   "Cliente",
+        billToAddress:    "Panama",
+        billToCity:       "Panama",
+        billToState:      "Panama",
+        billToZipPostCode:"00001",
+        billToCountry:    "PA",
+        orderNumber:      ORDEN_UNICA,
+        capture:          1,
+        subscription:     0,
+        redirect:         window.location.origin + "/gracias-pago.html"
+      }).then(function() {
+        SDK_LISTO = true;
+        console.log('[EYP] SDK Init OK');
+      }).catch(function(e) {
+        console.warn('[EYP] SDK Init warn:', e);
+      });
+    }, 200);
+  });
 }
 
 /* ═══════════════════════════════════════════════════════
