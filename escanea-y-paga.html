@@ -309,7 +309,7 @@ setTimeout(async function() {
     billToLastName: (nombreVal.split(' ').slice(1).join(' ') || 'Cliente').trim() || 'Cliente',
     orderNumber: ORDEN_UNICA,
     subscription: 0,
-    redirect:
+      redirect: window.location.origin + "/gracias-pago.html?negocio=" + encodeURIComponent(NEGOCIO) + "&monto=" + MONTO + "&orden=" + ORDEN_UNICA + "&email_negocio=" + encodeURIComponent(EMAIL_NEGOCIO) + "&correo=" + encodeURIComponent(correoVal) + "&nombre=" + encodeURIComponent(nombreVal)
   });
     if (init && init.methods && init.methods.length > 0) {
     var sel = document.getElementById('tlpy_payment_method');
