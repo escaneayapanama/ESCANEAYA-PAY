@@ -89,7 +89,7 @@
 
     <!-- FORMULARIO TILOPAY — IDs exactos que usa el SDK internamente -->
     <!-- Oculto con visibility+height en lugar de display:none para que el SDK encuentre los campos -->
-    <form id="form-pago" class="payFormTilopay" style="visibility:hidden;height:0;overflow:hidden">
+    <form id="form-pago" class="payFormTilopay" style="visibility:hidden;height:0;overflow:hidden" onsubmit="return false">
       <!-- Campos ocultos requeridos por el SDK — IDs exactos del SDK -->
       <select name="method" id="method" style="display:none"></select>
       <select name="cards"  id="cards"  style="display:none"></select>
@@ -130,8 +130,8 @@
         <input type="email" id="correo-cliente" placeholder="tucorreo@ejemplo.com" autocomplete="email">
       </fieldset>
 
-      <button class="btn-pagar" id="btn-pagar" onclick="pagar()">🔒 Pagar ahora</button>
     </form>
+      <button type="button" class="btn-pagar" id="btn-pagar" onclick="pagar()">🔒 Pagar ahora</button>
 
     <!-- Div requerido por el SDK para inyectar iframes de 3DS -->
     <div id="responseTilopay"></div>
