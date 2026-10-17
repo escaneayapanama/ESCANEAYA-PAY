@@ -222,8 +222,8 @@ window[cbName] = function(data) {
   document.getElementById('loading-text').style.display = 'none';
     document.getElementById('form-pago').style.display = 'block';
   // Pre-inicializar SDK cuando el formulario es visible
-  setTimeout(function() {
-    Tilopay.Init({
+  setTimeout(async function() {
+    await Tilopay.Init({
       token: TOKEN_TILOPAY,
       currency: "USD",
       language: "es",
@@ -234,10 +234,11 @@ window[cbName] = function(data) {
       billToAddress: 'Panama',
       billToCity: 'Panama',
       billToState: 'Panama',
-      billToZip: '00001',
+            billToZipPostCode: '00001',
       billToCountry: 'PA',
       orderNumber: ORDEN_UNICA,
       capture: 1,
+      subscription: 0,
       redirect: window.location.origin + "/gracias-pago.html"
     });
   }, 200);
@@ -301,13 +302,14 @@ function pagar() {
   } catch(e) {}
 
 setTimeout(function() {
-  var init = Tilopay.updateOptions({
+    var init = await Tilopay.updateOptions({
     amount: MONTO,
     billToEmail: correoVal,
     billToFirstName: (nombreVal.split(' ')[0] || 'Cliente'),
     billToLastName: (nombreVal.split(' ').slice(1).join(' ') || 'Cliente').trim() || 'Cliente',
     orderNumber: ORDEN_UNICA,
-    redirect: window.location.origin + "/gracias-pago.html?negocio=" + encodeURIComponent(NEGOCIO) + "&monto=" + MONTO + "&orden=" + ORDEN_UNICA + "&email_negocio=" + encodeURIComponent(EMAIL_NEGOCIO) + "&correo=" + encodeURIComponent(correoVal) + "&nombre=" + encodeURIComponent(nombreVal)
+    subscription: 0,
+    redirect:
   });
     if (init && init.methods && init.methods.length > 0) {
     var sel = document.getElementById('tlpy_payment_method');
