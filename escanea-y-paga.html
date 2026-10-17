@@ -250,7 +250,10 @@ function cargarToken() {
 /* ═══════════════════════════════════════════════════════
    MOSTRAR FORMULARIO + PRE-INIT DEL SDK
 ═══════════════════════════════════════════════════════ */
+var FORMULARIO_MOSTRADO = false;
 function mostrarFormulario() {
+  if (FORMULARIO_MOSTRADO) { console.log('[EYP] mostrarFormulario() ya ejecutado, ignorando.'); return; }
+  FORMULARIO_MOSTRADO = true;
   document.getElementById('loading-text').style.display = 'none';
   var form = document.getElementById('form-pago');
   form.style.visibility = 'visible';
