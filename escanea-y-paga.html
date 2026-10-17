@@ -266,12 +266,6 @@ function mostrarFormulario() {
   // Init del SDK ahora que los campos son visibles en el DOM
   requestAnimationFrame(function() {
     setTimeout(function() {
-      console.log('[EYP] ccnumber:', document.getElementById('ccnumber'));
-      console.log('[EYP] expdate:', document.getElementById('expdate'));
-      console.log('[EYP] cvv:', document.getElementById('cvv'));
-      console.log('[EYP] method:', document.getElementById('method'));
-      console.log('[EYP] cards:', document.getElementById('cards'));
-      console.log('[EYP] responseTilopay:', document.getElementById('responseTilopay'));
       try {
         var initResult = Tilopay.Init({
           token:            TOKEN,
@@ -291,11 +285,8 @@ function mostrarFormulario() {
           subscription:     0,
           redirect:         window.location.origin + "/gracias-pago.html"
         });
-        console.log('[EYP] SDK Init result:', initResult);
-        console.log('[EYP] METHODS JSON:', JSON.stringify(initResult && initResult.methods));
         if (initResult && initResult.message === 'Success') {
           SDK_LISTO = true;
-          window._initResult = initResult;
           // Llenar el select method con los métodos devueltos por el SDK
           var methodSelect = document.getElementById('method');
           if (methodSelect && initResult.methods && initResult.methods.length > 0) {
@@ -305,17 +296,11 @@ function mostrarFormulario() {
               opt.value = m.value || m.id || m.method || JSON.stringify(m);
               opt.textContent = m.name || m.label || opt.value;
               methodSelect.appendChild(opt);
-              console.log('[EYP] Opción añadida:', opt.value);
             });
             methodSelect.selectedIndex = 0;
           }
-          console.log('[EYP] SDK listo ✓ | method val:', methodSelect && methodSelect.value);
-        } else {
-          console.warn('[EYP] SDK Init no exitoso:', initResult);
         }
-      } catch(e) {
-        console.error('[EYP] SDK Init excepción:', e);
-      }
+      } catch(e) {}
     }, 200);
   });
 }
