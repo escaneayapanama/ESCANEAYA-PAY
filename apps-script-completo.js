@@ -18,10 +18,11 @@ var CONFIG = {
   COSTO_FIJO:    0.75,  // costo fijo por transacción ($)
   IVA_PCT:       7,     // IVA sobre la comisión (%)
 
-  // Google Sheets donde se registra todo
-  SHEET_ID:           'TU_GOOGLE_SHEET_ID',  // ID de la URL de tu hoja
-  HOJA_TRANSACCIONES: 'Transacciones',
-  HOJA_COMERCIOS:     'Comercios'
+  // Google Sheets — EscaneaYa Pay
+  SHEET_ID:           '1LduSNJKhJzHEjIHGZ00vS0fZf5c36vnPhYW0taIY2FE',
+  HOJA_TRANSACCIONES: 'transacciones_eyp',
+  HOJA_COMERCIOS:     'negocios_eyp',
+  HOJA_LIQUIDACIONES: 'liquidaciones_eyp'
 };
 
 // ============================================================
@@ -147,7 +148,6 @@ function guardarTransaccion(p) {
     var montoTotal    = parseFloat(p.monto || 0);
     var correoCliente = p.correo_cliente || '';
     var nombreCliente = p.nombre_cliente || '';
-    var fecha         = p.fecha          || '';
     var code          = p.code           || '0';
 
     // Solo procesar si fue aprobado
@@ -155,7 +155,7 @@ function guardarTransaccion(p) {
       return { ok: false, motivo: 'Pago no aprobado' };
     }
 
-    // Verificar si ya fue procesado (deduplicación)
+    // Deduplicación: si la orden ya existe en Sheets, no hacer nada
     if (_yaRegistrado(orderNumber)) {
       return { ok: true, motivo: 'Ya registrado' };
     }
@@ -163,40 +163,42 @@ function guardarTransaccion(p) {
     var div     = calcularDivision(montoTotal);
     var splitOk = false;
 
-    // Ejecutar split si tenemos el email del comercio
+    // Ejecutar split en Tilopay si tenemos email del comercio
     if (emailComercio) {
       splitOk = _ejecutarSplit(orderNumber, emailComercio, div.montoComercio);
     }
 
-    // Registrar en Sheets
-    var ss    = SpreadsheetApp.openById(CONFIG.SHEET_ID);
-    var hoja  = _obtenerOCrearHoja(ss, CONFIG.HOJA_TRANSACCIONES,
-      ['Fecha', 'Hora', 'Orden', 'Negocio', 'Email Comercio',
-       'Correo Cliente', 'Nombre Cliente', 'Monto Total',
-       'Comisión EscaneaYa', 'Monto Comercio', 'Estado Split', 'Descripción']);
+    // ── Guardar en transacciones_eyp ────────────────────────────
+    // Columnas existentes: fecha,negocio,email_negocio,monto,orden,
+    //                      correo_cliente,nombre_cliente,estado
+    // Columnas nuevas añadidas al final: comision_eyp,monto_comercio,estado_split
+    var ss   = SpreadsheetApp.openById(CONFIG.SHEET_ID);
+    var hoja = ss.getSheetByName(CONFIG.HOJA_TRANSACCIONES);
+    if (!hoja) return { ok: false, error: 'Hoja transacciones_eyp no encontrada' };
 
     var ahora = new Date();
+    var fechaStr = Utilities.formatDate(ahora, 'America/Panama', 'dd \'de\' MMMM \'de\' yyyy · HH:mm');
+
     hoja.appendRow([
-      Utilities.formatDate(ahora, 'America/Panama', 'dd/MM/yyyy'),
-      Utilities.formatDate(ahora, 'America/Panama', 'HH:mm:ss'),
-      orderNumber,
-      negocio,
-      emailComercio,
-      correoCliente,
-      nombreCliente,
-      montoTotal,
-      div.gananciaEscaneaya,
-      div.montoComercio,
-      splitOk ? 'SPLIT_OK' : (emailComercio ? 'SPLIT_ERROR' : 'SIN_EMAIL'),
-      fecha
+      fechaStr,           // fecha
+      negocio,            // negocio
+      emailComercio,      // email_negocio
+      montoTotal,         // monto
+      orderNumber,        // orden
+      correoCliente,      // correo_cliente
+      nombreCliente,      // nombre_cliente
+      'aprobado',         // estado
+      div.gananciaEscaneaya,                                        // comision_eyp (col nueva)
+      div.montoComercio,                                            // monto_comercio (col nueva)
+      splitOk ? 'SPLIT_OK' : (emailComercio ? 'SPLIT_ERROR' : 'SIN_EMAIL') // estado_split (col nueva)
     ]);
 
     return {
-      ok:           true,
-      orden:        orderNumber,
-      splitOk:      splitOk,
+      ok:            true,
+      orden:         orderNumber,
+      splitOk:       splitOk,
       montoComercio: div.montoComercio,
-      comision:     div.gananciaEscaneaya
+      comision:      div.gananciaEscaneaya
     };
 
   } catch (err) {
@@ -262,13 +264,11 @@ function registrarNegocioEYP(p) {
       return { ok: false, error: 'Faltan campos requeridos' };
     }
 
-    // Verificar si el correo ya existe
     var ss   = SpreadsheetApp.openById(CONFIG.SHEET_ID);
-    var hoja = _obtenerOCrearHoja(ss, CONFIG.HOJA_COMERCIOS,
-      ['Alias', 'Email', 'Prefijo Orden', 'Nombre Negocio',
-       'Logo', 'Color', 'Descripción', 'WhatsApp', 'Fecha Registro',
-       'Password Hash', 'Tilopay Sub-ID', 'Activo']);
+    var hoja = ss.getSheetByName(CONFIG.HOJA_COMERCIOS);
+    if (!hoja) return { ok: false, error: 'Hoja negocios_eyp no encontrada' };
 
+    // Verificar si el correo ya existe
     var datos = hoja.getDataRange().getValues();
     for (var i = 1; i < datos.length; i++) {
       if ((datos[i][1] + '').toLowerCase() === correo.toLowerCase()) {
@@ -276,45 +276,58 @@ function registrarNegocioEYP(p) {
       }
     }
 
-    // Generar alias automático desde el nombre del negocio
+    // Generar alias desde el nombre del negocio
     var alias = negocio.toLowerCase()
                   .replace(/\s+/g, '-')
                   .replace(/[^a-z0-9-]/g, '')
                   .substring(0, 20);
 
-    // Prefijo de orden único (3 letras mayúsculas del alias)
-    var prefijo = alias.replace(/-/g, '').substring(0, 3).toUpperCase();
-    if (!prefijo) prefijo = 'EYP';
+    // ID único tipo EYP-timestamp
+    var id = 'EYP-' + new Date().getTime();
+    var ahora = Utilities.formatDate(new Date(), 'America/Panama', 'yyyy-MM-dd HH:mm:ss');
 
-    var ahora = Utilities.formatDate(new Date(), 'America/Panama', 'dd/MM/yyyy HH:mm');
-
+    // negocios_eyp cols:
+    // id,correo,negocio,logo,whatsapp,password,fecha_registro,estado,ventas,
+    // stand_solicitado,kyc_enviado,banco_guardado,cedula_url,aviso_url,
+    // banco,titular,cuenta,tipo_cuenta,alias
     hoja.appendRow([
-      alias,
-      correo,
-      prefijo,
-      negocio,
-      '',     // Logo (vacío por ahora)
-      '',     // Color personalizado
-      '',     // Descripción
-      whatsapp,
-      ahora,
-      password, // En producción usar hashing: Utilities.computeDigest(...)
-      '',     // Tilopay Sub-ID (se llenará cuando José confirme el API)
-      'SI'
+      id,        // id
+      correo,    // correo
+      negocio,   // negocio
+      '',        // logo
+      whatsapp,  // whatsapp
+      password,  // password
+      ahora,     // fecha_registro
+      'activo',  // estado
+      0,         // ventas
+      '',        // stand_solicitado
+      '',        // kyc_enviado
+      '',        // banco_guardado
+      '',        // cedula_url
+      '',        // aviso_url
+      '',        // banco
+      '',        // titular
+      '',        // cuenta
+      '',        // tipo_cuenta
+      alias      // alias
     ]);
 
-    // Correo de bienvenida al comercio
+    // Correo de bienvenida
     try {
       GmailApp.sendEmail(correo, '¡Bienvenido a EscaneaYa Pay! 🎉', '', {
         htmlBody:
           '<div style="font-family:Arial,sans-serif;max-width:480px;margin:auto">' +
           '<div style="background:#0A1F5C;padding:24px;text-align:center;border-radius:12px 12px 0 0">' +
-          '<h2 style="color:#fff;margin:0">EscaneaYa Pay</h2></div>' +
+          '<h2 style="color:#fff;margin:0">EscaneaYa Pay</h2>' +
+          '<p style="color:#8C9BD6;margin:4px 0 0;font-size:12px">Un producto de EscaneaYa</p></div>' +
           '<div style="padding:28px;border:1px solid #E1E5EE;border-top:none;border-radius:0 0 12px 12px">' +
-          '<p>Hola <strong>' + negocio + '</strong>, ¡ya estás listo para cobrar!</p>' +
-          '<p style="color:#7A8194;font-size:13px">Tu alias de pago es: <strong>escaneayapay.com/escanea-y-paga.html?alias=' + alias + '</strong></p>' +
-          '<p style="color:#7A8194;font-size:13px">Accede a tu dashboard en: <a href="https://escaneayapay.com/dashboard-eyp.html?correo=' + encodeURIComponent(correo) + '">Mi Dashboard</a></p>' +
-          '<p style="font-size:12px;color:#aaa;margin-top:20px">Comisión: 5.5% + $0.75 + IVA por transacción. Sin mensualidad.</p>' +
+          '<p>Hola <strong>' + negocio + '</strong>, ¡ya estás listo para cobrar con tarjeta!</p>' +
+          '<div style="background:#F3F5F9;border-radius:10px;padding:16px;margin:16px 0;font-size:13px">' +
+          '<p style="margin:0 0 8px"><strong>Tu link de cobro:</strong><br>' +
+          '<a href="https://escaneayapay.com/escanea-y-paga.html?alias=' + alias + '">escaneayapay.com/escanea-y-paga.html?alias=' + alias + '</a></p>' +
+          '<p style="margin:0"><strong>Tu dashboard:</strong><br>' +
+          '<a href="https://escaneayapay.com/dashboard-eyp.html?correo=' + encodeURIComponent(correo) + '">Ver mi dashboard</a></p></div>' +
+          '<p style="font-size:12px;color:#aaa">Comisión: 5.5% + $0.75 + IVA por transacción. Sin mensualidad.</p>' +
           '</div></div>',
         name: 'EscaneaYa Pay'
       });
@@ -322,7 +335,7 @@ function registrarNegocioEYP(p) {
       Logger.log('Correo bienvenida fallido: ' + mailErr.toString());
     }
 
-    return { ok: true, alias: alias, correo: correo };
+    return { ok: true, alias: alias, correo: correo, id: id };
 
   } catch (err) {
     Logger.log('registrarNegocioEYP error: ' + err.toString());
@@ -343,21 +356,38 @@ function getTransaccionesComercio(email) {
 
     var datos = hoja.getDataRange().getValues();
     var txs   = [];
-    var totalRecibido = 0;
+    var totalBruto   = 0;
+    var totalComision = 0;
+    var totalNeto    = 0;
 
+    // transacciones_eyp cols:
+    // 0=fecha, 1=negocio, 2=email_negocio, 3=monto, 4=orden,
+    // 5=correo_cliente, 6=nombre_cliente, 7=estado,
+    // 8=comision_eyp (nueva), 9=monto_comercio (nueva), 10=estado_split (nueva)
     for (var i = 1; i < datos.length; i++) {
-      if ((datos[i][4] + '').toLowerCase() === email.toLowerCase()) {
-        var monto = parseFloat(datos[i][9]) || 0; // Monto Comercio (col 9)
-        if (datos[i][10] === 'SPLIT_OK') totalRecibido += monto;
+      if (!datos[i][0]) continue; // fila vacía
+      if ((datos[i][2] + '').toLowerCase() === email.toLowerCase()) {
+        var montoTx   = parseFloat(datos[i][3]) || 0;
+        var comisionTx = parseFloat(datos[i][8]) || 0;
+        var netoTx    = parseFloat(datos[i][9]) || 0;
+        var estadoTx  = datos[i][7] || '';
+        var splitTx   = datos[i][10] || '';
+
+        totalBruto    += montoTx;
+        totalComision += comisionTx;
+        if (splitTx === 'SPLIT_OK') totalNeto += netoTx;
+
         txs.push({
-          fecha:         datos[i][0],
-          hora:          datos[i][1],
-          orden:         datos[i][2],
-          negocio:       datos[i][3],
-          montoTotal:    datos[i][7],
-          comision:      datos[i][8],
-          montoRecibido: monto,
-          estado:        datos[i][10]
+          fecha:        datos[i][0],
+          negocio:      datos[i][1],
+          monto:        montoTx,
+          orden:        datos[i][4],
+          correo:       datos[i][5],
+          nombre:       datos[i][6],
+          estado:       estadoTx,
+          comision:     comisionTx,
+          neto:         netoTx,
+          estadoSplit:  splitTx
         });
       }
     }
@@ -366,7 +396,9 @@ function getTransaccionesComercio(email) {
     return {
       ok:            true,
       transacciones: txs.slice(0, 50),
-      totalRecibido: Math.round(totalRecibido * 100) / 100,
+      totalBruto:    Math.round(totalBruto * 100) / 100,
+      totalComision: Math.round(totalComision * 100) / 100,
+      totalNeto:     Math.round(totalNeto * 100) / 100,
       cantidad:      txs.length
     };
 
@@ -385,22 +417,25 @@ function getNegocioPorAlias(alias) {
 
     var ss   = SpreadsheetApp.openById(CONFIG.SHEET_ID);
     var hoja = ss.getSheetByName(CONFIG.HOJA_COMERCIOS);
-    if (!hoja) return { error: 'Hoja no encontrada' };
+    if (!hoja) return { error: 'Hoja negocios_eyp no encontrada' };
 
     var datos = hoja.getDataRange().getValues();
-    // Col: 0=Alias, 1=Email, 2=Prefijo, 3=Nombre, 4=Logo, 5=Color, 6=Desc, 7=WhatsApp
+    // negocios_eyp cols:
+    // 0=id, 1=correo, 2=negocio, 3=logo, 4=whatsapp, 5=password,
+    // 6=fecha_registro, 7=estado, 8=ventas, 9=stand_solicitado,
+    // 10=kyc_enviado, 11=banco_guardado, 12=cedula_url, 13=aviso_url,
+    // 14=banco, 15=titular, 16=cuenta, 17=tipo_cuenta, 18=alias
     for (var i = 1; i < datos.length; i++) {
-      if ((datos[i][0] + '').toLowerCase() === alias.toLowerCase()) {
+      var aliasSheet = (datos[i][18] + '').toLowerCase().trim();
+      if (aliasSheet === alias.toLowerCase().trim()) {
         return {
-          ok:          true,
-          alias:       datos[i][0],
-          email:       datos[i][1],
-          prefijo:     datos[i][2],
-          nombre:      datos[i][3],
-          logo:        datos[i][4],
-          color:       datos[i][5],
-          descripcion: datos[i][6],
-          whatsapp:    datos[i][7]
+          ok:       true,
+          alias:    datos[i][18],
+          email:    datos[i][1],
+          nombre:   datos[i][2],
+          logo:     datos[i][3],
+          whatsapp: datos[i][4],
+          estado:   datos[i][7]
         };
       }
     }
@@ -557,7 +592,7 @@ function _registrarEnSheets(payload, estado, montoComercio, gananciaEY) {
   }
 }
 
-// Verificar si una orden ya fue procesada (evita dobles splits)
+// Verificar si una orden ya fue procesada — col 4 = orden en transacciones_eyp
 function _yaRegistrado(orderNumber) {
   if (!orderNumber) return false;
   try {
@@ -566,26 +601,20 @@ function _yaRegistrado(orderNumber) {
     if (!hoja) return false;
     var datos = hoja.getDataRange().getValues();
     for (var i = 1; i < datos.length; i++) {
-      if (datos[i][2] === orderNumber) return true;
+      if ((datos[i][4] + '') === orderNumber) return true; // col 4 = orden
     }
     return false;
   } catch (err) { return false; }
 }
 
-// Email del comercio desde la hoja Comercios (por prefijo de orden)
+// Email del comercio desde negocios_eyp buscando por alias en el prefijo de la orden
+// Las órdenes tienen formato EYP-{timestamp} — como no tienen prefijo por comercio,
+// esta función no aplica directamente. Se usa cuando el webhook no trae email.
+// En nuestro flujo el email siempre viene desde gracias-pago.html.
 function _emailDeOrden(orderNumber) {
-  try {
-    var ss   = SpreadsheetApp.openById(CONFIG.SHEET_ID);
-    var hoja = ss.getSheetByName(CONFIG.HOJA_COMERCIOS);
-    if (!hoja) return null;
-    var datos = hoja.getDataRange().getValues();
-    for (var i = 1; i < datos.length; i++) {
-      if (orderNumber && datos[i][2] && orderNumber.startsWith(datos[i][2])) {
-        return datos[i][1];
-      }
-    }
-    return null;
-  } catch (err) { return null; }
+  // No usado en flujo principal (el email viene del frontend)
+  // Reservado para el webhook de Tilopay
+  return null;
 }
 
 // Obtener o crear una hoja con encabezados
