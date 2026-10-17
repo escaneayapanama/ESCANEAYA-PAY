@@ -89,7 +89,7 @@
 
     <!-- FORMULARIO TILOPAY — IDs exactos que espera el SDK -->
     <!-- Oculto con visibility+height en lugar de display:none para que el SDK encuentre los campos -->
-    <form id="form-pago" class="payFormTilopay" style="visibility:hidden;height:0;overflow:hidden" onsubmit="return false">
+    <form id="form-pago" class="payFormTilopay" style="visibility:hidden;height:0;overflow:hidden">
       <!-- Campos ocultos requeridos por el SDK -->
       <select name="tlpy_payment_method" id="tlpy_payment_method" style="display:none"></select>
       <select name="tlpy_saved_cards"    id="tlpy_saved_cards"    style="display:none"></select>
@@ -298,19 +298,7 @@ function mostrarFormulario() {
   });
 }
 
-/* ═══════════════════════════════════════════════════════
-   FORMATO AUTOMÁTICO VENCIMIENTO
-═══════════════════════════════════════════════════════ */
-document.addEventListener('DOMContentLoaded', function() {
-  var expInput = document.getElementById('tlpy_cc_expiration_date');
-  if (expInput) {
-    expInput.addEventListener('input', function(e) {
-      var v = e.target.value.replace(/\D/g,'');
-      if (v.length >= 2) v = v.slice(0,2) + '/' + v.slice(2,4);
-      e.target.value = v;
-    });
-  }
-});
+/* FORMATO VENCIMIENTO — desactivado temporalmente para debug */
 
 /* ═══════════════════════════════════════════════════════
    FUNCIÓN PAGAR
