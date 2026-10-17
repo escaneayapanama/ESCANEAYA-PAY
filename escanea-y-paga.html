@@ -176,7 +176,7 @@ if (alias) {
   window[cbAlias] = function(r) {
     if (r && r.ok) {
       NEGOCIO   = r.negocio;
-      EMAIL_NEG = r.correo;
+      EMAIL_NEG = r.email || r.correo;
       if (extra) {
         var m = parseFloat(extra);
         if (!isNaN(m) && m > 0) { MONTO = m; MONTO_LIBRE = false; }
