@@ -203,6 +203,26 @@ if (tokenCache) {
     document.getElementById('monto-libre-wrap').style.display = 'block';
     document.getElementById('monto-visible').style.display = 'none';
   }
+  setTimeout(async function() {
+    await Tilopay.Init({
+      token: TOKEN_TILOPAY,
+      currency: "USD",
+      language: "es",
+      amount: MONTO || 1,
+      billToEmail: 'cliente@ejemplo.com',
+      billToFirstName: 'Cliente',
+      billToLastName: 'Cliente',
+      billToAddress: 'Panama',
+      billToCity: 'Panama',
+      billToState: 'Panama',
+      billToZipPostCode: '00001',
+      billToCountry: 'PA',
+      orderNumber: ORDEN_UNICA,
+      capture: 1,
+      subscription: 0,
+      redirect: window.location.origin + "/gracias-pago.html"
+    });
+  }, 200);
 } else {
 var cbName = 'tilopay_cb_' + Date.now();
 window[cbName] = function(data) {
