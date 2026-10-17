@@ -261,6 +261,9 @@ function mostrarFormulario() {
   // Init del SDK ahora que los campos son visibles en el DOM
   requestAnimationFrame(function() {
     setTimeout(function() {
+      console.log('[EYP] tlpy_cc_number:', document.getElementById('tlpy_cc_number'));
+      console.log('[EYP] tlpy_cvv:', document.getElementById('tlpy_cvv'));
+      console.log('[EYP] form-pago visible:', document.getElementById('form-pago').style.visibility);
       Tilopay.Init({
         token:            TOKEN,
         currency:         "USD",
