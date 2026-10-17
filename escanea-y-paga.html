@@ -85,7 +85,8 @@
   </span>
 </div>
     <div id="form-pago" class="payFormTilopay" style="display:none">
-      <select name="method" id="method" style="display:none"></select>
+           <select name="tlpy_payment_method" id="tlpy_payment_method" style="display:none"></select>
+      <select name="tlpy_saved_cards" id="tlpy_saved_cards" style="display:none"></select>
       <div class="seccion-titulo">💳 Datos de la tarjeta</div>
       <fieldset>
         <label>Nombre en la tarjeta</label>
@@ -93,19 +94,19 @@
       </fieldset>
       <fieldset>
         <label>Número de tarjeta</label>
-        <input type="text" id="ccnumber" name="ccnumber" placeholder="•••• •••• •••• ••••" maxlength="19">
+        <input type="text" id="tlpy_cc_number" name="tlpy_cc_number" placeholder="•••• •••• •••• ••••" maxlength="19">
       </fieldset>
       <div class="fila-doble">
         <div>
           <fieldset>
             <label>Vencimiento</label>
-            <input type="text" id="expdate" name="expdate" placeholder="MM/AA" maxlength="5">
+            <input type="text" id="tlpy_cc_expiration_date" name="tlpy_cc_expiration_date" placeholder="MM/AA" maxlength="5">
           </fieldset>
         </div>
         <div>
           <fieldset>
             <label>CVV</label>
-            <input type="text" id="cvv" name="cvv" placeholder="•••" maxlength="4">
+            <input type="text" id="tlpy_cvv" name="tlpy_cvv" placeholder="•••" maxlength="4">
           </fieldset>
         </div>
       </div>
@@ -117,9 +118,9 @@
       </fieldset>
 
      <button class="btn-pagar" id="btn-pagar" onclick="pagar()" ontouchstart="this.innerHTML='<span style=&quot;display:inline-flex;align-items:center;gap:10px&quot;><span style=&quot;width:18px;height:18px;border:3px solid rgba(10,31,92,0.3);border-top-color:#0A1F5C;border-radius:50%;display:inline-block;animation:spin 0.8s linear infinite&quot;></span>Procesando...</span>';">🔒 Pagar ahora</button>
-      <div id="tilopay-3ds-container" style="display:none;margin-top:16px;width:100%;min-height:400px;border-radius:12px;overflow:hidden;"></div>
+            <div id="tilopay-3ds-container" style="display:none;margin-top:16px;width:100%;min-height:400px;border-radius:12px;overflow:hidden;"></div>
     </div>
-
+    <div id="responseTilopay"></div>
     <div id="mensaje-estado"></div>
     <div class="seguridad">🔒 Pago seguro · EscaneaYa Pay</div>
     <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-top:14px">
@@ -296,8 +297,8 @@ billToLastName: (nombreVal.split(' ').slice(1).join(' ') || 'Cliente').trim() ||
     capture: 1,
     redirect: window.location.origin + "/gracias-pago.html?negocio=" + encodeURIComponent(NEGOCIO) + "&monto=" + MONTO + "&orden=" + ORDEN_UNICA + "&email_negocio=" + encodeURIComponent(EMAIL_NEGOCIO) + "&correo=" + encodeURIComponent(correoVal) + "&nombre=" + encodeURIComponent(nombreVal)
   });
-  if (init && init.methods && init.methods.length > 0) {
-    var sel = document.getElementById('method');
+    if (init && init.methods && init.methods.length > 0) {
+    var sel = document.getElementById('tlpy_payment_method');
     sel.innerHTML = '';
     init.methods.forEach(function(m) {
       var opt = document.createElement('option');
@@ -325,7 +326,7 @@ function mostrarError(msg) {
   el.style.color = '#C0392B';
   el.textContent = msg;
 }
-  document.getElementById('expdate').addEventListener('input', function(e) {
+  document.getElementById('tlpy_cc_expiration_date').addEventListener('input', function(e) {
   var v = e.target.value.replace(/\D/g, '');
   if (v.length >= 2) {
     v = v.substring(0,2) + '/' + v.substring(2,4);
