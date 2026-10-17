@@ -252,38 +252,8 @@ function cargarToken() {
 function mostrarFormulario() {
   document.getElementById('loading-text').style.display = 'none';
   document.getElementById('form-pago').style.display   = 'block';
-
-  // Pre-init: el SDK necesita que el formulario sea visible para encontrar los campos
-  setTimeout(function() {
-    try {
-      Tilopay.Init({
-        token:            TOKEN,
-        currency:         "USD",
-        language:         "es",
-        amount:           MONTO || 1,
-        billToEmail:      "cliente@ejemplo.com",
-        billToFirstName:  "Cliente",
-        billToLastName:   "Cliente",
-        billToAddress:    "Panama",
-        billToCity:       "Panama",
-        billToState:      "Panama",
-        billToZipPostCode:"00001",
-        billToCountry:    "PA",
-        orderNumber:      ORDEN_UNICA,
-        capture:          1,
-        subscription:     0,
-        redirect:         window.location.origin + "/gracias-pago.html"
-      }).then(function() {
-        SDK_LISTO = true;
-        console.log('[EYP] SDK pre-init OK');
-      }).catch(function(e) {
-        console.log('[EYP] SDK pre-init error:', e);
-        // No bloqueamos — se reintentará en pagar()
-      });
-    } catch(e) {
-      console.log('[EYP] SDK Init exception:', e);
-    }
-  }, 400);
+  // SDK_LISTO queda false — el Init completo ocurre en pagar()
+  console.log('[EYP] Formulario visible, listo para pagar');
 }
 
 /* ═══════════════════════════════════════════════════════
