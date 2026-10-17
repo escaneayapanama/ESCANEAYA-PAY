@@ -91,8 +91,9 @@
     <!-- Oculto con visibility+height en lugar de display:none para que el SDK encuentre los campos -->
     <form id="form-pago" class="payFormTilopay" style="visibility:hidden;height:0;overflow:hidden" onsubmit="return false">
       <!-- Campos ocultos requeridos por el SDK — IDs exactos del SDK -->
-      <select name="method" id="method" style="display:none"></select>
-      <select name="cards"  id="cards"  style="display:none"></select>
+      <!-- visibility:hidden en lugar de display:none para que jQuery pueda leer el valor -->
+      <select name="method" id="method" style="position:absolute;visibility:hidden;width:0;height:0"></select>
+      <select name="cards"  id="cards"  style="position:absolute;visibility:hidden;width:0;height:0"></select>
 
       <div class="seccion-titulo">💳 Datos de la tarjeta</div>
       <fieldset>
