@@ -44,13 +44,15 @@
   .btn-pagar:disabled{opacity:0.6;cursor:not-allowed;}
   .seguridad{margin-top:14px;display:flex;align-items:center;justify-content:center;gap:6px;
     font-size:11.5px;color:var(--gris);}
-  #mensaje-estado{margin-top:12px;font-size:13px;text-align:center;}
+  #mensaje-estado{margin-top:12px;font-size:13px;text-align:center;min-height:20px;}
   .marca-wrap{display:flex;align-items:center;gap:10px;}
   .logo-icono{width:64px;height:64px;border-radius:12px;flex-shrink:0;}
   .marca-sub{font-size:9.5px;color:#8C9BD6;text-transform:uppercase;letter-spacing:0.6px;}
   .marca-nombre{font-family:'Montserrat',sans-serif;font-weight:900;font-size:15px;letter-spacing:0.5px;margin-top:2px;}
   .loading-text{text-align:center;color:var(--gris);font-size:13px;padding:20px 0;}
   @keyframes spin{to{transform:rotate(360deg);}}
+  .spinner{width:16px;height:16px;border:2px solid #E1E5EE;border-top-color:var(--azul);
+    border-radius:50%;display:inline-block;animation:spin 0.8s linear infinite;vertical-align:middle;margin-right:6px;}
 </style>
 </head>
 <body>
@@ -63,7 +65,7 @@
         <div class="marca-nombre">EscaneaYa Pay</div>
       </div>
     </div>
-    <div class="negocio">Vas a pagarle a <strong id="nombre-negocio"></strong></div>
+    <div class="negocio">Vas a pagarle a <strong id="nombre-negocio">...</strong></div>
     <div class="monto-box">
       <div class="label">Monto a pagar</div>
       <div class="valor" id="monto-visible">$... <span>USD</span></div>
@@ -72,41 +74,51 @@
       <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#B9C2E8">Ingresa el monto</div>
       <div style="display:flex;align-items:center;gap:6px;margin-top:8px">
         <span style="font-family:'Montserrat',sans-serif;font-weight:900;font-size:28px;color:#fff">$</span>
-        <input type="number" id="monto-input-libre" placeholder="0.00" min="0.01" step="0.01" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.3);border-radius:10px;padding:10px 14px;color:#fff;font-family:'Montserrat',sans-serif;font-weight:900;font-size:24px;width:160px;outline:none">
+        <input type="number" id="monto-input-libre" placeholder="0.00" min="0.01" step="0.01"
+          style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.3);border-radius:10px;
+          padding:10px 14px;color:#fff;font-family:'Montserrat',sans-serif;font-weight:900;font-size:24px;
+          width:160px;outline:none">
       </div>
     </div>
   </div>
 
   <div class="body">
     <div id="loading-text" class="loading-text">
-  <span style="display:inline-flex;align-items:center;gap:8px;justify-content:center">
-    <span style="width:16px;height:16px;border:2px solid #E1E5EE;border-top-color:#0A1F5C;border-radius:50%;display:inline-block;animation:spin 0.8s linear infinite"></span>
-    Cargando forma de pago...
-  </span>
-</div>
+      <span class="spinner"></span>Cargando forma de pago...
+    </div>
+
+    <!-- FORMULARIO TILOPAY — IDs exactos que espera el SDK -->
     <div id="form-pago" class="payFormTilopay" style="display:none">
-           <select name="tlpy_payment_method" id="tlpy_payment_method" style="display:none"></select>
-      <select name="tlpy_saved_cards" id="tlpy_saved_cards" style="display:none"></select>
+      <!-- Campos ocultos requeridos por el SDK -->
+      <select name="tlpy_payment_method" id="tlpy_payment_method" style="display:none"></select>
+      <select name="tlpy_saved_cards"    id="tlpy_saved_cards"    style="display:none"></select>
+
       <div class="seccion-titulo">💳 Datos de la tarjeta</div>
       <fieldset>
         <label>Nombre en la tarjeta</label>
-        <input type="text" id="nombre-cliente" placeholder="Juan Pérez">
+        <input type="text" id="nombre-cliente" placeholder="Juan Pérez" autocomplete="cc-name">
       </fieldset>
       <fieldset>
         <label>Número de tarjeta</label>
-        <input type="text" id="tlpy_cc_number" name="tlpy_cc_number" placeholder="•••• •••• •••• ••••" maxlength="19">
+        <input type="text" id="tlpy_cc_number" name="tlpy_cc_number"
+               placeholder="•••• •••• •••• ••••" maxlength="19"
+               autocomplete="cc-number" inputmode="numeric">
       </fieldset>
       <div class="fila-doble">
         <div>
           <fieldset>
             <label>Vencimiento</label>
-            <input type="text" id="tlpy_cc_expiration_date" name="tlpy_cc_expiration_date" placeholder="MM/AA" maxlength="5">
+            <input type="text" id="tlpy_cc_expiration_date" name="tlpy_cc_expiration_date"
+                   placeholder="MM/AA" maxlength="5"
+                   autocomplete="cc-exp" inputmode="numeric">
           </fieldset>
         </div>
         <div>
           <fieldset>
             <label>CVV</label>
-            <input type="text" id="tlpy_cvv" name="tlpy_cvv" placeholder="•••" maxlength="4">
+            <input type="text" id="tlpy_cvv" name="tlpy_cvv"
+                   placeholder="•••" maxlength="4"
+                   autocomplete="cc-csc" inputmode="numeric">
           </fieldset>
         </div>
       </div>
@@ -114,259 +126,289 @@
       <div class="seccion-titulo">📄 Datos de factura</div>
       <fieldset>
         <label>Correo electrónico</label>
-        <input type="email" id="correo-cliente" placeholder="tucorreo@ejemplo.com">
+        <input type="email" id="correo-cliente" placeholder="tucorreo@ejemplo.com" autocomplete="email">
       </fieldset>
 
-     <button class="btn-pagar" id="btn-pagar" onclick="pagar()" ontouchstart="this.innerHTML='<span style=&quot;display:inline-flex;align-items:center;gap:10px&quot;><span style=&quot;width:18px;height:18px;border:3px solid rgba(10,31,92,0.3);border-top-color:#0A1F5C;border-radius:50%;display:inline-block;animation:spin 0.8s linear infinite&quot;></span>Procesando...</span>';">🔒 Pagar ahora</button>
-            <div id="tilopay-3ds-container" style="display:none;margin-top:16px;width:100%;min-height:400px;border-radius:12px;overflow:hidden;"></div>
+      <button class="btn-pagar" id="btn-pagar" onclick="pagar()">🔒 Pagar ahora</button>
     </div>
+
+    <!-- Div requerido por el SDK para inyectar iframes de 3DS -->
     <div id="responseTilopay"></div>
     <div id="mensaje-estado"></div>
+
     <div class="seguridad">🔒 Pago seguro · EscaneaYa Pay</div>
     <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-top:14px">
-  <img src="https://res.cloudinary.com/ioao7nb6/image/upload/v1786238210/visa-icon-original_hud12t.svg" style="height:24px;opacity:0.9" alt="Visa">
-<img src="https://res.cloudinary.com/ioao7nb6/image/upload/v1786237995/Mastercard-logo.svg_htaysy.webp" style="height:28px;opacity:0.9" alt="Mastercard">
-</div>
+      <img src="https://res.cloudinary.com/ioao7nb6/image/upload/v1786238210/visa-icon-original_hud12t.svg"
+           style="height:24px;opacity:0.9" alt="Visa">
+      <img src="https://res.cloudinary.com/ioao7nb6/image/upload/v1786237995/Mastercard-logo.svg_htaysy.webp"
+           style="height:28px;opacity:0.9" alt="Mastercard">
+    </div>
   </div>
 </div>
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script src="https://app.tilopay.com/sdk/v1/sdk.min.js"></script>
 <script>
-var APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw5b1QdZsR3JTS4Q8BCIBXIbAb-Sw4ZJWzBVaxLpugFTUGGt_ukcKpsLXe5xOjwJbQ/exec";
-var params = new URLSearchParams(window.location.search);
-var NEGOCIO     = params.get('negocio') || 'Mi Negocio';
-var MONTO = parseFloat(params.get('monto')) || 0;
-var MONTO_LIBRE = !params.get('monto');
-var EMAIL_NEGOCIO = params.get('email') || '';
-var ORDEN_UNICA = "EYP-" + Date.now();
-  // Resolver alias si viene por link corto
+/* ═══════════════════════════════════════════════════════
+   CONFIGURACIÓN
+═══════════════════════════════════════════════════════ */
+var APPS_URL = "https://script.google.com/macros/s/AKfycbw5b1QdZsR3JTS4Q8BCIBXIbAb-Sw4ZJWzBVaxLpugFTUGGt_ukcKpsLXe5xOjwJbQ/exec";
+var params       = new URLSearchParams(window.location.search);
+var NEGOCIO      = params.get('negocio') || '';
+var MONTO        = parseFloat(params.get('monto')) || 0;
+var MONTO_LIBRE  = !params.get('monto');
+var EMAIL_NEG    = params.get('email') || '';
+var ORDEN_UNICA  = "EYP-" + Date.now();
+var TOKEN        = null;
+var SDK_LISTO    = false;
+
+/* ═══════════════════════════════════════════════════════
+   ALIAS (link corto /p/alias)
+═══════════════════════════════════════════════════════ */
 var alias = params.get('alias') || '';
 var extra = params.get('extra') || '';
+
 if (alias) {
-  var cbAlias = 'alias_' + Date.now();
+  var cbAlias = 'eyp_alias_' + Date.now();
   window[cbAlias] = function(r) {
     if (r && r.ok) {
-      NEGOCIO = r.negocio;
-      EMAIL_NEGOCIO = r.correo;
+      NEGOCIO   = r.negocio;
+      EMAIL_NEG = r.correo;
       if (extra) {
-        var montoExtra = parseFloat(extra);
-        if (!isNaN(montoExtra) && montoExtra > 0) {
-          MONTO = montoExtra;
-          MONTO_LIBRE = false;
-         }
+        var m = parseFloat(extra);
+        if (!isNaN(m) && m > 0) { MONTO = m; MONTO_LIBRE = false; }
       }
     }
-    inicializarPagina();
+    renderHeader();
+    cargarToken();
     delete window[cbAlias];
-    if (document.body.contains(scAlias)) document.body.removeChild(scAlias);
   };
   var scAlias = document.createElement('script');
-  scAlias.src = APPS_SCRIPT_URL + "?action=getNegocioPorAlias&callback=" + cbAlias + "&alias=" + encodeURIComponent(alias);
-  scAlias.onerror = function() {
-  inicializarPagina();
-};
-document.body.appendChild(scAlias);
+  scAlias.onerror = function() { renderHeader(); cargarToken(); };
+  scAlias.src = APPS_URL + "?action=getNegocioPorAlias&callback=" + cbAlias + "&alias=" + encodeURIComponent(alias);
+  document.body.appendChild(scAlias);
 } else {
-  inicializarPagina();
+  renderHeader();
+  cargarToken();
 }
 
-function inicializarPagina() {
-  document.getElementById('nombre-negocio').textContent = NEGOCIO && NEGOCIO !== 'Mi Negocio' ? NEGOCIO : '...';
-  document.getElementById('monto-visible').innerHTML = '$' + MONTO.toFixed(2) + ' <span>USD</span>';
+function renderHeader() {
+  document.getElementById('nombre-negocio').textContent = NEGOCIO || '—';
+  document.getElementById('monto-visible').innerHTML = '$' + (MONTO||0).toFixed(2) + ' <span>USD</span>';
   if (MONTO_LIBRE) {
     document.getElementById('monto-libre-wrap').style.display = 'block';
     document.getElementById('monto-visible').style.display = 'none';
   }
 }
 
-var tilopayListo = false;
-var TOKEN_TILOPAY = null;
-
-// Intentar usar token cacheado
-var tokenCache = null;
-try {
-  var cached = localStorage.getItem('eyp_token');
-  if (cached) {
-    var parsed = JSON.parse(cached);
-    if (parsed.expires && new Date(parsed.expires) > new Date()) {
-      tokenCache = parsed.token;
-    }
-  }
-} catch(e) {}
-
-if (tokenCache) {
-  TOKEN_TILOPAY = tokenCache;
-  document.getElementById('loading-text').style.display = 'none';
-  document.getElementById('form-pago').style.display = 'block';
-  if (MONTO_LIBRE) {
-    document.getElementById('monto-libre-wrap').style.display = 'block';
-    document.getElementById('monto-visible').style.display = 'none';
-  }
-  setTimeout(async function() {
-    await Tilopay.Init({
-      token: TOKEN_TILOPAY,
-      currency: "USD",
-      language: "es",
-      amount: MONTO || 1,
-      billToEmail: 'cliente@ejemplo.com',
-      billToFirstName: 'Cliente',
-      billToLastName: 'Cliente',
-      billToAddress: 'Panama',
-      billToCity: 'Panama',
-      billToState: 'Panama',
-      billToZipPostCode: '00001',
-      billToCountry: 'PA',
-      orderNumber: ORDEN_UNICA,
-      capture: 1,
-      subscription: 0,
-      redirect: window.location.origin + "/gracias-pago.html"
-    });
-  }, 200);
-} else {
-var cbName = 'tilopay_cb_' + Date.now();
-window[cbName] = function(data) {
-  if (!data || !data.access_token) {
-    mostrarError("No se pudo iniciar el pago. Intenta de nuevo.");
-    document.getElementById('loading-text').style.display = 'none';
-    delete window[cbName];
-    return;
-  }
-  TOKEN_TILOPAY = data.access_token;
+/* ═══════════════════════════════════════════════════════
+   TOKEN — con caché de 3 minutos en localStorage
+═══════════════════════════════════════════════════════ */
+function cargarToken() {
+  // Intentar caché
   try {
-    localStorage.setItem('eyp_token', JSON.stringify({
-      token: data.access_token,
-      expires: new Date(Date.now() + 180000).toISOString()
-    }));
+    var c = JSON.parse(localStorage.getItem('eyp_tok') || 'null');
+    if (c && c.exp && new Date(c.exp) > new Date()) {
+      TOKEN = c.tok;
+      mostrarFormulario();
+      return;
+    }
   } catch(e) {}
-  document.getElementById('loading-text').style.display = 'none';
-    document.getElementById('form-pago').style.display = 'block';
-  // Pre-inicializar SDK cuando el formulario es visible
-  setTimeout(async function() {
-    await Tilopay.Init({
-      token: TOKEN_TILOPAY,
-      currency: "USD",
-      language: "es",
-      amount: MONTO || 1,
-      billToEmail: 'cliente@ejemplo.com',
-      billToFirstName: 'Cliente',
-      billToLastName: 'Cliente',
-      billToAddress: 'Panama',
-      billToCity: 'Panama',
-      billToState: 'Panama',
-            billToZipPostCode: '00001',
-      billToCountry: 'PA',
-      orderNumber: ORDEN_UNICA,
-      capture: 1,
-      subscription: 0,
-      redirect: window.location.origin + "/gracias-pago.html"
-    });
-  }, 200);
-  
-  if (MONTO_LIBRE) {
-    document.getElementById('monto-libre-wrap').style.display = 'block';
-    document.getElementById('monto-visible').style.display = 'none';
-  }
-  delete window[cbName];
-  if (document.body.contains(sc)) document.body.removeChild(sc);
-};
 
-var sc = document.createElement('script');
-sc.src = APPS_SCRIPT_URL + "?action=getTilopayToken&callback=" + cbName;
-sc.onerror = function() {
-  mostrarError("Error de conexión. Intenta de nuevo.");
-  document.getElementById('loading-text').style.display = 'none';
-};
-document.body.appendChild(sc);
+  // Pedir token fresco al Apps Script
+  var cb = 'eyp_tok_' + Date.now();
+  var sc = document.createElement('script');
+
+  window[cb] = function(data) {
+    delete window[cb];
+    if (sc.parentNode) sc.parentNode.removeChild(sc);
+
+    if (!data || !data.access_token) {
+      document.getElementById('loading-text').innerHTML =
+        '<span style="color:#C0392B">⚠️ No se pudo conectar con el procesador de pago. Recarga la página.</span>';
+      return;
+    }
+    TOKEN = data.access_token;
+    try {
+      localStorage.setItem('eyp_tok', JSON.stringify({
+        tok: TOKEN,
+        exp: new Date(Date.now() + 170000).toISOString()  // 2 min 50 seg
+      }));
+    } catch(e) {}
+    mostrarFormulario();
+  };
+
+  sc.onerror = function() {
+    document.getElementById('loading-text').innerHTML =
+      '<span style="color:#C0392B">⚠️ Error de red. Verifica tu conexión y recarga.</span>';
+  };
+  sc.src = APPS_URL + "?action=getTilopayToken&callback=" + cb;
+  document.body.appendChild(sc);
 }
-async function pagar() {
-  document.getElementById('btn-pagar').style.opacity = '1';
-  var boton = document.getElementById('btn-pagar');
-  var spinner = '<span style="width:18px;height:18px;border:3px solid rgba(10,31,92,0.3);border-top-color:#0A1F5C;border-radius:50%;display:inline-block;animation:spin 0.8s linear infinite"></span>';
-  boton.disabled = true;
-  boton.innerHTML = '<span style="display:inline-flex;align-items:center;gap:10px">' + spinner + 'Procesando...</span>';
-  if (!TOKEN_TILOPAY) {
-    boton.disabled = false;
-    boton.innerHTML = "🔒 Pagar ahora";
-    mostrarError("Espera un momento...");
-    return;
+
+/* ═══════════════════════════════════════════════════════
+   MOSTRAR FORMULARIO + PRE-INIT DEL SDK
+═══════════════════════════════════════════════════════ */
+function mostrarFormulario() {
+  document.getElementById('loading-text').style.display = 'none';
+  document.getElementById('form-pago').style.display   = 'block';
+
+  // Pre-init: el SDK necesita que el formulario sea visible para encontrar los campos
+  setTimeout(function() {
+    try {
+      Tilopay.Init({
+        token:            TOKEN,
+        currency:         "USD",
+        language:         "es",
+        amount:           MONTO || 1,
+        billToEmail:      "cliente@ejemplo.com",
+        billToFirstName:  "Cliente",
+        billToLastName:   "Cliente",
+        billToAddress:    "Panama",
+        billToCity:       "Panama",
+        billToState:      "Panama",
+        billToZipPostCode:"00001",
+        billToCountry:    "PA",
+        orderNumber:      ORDEN_UNICA,
+        capture:          1,
+        subscription:     0,
+        redirect:         window.location.origin + "/gracias-pago.html"
+      }).then(function() {
+        SDK_LISTO = true;
+        console.log('[EYP] SDK pre-init OK');
+      }).catch(function(e) {
+        console.log('[EYP] SDK pre-init error:', e);
+        // No bloqueamos — se reintentará en pagar()
+      });
+    } catch(e) {
+      console.log('[EYP] SDK Init exception:', e);
+    }
+  }, 400);
+}
+
+/* ═══════════════════════════════════════════════════════
+   FORMATO AUTOMÁTICO VENCIMIENTO
+═══════════════════════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', function() {
+  var expInput = document.getElementById('tlpy_cc_expiration_date');
+  if (expInput) {
+    expInput.addEventListener('input', function(e) {
+      var v = e.target.value.replace(/\D/g,'');
+      if (v.length >= 2) v = v.slice(0,2) + '/' + v.slice(2,4);
+      e.target.value = v;
+    });
   }
+});
+
+/* ═══════════════════════════════════════════════════════
+   FUNCIÓN PAGAR
+═══════════════════════════════════════════════════════ */
+async function pagar() {
+  var boton = document.getElementById('btn-pagar');
+
+  // Validaciones
+  if (!TOKEN) { mostrarError("Espera un momento, cargando..."); return; }
+
   if (MONTO_LIBRE) {
     MONTO = parseFloat(document.getElementById('monto-input-libre').value);
-    if (!MONTO || MONTO <= 0) { mostrarError('Ingresa un monto válido antes de pagar.'); return; }
+    if (!MONTO || MONTO <= 0) { mostrarError('Ingresa un monto válido.'); return; }
   }
-  var nombreVal = document.getElementById('nombre-cliente').value.trim();
-  var correoVal = document.getElementById('correo-cliente').value.trim();
-
-  if (!nombreVal) {
-    mostrarError("Por favor ingresa el nombre en la tarjeta.");
-    return;
-  }
-  if (!correoVal || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correoVal)) {
-    mostrarError("Por favor ingresa un correo electrónico válido.");
-    return;
+  var nombre = document.getElementById('nombre-cliente').value.trim();
+  var correo = document.getElementById('correo-cliente').value.trim();
+  if (!nombre) { mostrarError("Ingresa el nombre en la tarjeta."); return; }
+  if (!correo || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) {
+    mostrarError("Ingresa un correo electrónico válido."); return;
   }
 
- var mensajes = ['Procesando...', 'Verificando tarjeta...', 'Contactando banco...', 'Casi listo...'];
-  var idx = 0;
-  var intervalo = setInterval(function() {
-    idx = (idx + 1) % mensajes.length;
-    var spinner = '<span style="width:18px;height:18px;border:3px solid rgba(10,31,92,0.3);border-top-color:#0A1F5C;border-radius:50%;display:inline-block;animation:spin 0.8s linear infinite"></span>';
-    boton.innerHTML = '<span style="display:inline-flex;align-items:center;gap:10px">' + spinner + mensajes[idx] + '</span>';
-  }, 2000);
-  setTimeout(function() { clearInterval(intervalo); }, 30000);
+  // Bloquear botón
+  boton.disabled = true;
+  boton.innerHTML = '<span class="spinner"></span>Procesando...';
+  document.getElementById('mensaje-estado').textContent = '';
 
+  // Guardar datos para gracias-pago.html
   try {
-    sessionStorage.setItem('eyp_correo_cliente', correoVal);
-    sessionStorage.setItem('eyp_nombre_cliente', nombreVal);
+    sessionStorage.setItem('eyp_correo', correo);
+    sessionStorage.setItem('eyp_nombre', nombre);
   } catch(e) {}
 
-setTimeout(async function() {
-    var init = await Tilopay.updateOptions({
-    amount: MONTO,
-    billToEmail: correoVal,
-    billToFirstName: (nombreVal.split(' ')[0] || 'Cliente'),
-    billToLastName: (nombreVal.split(' ').slice(1).join(' ') || 'Cliente').trim() || 'Cliente',
-    orderNumber: ORDEN_UNICA,
-    subscription: 0,
-      redirect: window.location.origin + "/gracias-pago.html?negocio=" + encodeURIComponent(NEGOCIO) + "&monto=" + MONTO + "&orden=" + ORDEN_UNICA + "&email_negocio=" + encodeURIComponent(EMAIL_NEGOCIO) + "&correo=" + encodeURIComponent(correoVal) + "&nombre=" + encodeURIComponent(nombreVal)
-  });
-    if (init && init.methods && init.methods.length > 0) {
-    var sel = document.getElementById('tlpy_payment_method');
-    sel.innerHTML = '';
-    init.methods.forEach(function(m) {
-      var opt = document.createElement('option');
-      opt.value = m.id;
-      opt.textContent = m.name;
-      sel.appendChild(opt);
-    });
-  }
-
-  console.log('Init result:', init);
-var respuesta = Tilopay.startPayment();
-  console.log('Payment result:', respuesta);
-  setTimeout(function() {
+  // Timeout de seguridad 30s
+  var timeout = setTimeout(function() {
     if (boton.disabled) {
       boton.disabled = false;
       boton.innerHTML = "🔒 Pagar ahora";
-      mostrarError("El pago tardó más de lo esperado. Verifica con tu banco si fue cobrado.");
+      mostrarError("El pago tardó demasiado. Si fuiste cobrado, contacta soporte.");
     }
   }, 30000);
-   }, 100);
+
+  try {
+    var partes = nombre.split(' ');
+    var primerNombre = partes[0] || 'Cliente';
+    var apellido = partes.slice(1).join(' ').trim() || 'Cliente';
+    var redirect = window.location.origin + "/gracias-pago.html"
+      + "?negocio="      + encodeURIComponent(NEGOCIO)
+      + "&monto="        + MONTO
+      + "&orden="        + ORDEN_UNICA
+      + "&email_negocio="+ encodeURIComponent(EMAIL_NEG)
+      + "&correo="       + encodeURIComponent(correo)
+      + "&nombre="       + encodeURIComponent(nombre);
+
+    // Si el SDK no se pre-inicializó, Init completo
+    if (!SDK_LISTO) {
+      await Tilopay.Init({
+        token:            TOKEN,
+        currency:         "USD",
+        language:         "es",
+        amount:           MONTO,
+        billToEmail:      correo,
+        billToFirstName:  primerNombre,
+        billToLastName:   apellido,
+        billToAddress:    "Panama",
+        billToCity:       "Panama",
+        billToState:      "Panama",
+        billToZipPostCode:"00001",
+        billToCountry:    "PA",
+        orderNumber:      ORDEN_UNICA,
+        capture:          1,
+        subscription:     0,
+        redirect:         redirect
+      });
+      SDK_LISTO = true;
+    } else {
+      // Actualizar datos reales del cliente
+      await Tilopay.updateOptions({
+        amount:          MONTO,
+        billToEmail:     correo,
+        billToFirstName: primerNombre,
+        billToLastName:  apellido,
+        orderNumber:     ORDEN_UNICA,
+        subscription:    0,
+        redirect:        redirect
+      });
+    }
+
+    var respuesta = await Tilopay.startPayment();
+    clearTimeout(timeout);
+
+    if (respuesta && respuesta.message && respuesta.message !== "Success") {
+      mostrarError(respuesta.message);
+      boton.disabled = false;
+      boton.innerHTML = "🔒 Pagar ahora";
+    }
+    // Si es exitoso, Tilopay redirige automáticamente
+  } catch(e) {
+    clearTimeout(timeout);
+    console.log('[EYP] Error en pago:', e);
+    mostrarError("Error al procesar. Intenta de nuevo.");
+    boton.disabled = false;
+    boton.innerHTML = "🔒 Pagar ahora";
+  }
 }
-  
+
 function mostrarError(msg) {
   var el = document.getElementById('mensaje-estado');
   el.style.color = '#C0392B';
   el.textContent = msg;
 }
-  document.getElementById('tlpy_cc_expiration_date').addEventListener('input', function(e) {
-  var v = e.target.value.replace(/\D/g, '');
-  if (v.length >= 2) {
-    v = v.substring(0,2) + '/' + v.substring(2,4);
-  }
-  e.target.value = v;
-});
 </script>
 </body>
 </html>
