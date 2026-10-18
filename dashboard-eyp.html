@@ -470,7 +470,7 @@ var params = new URLSearchParams(window.location.search);
 var correoParam = params.get('correo');
 if (correoParam) document.getElementById('login-correo').value = correoParam;
 
-var sesion = sessionStorage.getItem('eyp_sesion');
+var sesion = localStorage.getItem('eyp_sesion');
 if (sesion) { try { negocioData = JSON.parse(sesion); mostrarDashboard(); } catch(e) {} }
 
 function iniciarSesion() {
@@ -485,7 +485,7 @@ function iniciarSesion() {
   window[cbName] = function(resp) {
     if (resp && resp.ok) {
       negocioData = resp;
-      sessionStorage.setItem('eyp_sesion', JSON.stringify(negocioData));
+      localStorage.setItem('eyp_sesion', JSON.stringify(negocioData));
       mostrarDashboard();
     } else {
       err.textContent = 'Correo o contraseña incorrectos.';
@@ -497,7 +497,10 @@ function iniciarSesion() {
   };
   var sc = document.createElement('script');
   sc.src = APPS_SCRIPT_URL + "?action=loginEYP&callback=" + cbName + "&correo=" + encodeURIComponent(correo) + "&password=" + encodeURIComponent(pass);
-  sc.onerror = function() { err.textContent = 'Error de conexión.'; err.style.display = 'block'; btn.disabled = false; btn.textContent = 'Entrar'; };
+  sc.onerror = function() { err.textContent = 'Sin conexión. Verifica tu internet e intenta de nuevo.'; err.style.display = 'block'; btn.disabled = false; btn.textContent = 'Entrar'; delete window[cbName]; };
+  var loginTimeout = setTimeout(function() { if (window[cbName]) { err.textContent = 'Tiempo de espera agotado. Intenta de nuevo.'; err.style.display = 'block'; btn.disabled = false; btn.textContent = 'Entrar'; delete window[cbName]; if (document.body.contains(sc)) document.body.removeChild(sc); } }, 12000);
+  var origCb = window[cbName];
+  window[cbName] = function(r) { clearTimeout(loginTimeout); origCb(r); };
   document.body.appendChild(sc);
 }
 
@@ -507,7 +510,7 @@ function mostrarDashboard() {
   document.getElementById('bottom-nav').style.display = 'none';
   document.getElementById('header-right').style.display = 'flex';
   document.getElementById('header-nombre').textContent = negocioData.negocio || '';
-  sessionStorage.removeItem('eyp_sesion');
+  localStorage.removeItem('eyp_sesion');
   document.body.innerHTML = '<div style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;background:#F3F5F9;text-align:center"><div style="font-size:48px;margin-bottom:16px">🚫</div><div style="font-family:Montserrat,sans-serif;font-weight:900;font-size:22px;color:#0A1F5C;margin-bottom:12px">Cuenta bloqueada</div><div style="font-size:14px;color:#7A8194;max-width:360px;line-height:1.6;margin-bottom:24px">Tu cuenta ha sido suspendida temporalmente. Escribe a <a href="mailto:soporte@escaneayapay.com" style="color:#0A1F5C;font-weight:600">soporte@escaneayapay.com</a> para más información.</div><button onclick="window.location.reload()" style="border:none;border-radius:10px;background:#0A1F5C;color:#fff;font-family:Montserrat,sans-serif;font-weight:800;font-size:14px;padding:14px 28px;cursor:pointer">🔄 Intentar de nuevo</button></div>';
   return;
 }
@@ -830,7 +833,7 @@ function subirLogo(input) {
   .then(function(data) {
     if (data.secure_url) {
       negocioData.logo = data.secure_url;
-      sessionStorage.setItem('eyp_sesion', JSON.stringify(negocioData));
+      localStorage.setItem('eyp_sesion', JSON.stringify(negocioData));
       actualizarLogo(negocioData.logo);
       fetch(APPS_SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'actualizarPerfilEYP', correo: negocioData.correo, logo: data.secure_url }) });
     }
@@ -840,7 +843,7 @@ function subirLogo(input) {
 function guardarPerfil() {
   negocioData.negocio = document.getElementById('perfil-negocio').value.trim() || negocioData.negocio;
   negocioData.whatsapp = document.getElementById('perfil-whatsapp').value.trim();
-  sessionStorage.setItem('eyp_sesion', JSON.stringify(negocioData));
+  localStorage.setItem('eyp_sesion', JSON.stringify(negocioData));
   document.getElementById('header-nombre').textContent = negocioData.negocio;
   var btnP = document.querySelector('#sec-perfil .btn-main');
   btnP.disabled = true; btnP.textContent = '⏳ Guardando...';
@@ -881,7 +884,7 @@ function cambiarPassword() {
 }
 
 function cerrarSesion() {
-  sessionStorage.removeItem('eyp_sesion');
+  localStorage.removeItem('eyp_sesion');
   negocioData = null;
   document.getElementById('bottom-nav').style.display = 'none';
   document.getElementById('header-right').style.display = 'none';
@@ -941,7 +944,7 @@ function solicitarStand() {
       ok.style.display = 'block';
       btn.textContent = 'Solicitud enviada ✓';
       negocioData.stand_solicitado = 'si';
-      sessionStorage.setItem('eyp_sesion', JSON.stringify(negocioData));
+      localStorage.setItem('eyp_sesion', JSON.stringify(negocioData));
       document.getElementById('stand-gratis').style.display = 'none';
       document.getElementById('stand-adicional').style.display = 'block';
     } else {
@@ -1019,7 +1022,7 @@ function guardarKYC() {
   btn.disabled = true; btn.textContent = '⏳ Enviando...';
   var cb = 'kyc_' + Date.now();
   window[cb] = function(r) {
-    if (r && r.ok) { document.getElementById('kyc-wrap').style.display = 'none'; document.getElementById('kyc-done').style.display = 'block'; negocioData.kyc_enviado = 'si'; sessionStorage.setItem('eyp_sesion', JSON.stringify(negocioData)); }
+    if (r && r.ok) { document.getElementById('kyc-wrap').style.display = 'none'; document.getElementById('kyc-done').style.display = 'block'; negocioData.kyc_enviado = 'si'; localStorage.setItem('eyp_sesion', JSON.stringify(negocioData)); }
     else { document.getElementById('kyc-err').textContent = 'Error al enviar.'; document.getElementById('kyc-err').style.display = 'block'; btn.disabled = false; btn.textContent = 'Enviar documentos'; }
     delete window[cb]; if (document.body.contains(sc)) document.body.removeChild(sc);
   };
@@ -1043,7 +1046,7 @@ function guardarBanco() {
   btn.disabled = true; btn.textContent = '⏳ Guardando...';
   var cb = 'banco_' + Date.now();
   window[cb] = function(r) {
-    if (r && r.ok) { document.getElementById('banco-wrap').style.display = 'none'; document.getElementById('banco-done').style.display = 'block'; document.getElementById('banco-resumen').innerHTML = '<strong>' + banco + '</strong><br>' + titular + '<br>' + cuenta + '<br>' + tipo; negocioData.banco_guardado = 'si'; sessionStorage.setItem('eyp_sesion', JSON.stringify(negocioData)); }
+    if (r && r.ok) { document.getElementById('banco-wrap').style.display = 'none'; document.getElementById('banco-done').style.display = 'block'; document.getElementById('banco-resumen').innerHTML = '<strong>' + banco + '</strong><br>' + titular + '<br>' + cuenta + '<br>' + tipo; negocioData.banco_guardado = 'si'; localStorage.setItem('eyp_sesion', JSON.stringify(negocioData)); }
     else { err.textContent = 'Error al guardar.'; err.style.display = 'block'; btn.disabled = false; btn.textContent = 'Guardar datos bancarios'; }
     delete window[cb]; if (document.body.contains(sc)) document.body.removeChild(sc);
   };
@@ -1060,9 +1063,9 @@ function guardarBanco() {
    var estadoAnterior = negocioData.estado;
       if (estadoActual !== estadoAnterior) {
         negocioData.estado = estadoActual;
-        sessionStorage.setItem('eyp_sesion', JSON.stringify(negocioData));
+        localStorage.setItem('eyp_sesion', JSON.stringify(negocioData));
         if (estadoActual === 'bloqueado') {
-          sessionStorage.removeItem('eyp_sesion');
+          localStorage.removeItem('eyp_sesion');
         }
         window.location.reload();
       }
