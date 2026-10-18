@@ -8,6 +8,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="EscaneaYa Pay">
 <link rel="apple-touch-icon" href="https://res.cloudinary.com/ioao7nb6/image/upload/v1786158445/escanea-y-paga-logo_1_iv9ode.svg">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230A1F5C'/%3E%3Ctext x='50%25' y='22' text-anchor='middle' font-size='18' font-family='Arial' font-weight='bold' fill='%234ECDC4'%3EEY%3C/text%3E%3C/svg%3E">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>Dashboard — EscaneaYa Pay</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -86,6 +87,12 @@
   .tx-monto{font-family:'Montserrat',sans-serif;font-weight:900;font-size:16px;color:var(--azul);text-align:right;}
   .tx-estado{font-size:10px;font-weight:700;color:var(--verde-oscuro);background:rgba(126,211,33,0.12);padding:2px 8px;border-radius:999px;margin-top:4px;display:inline-block;}
   .tx-empty{text-align:center;padding:30px;color:var(--gris);font-size:13px;}
+  .tx-detalle{display:none;margin-top:10px;border-top:1px solid var(--borde);padding-top:10px;}
+  .tx-detalle.open{display:block;}
+  .tx-row{display:flex;justify-content:space-between;font-size:12px;color:var(--gris);padding:3px 0;}
+  .tx-row strong{color:var(--texto);}
+  .tx-neto{display:flex;justify-content:space-between;font-size:13px;font-weight:700;color:var(--verde-oscuro);padding:6px 0 0;border-top:1px dashed var(--borde);margin-top:4px;}
+  .tx-toggle{font-size:11px;color:var(--azul);cursor:pointer;margin-top:4px;display:inline-block;font-weight:600;}
   .prod-card{background:var(--card);border-radius:12px;padding:14px 16px;margin-bottom:8px;display:flex;gap:12px;align-items:flex-start;box-shadow:0 2px 8px rgba(0,0,0,0.04);}
   .prod-img{width:52px;height:52px;border-radius:10px;background:var(--fondo);border:1px solid var(--borde);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:22px;overflow:hidden;}
   .prod-img img{width:100%;height:100%;object-fit:cover;}
@@ -185,8 +192,12 @@
       <span class="wallet-row-val" id="wallet-bruto">$0.00</span>
     </div>
     <div class="wallet-row" style="margin-top:6px">
-      <span class="wallet-row-label">Comisión EscaneaYa Pay</span>
+      <span class="wallet-row-label">Comisión EscaneaYa Pay (5.5% + $0.75 + IVA)</span>
       <span class="wallet-row-val" id="wallet-comision">$0.00</span>
+    </div>
+    <div class="wallet-row" style="margin-top:6px;border-top:1px solid rgba(255,255,255,0.08);padding-top:10px">
+      <span class="wallet-row-label" style="color:#7ED321;font-weight:700">💰 Ganancia EscaneaYa</span>
+      <span class="wallet-row-val" style="color:#7ED321;font-weight:900" id="wallet-ganancia-eyp">$0.00</span>
     </div>
   </div>
   <div class="stats-grid">
@@ -396,8 +407,32 @@
     <p class="msg-ok" id="pass-ok">✓ Contraseña actualizada</p>
     <p class="msg-err" id="pass-err"></p>
   </div>
-  <button id="btn-instalar-perfil" onclick="instalarApp()" style="display:none;width:100%;margin-top:4px;padding:12px;border:none;border-radius:10px;background:var(--azul);color:#fff;font-family:'Montserrat',sans-serif;font-weight:800;font-size:13px;cursor:pointer">📲 Instalar app en tu celular</button>
-<div id="pwa-ios-msg" style="display:none;font-size:12px;color:var(--gris);margin-top:8px;padding:10px;background:rgba(10,31,92,0.05);border-radius:8px;line-height:1.6">📲 En iPhone: toca <strong>Compartir ↑</strong> en Safari → <strong>Añadir a pantalla de inicio</strong></div>
+  <!-- PWA Install Banner Android -->
+  <div id="pwa-android-banner" style="display:none;margin-top:12px;background:linear-gradient(135deg,#0A1F5C,#1a3a8a);border-radius:14px;padding:16px;color:#fff;position:relative">
+    <button onclick="document.getElementById('pwa-android-banner').style.display='none'" style="position:absolute;top:10px;right:12px;background:none;border:none;color:rgba(255,255,255,0.5);font-size:18px;cursor:pointer;line-height:1">✕</button>
+    <div style="font-size:13px;font-weight:700;margin-bottom:4px;font-family:'Montserrat',sans-serif">📲 Guarda tu wallet en el celular</div>
+    <div style="font-size:11px;color:rgba(255,255,255,0.75);margin-bottom:12px">Accede rápido sin abrir el navegador. Tu saldo siempre a la mano.</div>
+    <button id="btn-instalar-perfil" onclick="instalarApp()" style="width:100%;padding:11px;border:none;border-radius:10px;background:#4ECDC4;color:#0A1F5C;font-family:'Montserrat',sans-serif;font-weight:900;font-size:13px;cursor:pointer">⬇️ Instalar EscaneaYa Pay</button>
+  </div>
+  <!-- PWA Install Banner iOS -->
+  <div id="pwa-ios-msg" style="display:none;margin-top:12px;background:linear-gradient(135deg,#0A1F5C,#1a3a8a);border-radius:14px;padding:16px;color:#fff;position:relative">
+    <button onclick="document.getElementById('pwa-ios-msg').style.display='none'" style="position:absolute;top:10px;right:12px;background:none;border:none;color:rgba(255,255,255,0.5);font-size:18px;cursor:pointer;line-height:1">✕</button>
+    <div style="font-size:13px;font-weight:700;margin-bottom:4px;font-family:'Montserrat',sans-serif">📲 Guarda tu wallet en iPhone</div>
+    <div style="font-size:12px;color:rgba(255,255,255,0.85);line-height:1.7;margin-top:4px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+        <span style="background:rgba(255,255,255,0.15);border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0">1</span>
+        Toca el botón <strong>Compartir</strong> <span style="font-size:16px">⬆️</span> en Safari
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+        <span style="background:rgba(255,255,255,0.15);border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0">2</span>
+        Selecciona <strong>Añadir a pantalla de inicio</strong> <span style="font-size:14px">➕</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="background:rgba(255,255,255,0.15);border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0">3</span>
+        Toca <strong>Añadir</strong> — ¡listo! 🎉
+      </div>
+    </div>
+  </div>
   <a href="mailto:soporte@escaneayapay.com" style="display:block;width:100%;margin-top:4px;padding:12px;border:1.5px solid var(--borde);border-radius:10px;background:transparent;color:var(--azul);font-size:13px;font-family:'Poppins',sans-serif;font-weight:600;cursor:pointer;text-align:center;text-decoration:none;">💬 Contactar soporte</a>
   <button onclick="cerrarSesion()" style="width:100%;margin-top:4px;padding:12px;border:1.5px solid var(--borde);border-radius:10px;background:transparent;color:var(--gris);font-size:13px;font-family:'Poppins',sans-serif;font-weight:600;cursor:pointer">Cerrar sesión</button>
 </div>
@@ -532,13 +567,17 @@ if (negocioData.banco_guardado === 'si') {
   cargarLiquidaciones();
   // Verificar estado cada 30 segundos
   var esIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
-if (deferredPrompt) {
-  var btnPerfil = document.getElementById('btn-instalar-perfil');
-  if (btnPerfil) btnPerfil.style.display = 'block';
-} else if (esIOS) {
-  var iosMsg = document.getElementById('pwa-ios-msg');
-  if (iosMsg) iosMsg.style.display = 'block';
-}
+  var esSafariIOS = esIOS && /safari/i.test(navigator.userAgent) && !/crios|fxios/i.test(navigator.userAgent);
+  var yaInstalada = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+  if (!yaInstalada) {
+    if (deferredPrompt) {
+      var androidBanner = document.getElementById('pwa-android-banner');
+      if (androidBanner) androidBanner.style.display = 'block';
+    } else if (esSafariIOS) {
+      var iosMsg = document.getElementById('pwa-ios-msg');
+      if (iosMsg) iosMsg.style.display = 'block';
+    }
+  }
 setInterval(verificarEstado, 30000);
 }
 function mostrarTransacciones(txs) {
@@ -620,11 +659,43 @@ function mostrarTransacciones(txs) {
   var l = document.getElementById('historial-list');
   if (!txs || !txs.length) { l.innerHTML = '<div class="tx-empty">Aún no tienes cobros.</div>'; return; }
   l.innerHTML = '';
-  txs.slice(0,30).forEach(function(tx) {
+  txs.slice(0,30).forEach(function(tx, i) {
+    var bruto = parseFloat(tx.monto||0);
+    var comBase = bruto * 0.055;
+    var fijo = 0.75;
+    var subtotal = comBase + fijo;
+    var iva = subtotal * 0.07;
+    var comTotal = subtotal + iva;
+    var neto = bruto - comTotal;
+    var did = 'det_' + i;
     var d = document.createElement('div'); d.className = 'tx-card';
-    d.innerHTML = '<div><div class="tx-orden">' + (tx.orden||'—') + '</div><div class="tx-cliente">' + (tx.nombre_cliente||'Cliente') + '</div><div class="tx-fecha">' + (tx.fecha||'—') + '</div></div><div><div class="tx-monto">$' + parseFloat(tx.monto||0).toFixed(2) + '</div><div class="tx-estado">✓ Aprobado</div></div>';
+    d.innerHTML =
+      '<div style="display:flex;justify-content:space-between;align-items:flex-start">' +
+        '<div>' +
+          '<div class="tx-orden">' + (tx.orden||'—') + '</div>' +
+          '<div class="tx-cliente">' + (tx.nombre_cliente||'Cliente') + '</div>' +
+          '<div class="tx-fecha">' + (tx.fecha||'—') + '</div>' +
+        '</div>' +
+        '<div style="text-align:right">' +
+          '<div class="tx-monto">$' + bruto.toFixed(2) + '</div>' +
+          '<div class="tx-estado">✓ Aprobado</div>' +
+        '</div>' +
+      '</div>' +
+      '<span class="tx-toggle" onclick="toggleDet(\'' + did + '\',this)">Ver desglose ▼</span>' +
+      '<div class="tx-detalle" id="' + did + '">' +
+        '<div class="tx-row"><span>Cobrado al cliente</span><strong>$' + bruto.toFixed(2) + '</strong></div>' +
+        '<div class="tx-row"><span>Comisión 5.5%</span><strong>−$' + comBase.toFixed(2) + '</strong></div>' +
+        '<div class="tx-row"><span>Costo por transacción</span><strong>−$' + fijo.toFixed(2) + '</strong></div>' +
+        '<div class="tx-row"><span>IVA 7% (sobre comisión)</span><strong>−$' + iva.toFixed(2) + '</strong></div>' +
+        '<div class="tx-neto"><span>Tu ganancia neta</span><span>$' + neto.toFixed(2) + '</span></div>' +
+      '</div>';
     l.appendChild(d);
   });
+}
+function toggleDet(id, el) {
+  var det = document.getElementById(id);
+  var open = det.classList.toggle('open');
+  el.textContent = open ? 'Ocultar ▲' : 'Ver desglose ▼';
 }
 
 function calcularStats(txs) {
@@ -656,6 +727,7 @@ function cargarLiquidaciones() {
       document.getElementById('wallet-saldo').textContent = neto.toFixed(2);
       document.getElementById('wallet-bruto').textContent = '$' + bruto.toFixed(2);
       document.getElementById('wallet-comision').textContent = '$' + comision.toFixed(2);
+      document.getElementById('wallet-ganancia-eyp').textContent = '$' + comision.toFixed(2);
       if (negocioData.estado === 'retenido') {
         document.getElementById('wallet-sub').textContent = 'Liquidación en revisión';
         document.getElementById('wallet-badge').textContent = '⏸️ En revisión';
@@ -683,7 +755,7 @@ function cargarLiquidaciones() {
         document.getElementById('liq-detalle').innerHTML = 'Tu pago está pendiente de revisión. Seguirás cobrando con normalidad. Escríbenos a <a href="mailto:soporte@escaneayapay.com" style="color:#7ED321">soporte@escaneayapay.com</a> para resolverlo rápido.';
       } else {
         document.getElementById('monto-liquidacion').textContent = 'Estimado a liquidar: $' + r.neto + ' USD';
-        document.getElementById('liq-detalle').textContent = 'Total bruto: $' + r.total_bruto + ' · Comisión (5.5%): $' + r.comision;
+        document.getElementById('liq-detalle').textContent = 'Total bruto: $' + r.total_bruto + ' · Comisión (5.5% + $0.75 + IVA): $' + r.comision;
       }
     }
     delete window[cb]; if (document.body.contains(sc)) document.body.removeChild(sc);
@@ -1070,8 +1142,8 @@ window.addEventListener('beforeinstallprompt', function(e) {
   e.preventDefault();
   deferredPrompt = e;
   if (negocioData) {
-    var btnPerfil = document.getElementById('btn-instalar-perfil');
-    if (btnPerfil) btnPerfil.style.display = 'block';
+    var banner = document.getElementById('pwa-android-banner');
+    if (banner) banner.style.display = 'block';
   }
 });
 
@@ -1080,8 +1152,8 @@ function instalarApp() {
     deferredPrompt.prompt();
     deferredPrompt.userChoice.then(function() {
       deferredPrompt = null;
-      var btnPerfil = document.getElementById('btn-instalar-perfil');
-      if (btnPerfil) btnPerfil.style.display = 'none';
+      var banner = document.getElementById('pwa-android-banner');
+      if (banner) banner.style.display = 'none';
     });
   }
 }
