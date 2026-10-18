@@ -65,6 +65,18 @@
   .liq-title{font-size:11px;color:#8C9BD6;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px;}
   .liq-fecha{font-family:'Montserrat',sans-serif;font-weight:900;font-size:18px;}
   .liq-monto{font-size:13px;color:#B9C2E8;margin-top:4px;}
+  .wallet-card{background:linear-gradient(135deg,#1a3a6b 0%,#0d2247 100%);border-radius:20px;padding:22px 22px 18px;color:#fff;margin-bottom:14px;position:relative;overflow:hidden;}
+  .wallet-card::before{content:'';position:absolute;top:-30px;right:-30px;width:130px;height:130px;border-radius:50%;background:rgba(126,211,33,0.08);}
+  .wallet-card::after{content:'';position:absolute;bottom:-40px;right:20px;width:90px;height:90px;border-radius:50%;background:rgba(126,211,33,0.05);}
+  .wallet-label{font-size:11px;color:#8C9BD6;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px;}
+  .wallet-amount{font-family:'Montserrat',sans-serif;font-weight:900;font-size:38px;line-height:1;color:#fff;margin-bottom:4px;}
+  .wallet-amount span{font-size:18px;vertical-align:top;margin-top:6px;display:inline-block;margin-right:2px;color:#B9C2E8;}
+  .wallet-sub{font-size:12px;color:#B9C2E8;margin-bottom:16px;}
+  .wallet-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(126,211,33,0.15);border:1px solid rgba(126,211,33,0.3);border-radius:20px;padding:5px 12px;font-size:11px;font-weight:600;color:#7ED321;}
+  .wallet-divider{border:none;border-top:1px solid rgba(255,255,255,0.08);margin:14px 0;}
+  .wallet-row{display:flex;justify-content:space-between;align-items:center;}
+  .wallet-row-label{font-size:11px;color:#8C9BD6;}
+  .wallet-row-val{font-size:12px;font-weight:600;color:#fff;}
   .cobro-hint{font-size:12px;color:var(--gris);background:rgba(126,211,33,0.08);border:1px solid rgba(126,211,33,0.2);border-radius:8px;padding:10px 12px;margin-bottom:14px;line-height:1.5;}
   .btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
   .tx-card{background:var(--card);border-radius:12px;padding:14px 16px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 2px 8px rgba(0,0,0,0.04);}
@@ -161,6 +173,22 @@
 
 <!-- RESUMEN -->
 <div class="seccion" id="sec-resumen" style="display:none">
+  <!-- WALLET -->
+  <div class="wallet-card">
+    <div class="wallet-label">💳 Mi Wallet</div>
+    <div class="wallet-amount"><span>$</span><span id="wallet-saldo">0.00</span></div>
+    <div class="wallet-sub" id="wallet-sub">Saldo disponible para liquidar</div>
+    <div class="wallet-badge" id="wallet-badge">⏳ Pendiente de liquidación</div>
+    <hr class="wallet-divider">
+    <div class="wallet-row">
+      <span class="wallet-row-label">Total cobrado (bruto)</span>
+      <span class="wallet-row-val" id="wallet-bruto">$0.00</span>
+    </div>
+    <div class="wallet-row" style="margin-top:6px">
+      <span class="wallet-row-label">Comisión EscaneaYa Pay</span>
+      <span class="wallet-row-val" id="wallet-comision">$0.00</span>
+    </div>
+  </div>
   <div class="stats-grid">
     <div class="stat-card"><div class="stat-val" id="stat-hoy">$0</div><div class="stat-lbl">Hoy</div></div>
     <div class="stat-card"><div class="stat-val" id="stat-mes">$0</div><div class="stat-lbl">Este mes</div></div>
@@ -621,20 +649,42 @@ function cargarLiquidaciones() {
   var cb = 'liq_' + Date.now();
   window[cb] = function(r) {
     if (r && r.ok) {
-      // KYC progresivo
-var totalBruto = parseFloat(r.total_bruto || 0);
-if (totalBruto >= 100 && negocioData.kyc_enviado !== 'si') {
-  document.getElementById('monto-liquidacion').textContent = '⚠️ Verificación requerida';
-  document.getElementById('liq-detalle').innerHTML = 'Has superado $100 en ventas. Para recibir tu liquidación completa tu verificación en <a href="#" onclick="irA(\'perfil\',document.querySelectorAll(\'.nav-item\')[3])" style="color:#7ED321;font-weight:600">Perfil → Verificación de identidad →</a>';
-  return;
-}
+      var neto = parseFloat(r.neto || 0);
+      var bruto = parseFloat(r.total_bruto || 0);
+      var comision = parseFloat(r.comision || 0);
+      // Llenar wallet
+      document.getElementById('wallet-saldo').textContent = neto.toFixed(2);
+      document.getElementById('wallet-bruto').textContent = '$' + bruto.toFixed(2);
+      document.getElementById('wallet-comision').textContent = '$' + comision.toFixed(2);
       if (negocioData.estado === 'retenido') {
-  document.getElementById('monto-liquidacion').textContent = '⏸️ Liquidación en revisión — $' + r.neto + ' USD';
-  document.getElementById('liq-detalle').innerHTML = 'Tu pago está pendiente de revisión. Seguirás cobrando con normalidad. Escríbenos a <a href="mailto:soporte@escaneayapay.com" style="color:#7ED321">soporte@escaneayapay.com</a> para resolverlo rápido.';
-} else {
-  document.getElementById('monto-liquidacion').textContent = 'Estimado a liquidar: $' + r.neto + ' USD';
-  document.getElementById('liq-detalle').textContent = 'Total bruto: $' + r.total_bruto + ' · Comisión (5.5%): $' + r.comision;
-}
+        document.getElementById('wallet-sub').textContent = 'Liquidación en revisión';
+        document.getElementById('wallet-badge').textContent = '⏸️ En revisión';
+        document.getElementById('wallet-badge').style.color = '#FFC107';
+        document.getElementById('wallet-badge').style.borderColor = 'rgba(255,193,7,0.3)';
+        document.getElementById('wallet-badge').style.background = 'rgba(255,193,7,0.1)';
+      } else if (bruto >= 100 && negocioData.kyc_enviado !== 'si') {
+        document.getElementById('wallet-sub').textContent = 'Verificación requerida para liquidar';
+        document.getElementById('wallet-badge').textContent = '⚠️ Verificación pendiente';
+        document.getElementById('wallet-badge').style.color = '#FFC107';
+        document.getElementById('wallet-badge').style.borderColor = 'rgba(255,193,7,0.3)';
+        document.getElementById('wallet-badge').style.background = 'rgba(255,193,7,0.1)';
+      } else if (neto === 0) {
+        document.getElementById('wallet-sub').textContent = 'Sin saldo pendiente';
+        document.getElementById('wallet-badge').textContent = '✅ Al día';
+        document.getElementById('wallet-badge').style.color = '#7ED321';
+      }
+      // Liquidación card (mantener)
+      var totalBruto = bruto;
+      if (totalBruto >= 100 && negocioData.kyc_enviado !== 'si') {
+        document.getElementById('monto-liquidacion').textContent = '⚠️ Verificación requerida';
+        document.getElementById('liq-detalle').innerHTML = 'Has superado $100 en ventas. Para recibir tu liquidación completa tu verificación en <a href="#" onclick="irA(\'perfil\',document.querySelectorAll(\'.nav-item\')[3])" style="color:#7ED321;font-weight:600">Perfil → Verificación de identidad →</a>';
+      } else if (negocioData.estado === 'retenido') {
+        document.getElementById('monto-liquidacion').textContent = '⏸️ Liquidación en revisión — $' + r.neto + ' USD';
+        document.getElementById('liq-detalle').innerHTML = 'Tu pago está pendiente de revisión. Seguirás cobrando con normalidad. Escríbenos a <a href="mailto:soporte@escaneayapay.com" style="color:#7ED321">soporte@escaneayapay.com</a> para resolverlo rápido.';
+      } else {
+        document.getElementById('monto-liquidacion').textContent = 'Estimado a liquidar: $' + r.neto + ' USD';
+        document.getElementById('liq-detalle').textContent = 'Total bruto: $' + r.total_bruto + ' · Comisión (5.5%): $' + r.comision;
+      }
     }
     delete window[cb]; if (document.body.contains(sc)) document.body.removeChild(sc);
   };
