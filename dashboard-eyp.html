@@ -470,7 +470,7 @@ function iniciarSesion() {
   var cbName = 'login_' + Date.now();
   window[cbName] = function(resp) {
     if (resp && resp.ok) {
-      negocioData = resp.negocio;
+      negocioData = resp;
       sessionStorage.setItem('eyp_sesion', JSON.stringify(negocioData));
       mostrarDashboard();
     } else {
