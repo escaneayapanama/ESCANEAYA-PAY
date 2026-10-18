@@ -77,6 +77,63 @@ function doGet(e) {
         resultado = calcularDivision(parseFloat(params.monto || 0));
         break;
 
+      // ── Dashboard del negocio ──
+      case 'ping':
+        resultado = { ok: true };
+        break;
+
+      case 'loginEYP':
+        resultado = loginEYP(params.correo || '', params.password || '');
+        break;
+
+      case 'getTransaccionesEYP':
+        resultado = getTransaccionesEYP(params.email || '');
+        break;
+
+      case 'getLiquidacionesEYP':
+        resultado = getLiquidacionesEYP(params.email || '');
+        break;
+
+      case 'getEstadoEYP':
+        resultado = getEstadoEYP(params.email || '');
+        break;
+
+      case 'getCatalogoEYP':
+        resultado = getCatalogoEYP(params.email || '');
+        break;
+
+      case 'guardarProductoEYP':
+        resultado = guardarProductoEYP(params);
+        break;
+
+      case 'eliminarProductoEYP':
+        resultado = eliminarProductoEYP(params.email || '', params.index || 0);
+        break;
+
+      case 'guardarBancoEYP':
+        resultado = guardarBancoEYP(params);
+        break;
+
+      case 'guardarKYC':
+        resultado = guardarKYC(params);
+        break;
+
+      case 'actualizarPerfilEYP':
+        resultado = actualizarPerfilEYP(params);
+        break;
+
+      case 'cambiarPasswordEYP':
+        resultado = cambiarPasswordEYP(params);
+        break;
+
+      case 'recuperarPasswordEYP':
+        resultado = recuperarPasswordEYP(params.correo || '');
+        break;
+
+      case 'solicitarStandEYP':
+        resultado = solicitarStandEYP(params.email || '');
+        break;
+
       default:
         resultado = { ok: false, error: 'Acción no reconocida: ' + action };
     }
@@ -635,4 +692,285 @@ function _obtenerOCrearHoja(ss, nombre, encabezados) {
         .setFontColor('#FFFFFF');
   }
   return hoja;
+}
+
+// ============================================================
+// DASHBOARD — LOGIN
+// ============================================================
+function loginEYP(correo, password) {
+  try {
+    if (!correo || !password) return { ok: false, error: 'Correo y contraseña requeridos' };
+    var ss   = SpreadsheetApp.openById(CONFIG.SHEET_ID);
+    var hoja = ss.getSheetByName(CONFIG.HOJA_COMERCIOS);
+    var datos = hoja.getDataRange().getValues();
+    // cols: 0=id,1=correo,2=negocio,3=logo,4=whatsapp,5=password,6=fecha,7=estado,
+    //       8=ventas,9=stand_solicitado,10=kyc_enviado,11=banco_guardado,
+    //       12=cedula_url,13=aviso_url,14=banco,15=titular,16=cuenta,17=tipo_cuenta,18=alias
+    for (var i = 1; i < datos.length; i++) {
+      var r = datos[i];
+      if ((r[1]+'').toLowerCase().trim() === correo.toLowerCase().trim()) {
+        if ((r[5]+'').trim() !== (password+'').trim()) {
+          return { ok: false, error: 'Contraseña incorrecta' };
+        }
+        return {
+          ok: true,
+          id: r[0], correo: r[1], negocio: r[2], logo: r[3],
+          whatsapp: r[4], estado: r[7], ventas: r[8],
+          stand_solicitado: r[9], kyc_enviado: r[10], banco_guardado: r[11],
+          alias: r[18]
+        };
+      }
+    }
+    return { ok: false, error: 'Correo no encontrado' };
+  } catch(err) { return { ok: false, error: err.toString() }; }
+}
+
+// ============================================================
+// DASHBOARD — TRANSACCIONES DEL NEGOCIO
+// ============================================================
+function getTransaccionesEYP(email) {
+  try {
+    var ss   = SpreadsheetApp.openById(CONFIG.SHEET_ID);
+    var hoja = ss.getSheetByName(CONFIG.HOJA_TRANSACCIONES);
+    if (!hoja) return { ok: true, transacciones: [] };
+    var datos = hoja.getDataRange().getValues();
+    // cols: 0=fecha,1=negocio,2=email_negocio,3=monto,4=orden,5=correo_cliente,6=nombre_cliente,7=estado
+    var txs = [];
+    for (var i = 1; i < datos.length; i++) {
+      var r = datos[i];
+      if ((r[2]+'').toLowerCase().trim() === email.toLowerCase().trim() && (r[7]+'').toLowerCase() === 'aprobado') {
+        txs.push({
+          fecha: r[0], negocio: r[1], monto: r[3],
+          orden: r[4], correo: r[5], nombre: r[6], estado: r[7]
+        });
+      }
+    }
+    txs.reverse(); // más recientes primero
+    return { ok: true, transacciones: txs };
+  } catch(err) { return { ok: false, error: err.toString() }; }
+}
+
+// ============================================================
+// DASHBOARD — LIQUIDACIONES (WALLET)
+// ============================================================
+function getLiquidacionesEYP(email) {
+  try {
+    var ss   = SpreadsheetApp.openById(CONFIG.SHEET_ID);
+    var hoja = ss.getSheetByName(CONFIG.HOJA_TRANSACCIONES);
+    if (!hoja) return { ok: true, neto: '0.00', total_bruto: '0.00', comision: '0.00' };
+    var datos = hoja.getDataRange().getValues();
+    var totalBruto = 0;
+    for (var i = 1; i < datos.length; i++) {
+      var r = datos[i];
+      if ((r[2]+'').toLowerCase().trim() === email.toLowerCase().trim() && (r[7]+'').toLowerCase() === 'aprobado') {
+        totalBruto += parseFloat(r[3] || 0);
+      }
+    }
+    // Comisión: 5.5% + $0.75 + 7% IVA
+    var comisionBase  = totalBruto * 0.055;
+    var subtotal      = comisionBase + 0.75;
+    var iva           = subtotal * 0.07;
+    var totalComision = Math.round((subtotal + iva) * 100) / 100;
+    var neto          = Math.round((totalBruto - totalComision) * 100) / 100;
+    return {
+      ok: true,
+      total_bruto: totalBruto.toFixed(2),
+      comision:    totalComision.toFixed(2),
+      neto:        neto > 0 ? neto.toFixed(2) : '0.00'
+    };
+  } catch(err) { return { ok: false, error: err.toString() }; }
+}
+
+// ============================================================
+// DASHBOARD — ESTADO DEL NEGOCIO
+// ============================================================
+function getEstadoEYP(email) {
+  try {
+    var ss   = SpreadsheetApp.openById(CONFIG.SHEET_ID);
+    var hoja = ss.getSheetByName(CONFIG.HOJA_COMERCIOS);
+    var datos = hoja.getDataRange().getValues();
+    for (var i = 1; i < datos.length; i++) {
+      if ((datos[i][1]+'').toLowerCase().trim() === email.toLowerCase().trim()) {
+        return { ok: true, estado: datos[i][7], kyc_enviado: datos[i][10], banco_guardado: datos[i][11] };
+      }
+    }
+    return { ok: false, error: 'No encontrado' };
+  } catch(err) { return { ok: false, error: err.toString() }; }
+}
+
+// ============================================================
+// DASHBOARD — CATÁLOGO DE PRODUCTOS
+// ============================================================
+function getCatalogoEYP(email) {
+  try {
+    var ss   = SpreadsheetApp.openById(CONFIG.SHEET_ID);
+    var nombre = 'catalogo_eyp';
+    var hoja = ss.getSheetByName(nombre);
+    if (!hoja) return { ok: true, productos: [] };
+    var datos = hoja.getDataRange().getValues();
+    // cols: 0=email,1=nombre,2=precio,3=descripcion,4=foto
+    var prods = [];
+    for (var i = 1; i < datos.length; i++) {
+      if ((datos[i][0]+'').toLowerCase().trim() === email.toLowerCase().trim()) {
+        prods.push({ nombre: datos[i][1], precio: datos[i][2], desc: datos[i][3], foto: datos[i][4] });
+      }
+    }
+    return { ok: true, productos: prods };
+  } catch(err) { return { ok: false, error: err.toString() }; }
+}
+
+// ============================================================
+// DASHBOARD — GUARDAR PRODUCTO
+// ============================================================
+function guardarProductoEYP(p) {
+  try {
+    var ss   = SpreadsheetApp.openById(CONFIG.SHEET_ID);
+    var hoja = _obtenerOCrearHoja(ss, 'catalogo_eyp', ['email','nombre','precio','descripcion','foto','fecha']);
+    hoja.appendRow([p.email||'', p.nombre||'', parseFloat(p.precio||0), p.desc||'', p.foto||'', new Date().toISOString()]);
+    return { ok: true };
+  } catch(err) { return { ok: false, error: err.toString() }; }
+}
+
+// ============================================================
+// DASHBOARD — ELIMINAR PRODUCTO
+// ============================================================
+function eliminarProductoEYP(email, index) {
+  try {
+    var ss   = SpreadsheetApp.openById(CONFIG.SHEET_ID);
+    var hoja = ss.getSheetByName('catalogo_eyp');
+    if (!hoja) return { ok: false, error: 'Sin catálogo' };
+    var datos = hoja.getDataRange().getValues();
+    var count = 0;
+    for (var i = 1; i < datos.length; i++) {
+      if ((datos[i][0]+'').toLowerCase().trim() === email.toLowerCase().trim()) {
+        if (count === parseInt(index)) { hoja.deleteRow(i + 1); return { ok: true }; }
+        count++;
+      }
+    }
+    return { ok: false, error: 'Producto no encontrado' };
+  } catch(err) { return { ok: false, error: err.toString() }; }
+}
+
+// ============================================================
+// DASHBOARD — GUARDAR BANCO
+// ============================================================
+function guardarBancoEYP(p) {
+  try {
+    var ss   = SpreadsheetApp.openById(CONFIG.SHEET_ID);
+    var hoja = ss.getSheetByName(CONFIG.HOJA_COMERCIOS);
+    var datos = hoja.getDataRange().getValues();
+    for (var i = 1; i < datos.length; i++) {
+      if ((datos[i][1]+'').toLowerCase().trim() === (p.email||'').toLowerCase().trim()) {
+        var row = i + 1;
+        hoja.getRange(row, 15).setValue(p.banco||'');
+        hoja.getRange(row, 16).setValue(p.titular||'');
+        hoja.getRange(row, 17).setValue(p.cuenta||'');
+        hoja.getRange(row, 18).setValue(p.tipo||'');
+        hoja.getRange(row, 12).setValue('si'); // banco_guardado
+        return { ok: true };
+      }
+    }
+    return { ok: false, error: 'Negocio no encontrado' };
+  } catch(err) { return { ok: false, error: err.toString() }; }
+}
+
+// ============================================================
+// DASHBOARD — GUARDAR KYC
+// ============================================================
+function guardarKYC(p) {
+  try {
+    var ss   = SpreadsheetApp.openById(CONFIG.SHEET_ID);
+    var hoja = ss.getSheetByName(CONFIG.HOJA_COMERCIOS);
+    var datos = hoja.getDataRange().getValues();
+    for (var i = 1; i < datos.length; i++) {
+      if ((datos[i][1]+'').toLowerCase().trim() === (p.email||'').toLowerCase().trim()) {
+        var row = i + 1;
+        if (p.cedula_url) hoja.getRange(row, 13).setValue(p.cedula_url);
+        if (p.aviso_url)  hoja.getRange(row, 14).setValue(p.aviso_url);
+        hoja.getRange(row, 11).setValue('si'); // kyc_enviado
+        return { ok: true };
+      }
+    }
+    return { ok: false, error: 'Negocio no encontrado' };
+  } catch(err) { return { ok: false, error: err.toString() }; }
+}
+
+// ============================================================
+// DASHBOARD — ACTUALIZAR PERFIL
+// ============================================================
+function actualizarPerfilEYP(p) {
+  try {
+    var ss   = SpreadsheetApp.openById(CONFIG.SHEET_ID);
+    var hoja = ss.getSheetByName(CONFIG.HOJA_COMERCIOS);
+    var datos = hoja.getDataRange().getValues();
+    for (var i = 1; i < datos.length; i++) {
+      if ((datos[i][1]+'').toLowerCase().trim() === (p.email||'').toLowerCase().trim()) {
+        var row = i + 1;
+        if (p.negocio)   hoja.getRange(row, 3).setValue(p.negocio);
+        if (p.logo)      hoja.getRange(row, 4).setValue(p.logo);
+        if (p.whatsapp)  hoja.getRange(row, 5).setValue(p.whatsapp);
+        return { ok: true };
+      }
+    }
+    return { ok: false, error: 'Negocio no encontrado' };
+  } catch(err) { return { ok: false, error: err.toString() }; }
+}
+
+// ============================================================
+// DASHBOARD — CAMBIAR PASSWORD
+// ============================================================
+function cambiarPasswordEYP(p) {
+  try {
+    var ss   = SpreadsheetApp.openById(CONFIG.SHEET_ID);
+    var hoja = ss.getSheetByName(CONFIG.HOJA_COMERCIOS);
+    var datos = hoja.getDataRange().getValues();
+    for (var i = 1; i < datos.length; i++) {
+      if ((datos[i][1]+'').toLowerCase().trim() === (p.email||'').toLowerCase().trim()) {
+        if ((datos[i][5]+'').trim() !== (p.actual||'').trim()) return { ok: false, error: 'Contraseña actual incorrecta' };
+        hoja.getRange(i + 1, 6).setValue(p.nueva||'');
+        return { ok: true };
+      }
+    }
+    return { ok: false, error: 'Negocio no encontrado' };
+  } catch(err) { return { ok: false, error: err.toString() }; }
+}
+
+// ============================================================
+// DASHBOARD — RECUPERAR PASSWORD
+// ============================================================
+function recuperarPasswordEYP(correo) {
+  try {
+    var ss   = SpreadsheetApp.openById(CONFIG.SHEET_ID);
+    var hoja = ss.getSheetByName(CONFIG.HOJA_COMERCIOS);
+    var datos = hoja.getDataRange().getValues();
+    for (var i = 1; i < datos.length; i++) {
+      if ((datos[i][1]+'').toLowerCase().trim() === correo.toLowerCase().trim()) {
+        var pass = datos[i][5];
+        GmailApp.sendEmail(correo, 'Tu contraseña de EscaneaYa Pay', '',
+          { htmlBody: '<p>Hola <strong>' + datos[i][2] + '</strong>,</p><p>Tu contraseña es: <strong>' + pass + '</strong></p><p>Por seguridad, cámbiala desde tu dashboard.</p>', name: 'EscaneaYa Pay' });
+        return { ok: true };
+      }
+    }
+    return { ok: false, error: 'Correo no encontrado' };
+  } catch(err) { return { ok: false, error: err.toString() }; }
+}
+
+// ============================================================
+// DASHBOARD — SOLICITAR STAND
+// ============================================================
+function solicitarStandEYP(email) {
+  try {
+    var ss   = SpreadsheetApp.openById(CONFIG.SHEET_ID);
+    var hoja = ss.getSheetByName(CONFIG.HOJA_COMERCIOS);
+    var datos = hoja.getDataRange().getValues();
+    for (var i = 1; i < datos.length; i++) {
+      if ((datos[i][1]+'').toLowerCase().trim() === email.toLowerCase().trim()) {
+        hoja.getRange(i + 1, 10).setValue('si'); // stand_solicitado col 9 → index 10
+        GmailApp.sendEmail('escaneayapanama@gmail.com', '📦 Solicitud de stand — ' + datos[i][2], '',
+          { htmlBody: '<p><strong>' + datos[i][2] + '</strong> (' + email + ') solicitó un stand gratuito.</p>', name: 'EscaneaYa Pay' });
+        return { ok: true };
+      }
+    }
+    return { ok: false, error: 'Negocio no encontrado' };
+  } catch(err) { return { ok: false, error: err.toString() }; }
 }
