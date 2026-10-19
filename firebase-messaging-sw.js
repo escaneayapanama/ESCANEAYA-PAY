@@ -5,12 +5,12 @@ importScripts('https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js'
 importScripts('https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging-compat.js');
 
 firebase.initializeApp({
-  apiKey: "AIzaSyDEMO_REPLACE_WITH_REAL_KEY",
-  authDomain: "escaneayapay.firebaseapp.com",
-  projectId: "escaneayapay",
-  storageBucket: "escaneayapay.appspot.com",
-  messagingSenderId: "REPLACE_WITH_SENDER_ID",
-  appId: "REPLACE_WITH_APP_ID"
+  apiKey: "AIzaSyCuQpVfBSUYsrGzC0XvZUdFAX_dpkw8HjA",
+  authDomain: "escaneaya-pay.firebaseapp.com",
+  projectId: "escaneaya-pay",
+  storageBucket: "escaneaya-pay.firebasestorage.app",
+  messagingSenderId: "94898717341",
+  appId: "1:94898717341:web:5bc07084b929ab6f2e8a74"
 });
 
 const messaging = firebase.messaging();
