@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pagar con EscaneaYa Pay</title>
+  <link rel="icon" href="/icons/icon-192.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f5f6fa;
+      --card: #ffffff;
+      --fg: #1a1a2e;
+      --muted: #6b7280;
+      --accent: #6c63ff;
+      --accent2: #00b894;
+      --border: #e5e7eb;
+      --danger: #ef4444;
+      --shadow: 0 4px 24px rgba(108,99,255,0.10);
+    }
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --bg: #0f0f1a;
+        --card: #1a1a2e;
+        --fg: #f0f0ff;
+        --muted: #9ca3af;
+        --border: #2d2d44;
+        --shadow: 0 4px 24px rgba(0,0,0,0.4);
+        color-scheme: dark;
+      }
+    }
+    :root[data-theme="dark"] {
+      --bg: #0f0f1a; --card: #1a1a2e; --fg: #f0f0ff;
+      --muted: #9ca3af; --border: #2d2d44;
+      --shadow: 0 4px 24px rgba(0,0,0,0.4); color-scheme: dark;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--fg);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: max(16px, env(safe-area-inset-left, 0px)) max(16px, env(safe-area-inset-right, 0px));
+    }
+    .card {
+      background: var(--card);
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+      padding: 36px 28px;
+      width: 100%;
+      max-width: 420px;
+    }
+    .logo {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    .logo img {
+      height: 48px;
+      object-fit: contain;
+    }
+    .logo-text {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--accent);
+      letter-spacing: -0.5px;
+    }
+    .logo-text span { color: var(--accent2); }
+    .negocio-info {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+    .negocio-nombre {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--fg);
+    }
+    .negocio-label {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--muted);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .monto-wrapper {
+      position: relative;
+      margin-bottom: 20px;
+    }
+    .monto-prefix {
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--muted);
+      pointer-events: none;
+    }
+    input[type="number"] {
+      width: 100%;
+      padding: 16px 16px 16px 40px;
+      font-size: 28px;
+      font-weight: 700;
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      background: var(--bg);
+      color: var(--fg);
+      outline: none;
+      transition: border-color 0.2s;
+      font-family: 'Inter', sans-serif;
+      -moz-appearance: textfield;
+    }
+    input[type="number"]::-webkit-outer-spin-button,
+    input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
+    input[type="number"]:focus { border-color: var(--accent); }
+    .descripcion-input {
+      width: 100%;
+      padding: 12px 14px;
+      font-size: 14px;
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      background: var(--bg);
+      color: var(--fg);
+      outline: none;
+      transition: border-color 0.2s;
+      font-family: 'Inter', sans-serif;
+      margin-bottom: 20px;
+    }
+    .descripcion-input:focus { border-color: var(--accent); }
+    .desglose {
+      background: var(--bg);
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin-bottom: 20px;
+      font-size: 13px;
+    }
+    .desglose-row {
+      display: flex;
+      justify-content: space-between;
+      color: var(--muted);
+      padding: 3px 0;
+    }
+    .desglose-row.total {
+      color: var(--fg);
+      font-weight: 700;
+      font-size: 15px;
+      border-top: 1px solid var(--border);
+      margin-top: 8px;
+      padding-top: 10px;
+    }
+    .btn-pagar {
+      width: 100%;
+      padding: 16px;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      font-size: 17px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.1s;
+      font-family: 'Inter', sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    .btn-pagar:hover { opacity: 0.92; }
+    .btn-pagar:active { transform: scale(0.98); }
+    .btn-pagar:disabled { opacity: 0.5; cursor: not-allowed; }
+    .seguro {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      margin-top: 14px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .error-msg {
+      background: #fef2f2;
+      color: var(--danger);
+      border-radius: 10px;
+      padding: 12px 14px;
+      font-size: 13px;
+      margin-bottom: 16px;
+      display: none;
+    }
+    .spinner {
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(255,255,255,0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      display: none;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="logo">
+      <div class="logo-text">EscaneaYa<span>Pay</span></div>
+    </div>
+
+    <div class="negocio-info">
+      <div class="negocio-nombre" id="negocio-nombre">Cargando...</div>
+      <div class="negocio-label">Solicita tu pago</div>
+    </div>
+
+    <div class="error-msg" id="error-msg"></div>
+
+    <label for="monto">Monto a pagar</label>
+    <div class="monto-wrapper">
+      <span class="monto-prefix">$</span>
+      <input type="number" id="monto" placeholder="0.00" min="1" step="0.01">
+    </div>
+
+    <label for="descripcion">Descripción (opcional)</label>
+    <input type="text" class="descripcion-input" id="descripcion" placeholder="Ej: Corte de pelo, Almuerzo...">
+
+    <div class="desglose" id="desglose" style="display:none">
+      <div class="desglose-row">
+        <span>Subtotal</span>
+        <span id="d-subtotal">$0.00</span>
+      </div>
+      <div class="desglose-row">
+        <span>Comisión servicio</span>
+        <span id="d-comision">$0.00</span>
+      </div>
+      <div class="desglose-row total">
+        <span>Total a cobrar</span>
+        <span id="d-total">$0.00</span>
+      </div>
+    </div>
+
+    <button class="btn-pagar" id="btn-pagar" onclick="iniciarPago()">
+      <div class="spinner" id="spinner"></div>
+      <span id="btn-texto">💳 Pagar ahora</span>
+    </button>
+
+    <div class="seguro">
+      🔒 Pago seguro procesado por Tilopay
+    </div>
+  </div>
+
+  <script>
+    // Leer parámetros de URL: ?n=NEGOCIO_EMAIL&nombre=NEGOCIO_NOMBRE&ref=ORDEN
+    const params = new URLSearchParams(location.search);
+    const negocioEmail = params.get('n') || '';
+    const negocioNombre = decodeURIComponent(params.get('nombre') || 'Negocio');
+    const refOrigen = params.get('ref') || '';
+
+    document.getElementById('negocio-nombre').textContent = negocioNombre;
+
+    const montoInput = document.getElementById('monto');
+    montoInput.addEventListener('input', actualizarDesglose);
+
+    function actualizarDesglose() {
+      const monto = parseFloat(montoInput.value);
+      const desglose = document.getElementById('desglose');
+      if (!monto || monto <= 0) { desglose.style.display = 'none'; return; }
+      // Comisión: 5.5% + $0.75
+      const comision = parseFloat((monto * 0.055 + 0.75).toFixed(2));
+      const total = monto; // el cliente paga el total, el negocio recibe menos
+      desglose.style.display = 'block';
+      document.getElementById('d-subtotal').textContent = '$' + monto.toFixed(2);
+      document.getElementById('d-comision').textContent = '-$' + comision.toFixed(2) + ' (EscaneaYa)';
+      document.getElementById('d-total').textContent = '$' + total.toFixed(2);
+    }
+
+    async function iniciarPago() {
+      const monto = parseFloat(montoInput.value);
+      const descripcion = document.getElementById('descripcion').value.trim();
+      const errorEl = document.getElementById('error-msg');
+      errorEl.style.display = 'none';
+
+      if (!negocioEmail) {
+        errorEl.textContent = 'QR inválido: falta información del negocio.';
+        errorEl.style.display = 'block';
+        return;
+      }
+      if (!monto || monto < 1) {
+        errorEl.textContent = 'Ingresa un monto mínimo de $1.00';
+        errorEl.style.display = 'block';
+        return;
+      }
+
+      // Mostrar loading
+      const btn = document.getElementById('btn-pagar');
+      const spinner = document.getElementById('spinner');
+      const btnTexto = document.getElementById('btn-texto');
+      btn.disabled = true;
+      spinner.style.display = 'block';
+      btnTexto.textContent = 'Generando pago...';
+
+      // Generar número de orden único
+      const orderNumber = 'EYP-' + Date.now();
+
+      try {
+        const res = await fetch('/api/tilopay-pay', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            amount: monto.toFixed(2),
+            negocioEmail,
+            negocioNombre,
+            orderNumber,
+            descripcion
+          })
+        });
+        const data = await res.json();
+
+        if (!data.ok || !data.url) {
+          throw new Error(data.error || 'Error al generar el pago');
+        }
+
+        // Redirigir a Tilopay
+        window.location.href = data.url;
+
+      } catch (err) {
+        btn.disabled = false;
+        spinner.style.display = 'none';
+        btnTexto.textContent = '💳 Pagar ahora';
+        errorEl.textContent = err.message;
+        errorEl.style.display = 'block';
+      }
+    }
+  </script>
+</body>
+</html>
