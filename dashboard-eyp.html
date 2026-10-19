@@ -203,8 +203,11 @@
       <span class="wallet-row-val" style="color:#7ED321;font-weight:900" id="wallet-ganancia-eyp">$0.00</span>
     </div>
   </div>
-  <button onclick="mostrarTarjetaVisa()" style="width:100%;margin-bottom:12px;padding:13px;border:2px solid rgba(10,31,92,0.15);border-radius:14px;background:#fff;color:#0A1F5C;font-family:'Montserrat',sans-serif;font-weight:800;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px">
+  <button onclick="mostrarTarjetaVisa()" style="width:100%;margin-bottom:8px;padding:13px;border:2px solid rgba(10,31,92,0.15);border-radius:14px;background:#fff;color:#0A1F5C;font-family:'Montserrat',sans-serif;font-weight:800;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px">
     💳 Ver mi tarjeta EscaneaYa Pay
+  </button>
+  <button onclick="probarNotificacion()" style="width:100%;margin-bottom:12px;padding:11px;border:2px dashed rgba(126,211,33,0.4);border-radius:14px;background:rgba(126,211,33,0.06);color:#5FA818;font-family:'Montserrat',sans-serif;font-weight:700;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px">
+    🔔 Probar notificación push
   </button>
 
   <!-- Modal tarjeta tipo visa -->
@@ -1420,6 +1423,24 @@ if ('serviceWorker' in navigator) {
 }
 
 // Firebase se inicia en mostrarDashboard() — ver llamada arriba
+
+function probarNotificacion() {
+  if (!fcmMessaging) {
+    mostrarNotificacionLocal('🔔 Notificación de prueba', '¡Las notificaciones están activas en tu dispositivo!');
+    return;
+  }
+  // Mostrar notificación local in-app
+  mostrarNotificacionLocal('💰 ¡Nuevo pago recibido!', 'Cliente pagó $25.00 en EscaneaYa Pay');
+  // Si Notification está activo, también mostrar nativa
+  if (Notification.permission === 'granted') {
+    try {
+      new Notification('💰 ¡Nuevo pago recibido!', {
+        body: 'Cliente pagó $25.00 en EscaneaYa Pay',
+        icon: '/icons/icon-192.png'
+      });
+    } catch(e) {}
+  }
+}
 </script>
 
 <style>
