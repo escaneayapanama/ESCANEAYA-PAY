@@ -85,7 +85,10 @@ export default async function handler(req, res) {
       })
     });
 
-    const payData = await payRes.json();
+    const payText = await payRes.text();
+    console.log('processPayment status:', payRes.status, 'body:', payText.substring(0, 300));
+    let payData;
+    try { payData = JSON.parse(payText); } catch(e) { throw new Error('Respuesta inválida: ' + payText); }
 
     // type "100" = éxito según doc Tilopay processPayment
     if (!payData.url || (payData.type && payData.type !== '100')) {

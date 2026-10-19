@@ -18,10 +18,12 @@ export async function getTilopayToken() {
   });
 
   const text = await res.text();
+  console.log('loginSdk status:', res.status, 'body:', text.substring(0, 200));
   let data;
   try { data = JSON.parse(text); } catch(e) { throw new Error('Tilopay respuesta inválida: ' + text); }
 
   if (!data.access_token) throw new Error('No se pudo autenticar con Tilopay: ' + JSON.stringify(data));
+  console.log('Token OK, longitud:', data.access_token.length);
   return data.access_token;
 }
 
