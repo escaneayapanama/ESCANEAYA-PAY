@@ -2,6 +2,7 @@
 // Usado por tilopay-pay.js y tilopay-split.js
 
 const TILOPAY_API = 'https://app.tilopay.com/api/v1';
+export const TILOPAY_PAYMENT_API = 'https://app.tilopay.com/api/v1'; // mismo host, confirmado
 
 export async function getTilopayToken() {
   // Intentar con los campos correctos según doc Tilopay loginSdk
