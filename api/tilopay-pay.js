@@ -67,6 +67,7 @@ export default async function handler(req, res) {
         shipToZipPostCode: '0801',
         shipToCountry: 'PA',
         shipToTelephone: '00000000',
+        shipToEmail: 'cliente@escaneayapay.com',
         subscription: '0',
         platform: 'EscaneaYaPay',
         returnData: Buffer.from(JSON.stringify({
@@ -84,11 +85,13 @@ export default async function handler(req, res) {
 
     const payData = await payRes.json();
 
-    if (!payData.url) {
-      console.error('Tilopay error:', payData);
+    // type "100" = éxito según doc Tilopay processPayment
+    if (!payData.url || (payData.type && payData.type !== '100')) {
+      console.error('Tilopay processPayment error:', JSON.stringify(payData));
       return res.status(500).json({ ok: false, error: 'Tilopay no devolvió URL', detail: payData });
     }
 
+    console.log('Tilopay processPayment ok:', JSON.stringify(payData));
     return res.status(200).json({
       ok: true,
       url: payData.url,
