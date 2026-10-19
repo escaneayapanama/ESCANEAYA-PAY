@@ -475,20 +475,13 @@ if (sesion) { try { negocioData = JSON.parse(sesion); mostrarDashboard(); } catc
 
 function eypFetch(params, onOk, onErr) {
   var qs = Object.keys(params).map(function(k){ return encodeURIComponent(k)+'='+encodeURIComponent(params[k]); }).join('&');
-  // Intenta proxy primero; si falla (404/error), intenta directo a Apps Script
   fetch(APPS_SCRIPT_URL + '?' + qs)
     .then(function(r) {
       if (!r.ok) throw new Error('proxy ' + r.status);
       return r.json();
     })
     .then(function(data){ onOk(data); })
-    .catch(function() {
-      // Fallback: llamada directa a Apps Script (funciona en desktop, puede fallar en iOS PWA)
-      fetch(APPS_SCRIPT_DIRECT + '?' + qs)
-        .then(function(r){ return r.json(); })
-        .then(function(data){ onOk(data); })
-        .catch(function(e){ if(onErr) onErr(e); });
-    });
+    .catch(function(e){ if(onErr) onErr(e); });
 }
 
 function iniciarSesion() {
