@@ -1,4 +1,10 @@
 {
+  "functions": {
+    "api/eyp.js": {
+      "memory": 128,
+      "maxDuration": 10
+    }
+  },
   "rewrites": [
     { "source": "/p/:alias", "destination": "/p.html" },
     { "source": "/p/:alias/:extra", "destination": "/p.html" }

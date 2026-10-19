@@ -460,7 +460,7 @@
 
 <script>
 var APPS_SCRIPT_URL = "/api/eyp"; // Proxy Vercel → Apps Script (evita bloqueos iOS/CORS)
-// JSONP only — no fetch to Apps Script (CORS blocked)
+var APPS_SCRIPT_DIRECT = "https://script.google.com/macros/s/AKfycbwbBiewEUY3M-OmZIpE-4MYQCxzOVAYARL22Xi7kuGUQrtadZt5MEcs1-DG5S_yigp7/exec";
 var negocioData = null;
 var productos = [];
 var fotoProductoBase64 = null;
@@ -474,11 +474,21 @@ var sesion = localStorage.getItem('eyp_sesion');
 if (sesion) { try { negocioData = JSON.parse(sesion); mostrarDashboard(); } catch(e) {} }
 
 function eypFetch(params, onOk, onErr) {
-  var url = APPS_SCRIPT_URL + '?' + Object.keys(params).map(function(k){ return encodeURIComponent(k)+'='+encodeURIComponent(params[k]); }).join('&');
-  fetch(url)
-    .then(function(r){ return r.json(); })
+  var qs = Object.keys(params).map(function(k){ return encodeURIComponent(k)+'='+encodeURIComponent(params[k]); }).join('&');
+  // Intenta proxy primero; si falla (404/error), intenta directo a Apps Script
+  fetch(APPS_SCRIPT_URL + '?' + qs)
+    .then(function(r) {
+      if (!r.ok) throw new Error('proxy ' + r.status);
+      return r.json();
+    })
     .then(function(data){ onOk(data); })
-    .catch(function(e){ if(onErr) onErr(e); });
+    .catch(function() {
+      // Fallback: llamada directa a Apps Script (funciona en desktop, puede fallar en iOS PWA)
+      fetch(APPS_SCRIPT_DIRECT + '?' + qs)
+        .then(function(r){ return r.json(); })
+        .then(function(data){ onOk(data); })
+        .catch(function(e){ if(onErr) onErr(e); });
+    });
 }
 
 function iniciarSesion() {
