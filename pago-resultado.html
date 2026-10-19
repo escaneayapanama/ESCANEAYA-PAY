@@ -149,8 +149,8 @@
   <script>
     const params = new URLSearchParams(location.search);
     const code = params.get('code');        // 1 = aprobado, 2 = denegado, 3 = error
-    // orderId para split = ID interno de Tilopay (tpt o tilopay-transaction), NO nuestro order number
-    const orderId = params.get('tpt') || params.get('tilopay-transaction') || params.get('order');
+    // Para el split: Tilopay necesita el OrderHash (no el tpt ni nuestro EYP-...)
+    const orderId = params.get('OrderHash') || params.get('tpt') || params.get('order');
     const returnDataB64 = params.get('returnData') || '';
 
     // Decodificar returnData (base64 JSON con info de la transacción)
