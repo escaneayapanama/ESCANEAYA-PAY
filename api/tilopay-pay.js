@@ -33,6 +33,8 @@ export default async function handler(req, res) {
 
     // Obtener token de Tilopay
     const token = await getTilopayToken();
+    console.log('Token obtenido, longitud:', token.length, 'primeros 20:', token.substring(0, 20));
+    console.log('KEY usada:', process.env.TILOPAY_KEY);
 
     // Crear URL de pago en Tilopay
     const payRes = await fetch(`${TILOPAY_API}/processPayment`, {
