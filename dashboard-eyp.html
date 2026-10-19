@@ -1358,7 +1358,7 @@ function obtenerTokenFCM() {
   if (!fcmMessaging || !negocioData || !negocioData.correo) return;
 
   // VAPID key pública de Firebase (reemplazar con la real del proyecto)
-  var vapidKey = 'REPLACE_WITH_VAPID_PUBLIC_KEY';
+  var vapidKey = 'BJjaVEtMs8PEIvRn9CAHAB1DW42yPTnOUPxGTcAPNaIGT6vFJ7yxunDIfK4n41nQc0aHkhJrFP4TkRvvGZlejbo';
 
   fcmMessaging.getToken({ vapidKey: vapidKey }).then(function(token) {
     if (token) {
