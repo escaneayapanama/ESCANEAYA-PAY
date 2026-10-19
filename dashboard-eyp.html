@@ -473,6 +473,14 @@ if (correoParam) document.getElementById('login-correo').value = correoParam;
 var sesion = localStorage.getItem('eyp_sesion');
 if (sesion) { try { negocioData = JSON.parse(sesion); mostrarDashboard(); } catch(e) {} }
 
+function eypFetch(params, onOk, onErr) {
+  var url = APPS_SCRIPT_URL + '?' + Object.keys(params).map(function(k){ return encodeURIComponent(k)+'='+encodeURIComponent(params[k]); }).join('&');
+  fetch(url)
+    .then(function(r){ return r.json(); })
+    .then(function(data){ onOk(data); })
+    .catch(function(e){ if(onErr) onErr(e); });
+}
+
 function iniciarSesion() {
   var correo = document.getElementById('login-correo').value.trim().toLowerCase();
   var pass = document.getElementById('login-pass').value.trim();
@@ -481,8 +489,7 @@ function iniciarSesion() {
   if (!correo || !pass) { err.textContent = 'Ingresa tu correo y contraseña.'; err.style.display = 'block'; return; }
   var btn = document.getElementById('btn-login');
   btn.disabled = true; btn.textContent = '⏳ Verificando...';
-  var cbName = 'login_' + Date.now();
-  window[cbName] = function(resp) {
+  eypFetch({ action: 'loginEYP', correo: correo, password: pass }, function(resp) {
     if (resp && resp.ok) {
       negocioData = resp;
       localStorage.setItem('eyp_sesion', JSON.stringify(negocioData));
@@ -492,16 +499,11 @@ function iniciarSesion() {
       err.style.display = 'block';
       btn.disabled = false; btn.textContent = 'Entrar';
     }
-    delete window[cbName];
-    if (document.body.contains(sc)) document.body.removeChild(sc);
-  };
-  var sc = document.createElement('script');
-  sc.src = APPS_SCRIPT_URL + "?action=loginEYP&callback=" + cbName + "&correo=" + encodeURIComponent(correo) + "&password=" + encodeURIComponent(pass);
-  sc.onerror = function() { err.textContent = 'Sin conexión. Verifica tu internet e intenta de nuevo.'; err.style.display = 'block'; btn.disabled = false; btn.textContent = 'Entrar'; delete window[cbName]; };
-  var loginTimeout = setTimeout(function() { if (window[cbName]) { err.textContent = 'Tiempo de espera agotado. Intenta de nuevo.'; err.style.display = 'block'; btn.disabled = false; btn.textContent = 'Entrar'; delete window[cbName]; if (document.body.contains(sc)) document.body.removeChild(sc); } }, 12000);
-  var origCb = window[cbName];
-  window[cbName] = function(r) { clearTimeout(loginTimeout); origCb(r); };
-  document.body.appendChild(sc);
+  }, function() {
+    err.textContent = 'Sin conexión. Verifica tu internet e intenta de nuevo.';
+    err.style.display = 'block';
+    btn.disabled = false; btn.textContent = 'Entrar';
+  });
 }
 
 function mostrarDashboard() {
@@ -616,14 +618,9 @@ function copiar(t) {
 }
 
 function cargarTransacciones() {
-  var cb = 'tx_' + Date.now();
-  window[cb] = function(r) {
+  eypFetch({ action: 'getTransaccionesEYP', email: negocioData.correo }, function(r) {
     if (r && r.transacciones) { mostrarTransacciones(r.transacciones); calcularStats(r.transacciones); }
-    delete window[cb]; if (document.body.contains(sc)) document.body.removeChild(sc);
-  };
-  var sc = document.createElement('script');
-  sc.src = APPS_SCRIPT_URL + "?action=getTransaccionesEYP&callback=" + cb + "&email=" + encodeURIComponent(negocioData.correo);
-  document.body.appendChild(sc);
+  });
 }
 
 function mostrarTransacciones(txs) {
@@ -688,13 +685,11 @@ function calcularStats(txs) {
 }
 
 function cargarLiquidaciones() {
-  var cb = 'liq_' + Date.now();
-  window[cb] = function(r) {
+  eypFetch({ action: 'getLiquidacionesEYP', email: negocioData.correo }, function(r) {
     if (r && r.ok) {
       var neto = parseFloat(r.neto || 0);
       var bruto = parseFloat(r.total_bruto || 0);
       var comision = parseFloat(r.comision || 0);
-      // Llenar wallet
       document.getElementById('wallet-saldo').textContent = neto.toFixed(2);
       document.getElementById('wallet-bruto').textContent = '$' + bruto.toFixed(2);
       document.getElementById('wallet-comision').textContent = '$' + comision.toFixed(2);
@@ -716,9 +711,7 @@ function cargarLiquidaciones() {
         document.getElementById('wallet-badge').textContent = '✅ Al día';
         document.getElementById('wallet-badge').style.color = '#7ED321';
       }
-      // Liquidación card (mantener)
-      var totalBruto = bruto;
-      if (totalBruto >= 100 && negocioData.kyc_enviado !== 'si') {
+      if (bruto >= 100 && negocioData.kyc_enviado !== 'si') {
         document.getElementById('monto-liquidacion').textContent = '⚠️ Verificación requerida';
         document.getElementById('liq-detalle').innerHTML = 'Has superado $100 en ventas. Para recibir tu liquidación completa tu verificación en <a href="#" onclick="irA(\'perfil\',document.querySelectorAll(\'.nav-item\')[3])" style="color:#7ED321;font-weight:600">Perfil → Verificación de identidad →</a>';
       } else if (negocioData.estado === 'retenido') {
@@ -729,22 +722,13 @@ function cargarLiquidaciones() {
         document.getElementById('liq-detalle').textContent = 'Total bruto: $' + r.total_bruto + ' · Comisión (5.5% + $0.75 + IVA): $' + r.comision;
       }
     }
-    delete window[cb]; if (document.body.contains(sc)) document.body.removeChild(sc);
-  };
-  var sc = document.createElement('script');
-  sc.src = APPS_SCRIPT_URL + "?action=getLiquidacionesEYP&callback=" + cb + "&email=" + encodeURIComponent(negocioData.correo);
-  document.body.appendChild(sc);
+  });
 }
 
 function cargarProductosSheets() {
-  var cb = 'cprod_' + Date.now();
-  window[cb] = function(r) {
+  eypFetch({ action: 'getCatalogoEYP', email: negocioData.correo }, function(r) {
     if (r && r.ok) { productos = r.productos || []; renderProductos(); }
-    delete window[cb]; if (document.body.contains(sc)) document.body.removeChild(sc);
-  };
-  var sc = document.createElement('script');
-  sc.src = APPS_SCRIPT_URL + "?action=getCatalogoEYP&callback=" + cb + "&email=" + encodeURIComponent(negocioData.correo);
-  document.body.appendChild(sc);
+  });
 }
 
 function renderProductos() {
@@ -795,15 +779,10 @@ function guardarProducto() {
   if (!precio || precio <= 0) { err.textContent = 'Ingresa un precio válido.'; err.style.display = 'block'; return; }
   var btnG = document.querySelector('#modal-producto .btn-verde');
   btnG.disabled = true; btnG.textContent = '⏳ Guardando...';
-  var cb = 'prod_' + Date.now();
-  window[cb] = function(r) {
+  eypFetch({ action: 'guardarProductoEYP', email: negocioData.correo, nombre: nombre, precio: precio.toFixed(2), desc: desc, foto: fotoProductoBase64 || '' }, function(r) {
     if (r && r.ok) { cerrarModalProducto(); cargarProductosSheets(); }
     else { err.textContent = 'Error al guardar.'; err.style.display = 'block'; btnG.disabled = false; btnG.textContent = 'Guardar producto'; }
-    delete window[cb]; if (document.body.contains(sc)) document.body.removeChild(sc);
-  };
-  var sc = document.createElement('script');
-  sc.src = APPS_SCRIPT_URL + "?action=guardarProductoEYP&callback=" + cb + "&email=" + encodeURIComponent(negocioData.correo) + "&nombre=" + encodeURIComponent(nombre) + "&precio=" + precio.toFixed(2) + "&desc=" + encodeURIComponent(desc) + "&foto=" + encodeURIComponent(fotoProductoBase64 || '');
-  document.body.appendChild(sc);
+  }, function() { err.textContent = 'Error al guardar.'; err.style.display = 'block'; btnG.disabled = false; btnG.textContent = 'Guardar producto'; });
 }
 
 function copiarProducto(i) {
@@ -813,14 +792,9 @@ function copiarProducto(i) {
 
 function eliminarProducto(id) {
   if (!confirm('¿Eliminar este producto?')) return;
-  var cb = 'del_' + Date.now();
-  window[cb] = function(r) {
+  eypFetch({ action: 'eliminarProductoEYP', email: negocioData.correo, id: id }, function(r) {
     if (r && r.ok) cargarProductosSheets();
-    delete window[cb]; if (document.body.contains(sc)) document.body.removeChild(sc);
-  };
-  var sc = document.createElement('script');
-  sc.src = APPS_SCRIPT_URL + "?action=eliminarProductoEYP&callback=" + cb + "&email=" + encodeURIComponent(negocioData.correo) + "&id=" + encodeURIComponent(id);
-  document.body.appendChild(sc);
+  });
 }
 
 function subirLogo(input) {
@@ -835,7 +809,7 @@ function subirLogo(input) {
       negocioData.logo = data.secure_url;
       localStorage.setItem('eyp_sesion', JSON.stringify(negocioData));
       actualizarLogo(negocioData.logo);
-      fetch(APPS_SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'actualizarPerfilEYP', correo: negocioData.correo, logo: data.secure_url }) });
+      eypFetch({ action: 'actualizarPerfilEYP', correo: negocioData.correo, logo: data.secure_url }, function() {});
     }
   }).catch(function() { alert('Error al subir imagen.'); });
 }
@@ -847,16 +821,11 @@ function guardarPerfil() {
   document.getElementById('header-nombre').textContent = negocioData.negocio;
   var btnP = document.querySelector('#sec-perfil .btn-main');
   btnP.disabled = true; btnP.textContent = '⏳ Guardando...';
-  var cb = 'perfil_' + Date.now();
-  window[cb] = function(r) {
+  eypFetch({ action: 'actualizarPerfilEYP', correo: negocioData.correo, negocio: negocioData.negocio, whatsapp: negocioData.whatsapp, logo: negocioData.logo || '' }, function(r) {
     document.getElementById('perfil-ok').style.display = 'block';
     setTimeout(function() { document.getElementById('perfil-ok').style.display='none'; }, 2000);
     btnP.disabled = false; btnP.textContent = 'Guardar cambios';
-    delete window[cb]; if (document.body.contains(sc)) document.body.removeChild(sc);
-  };
-  var sc = document.createElement('script');
-  sc.src = APPS_SCRIPT_URL + "?action=actualizarPerfilEYP&callback=" + cb + "&correo=" + encodeURIComponent(negocioData.correo) + "&negocio=" + encodeURIComponent(negocioData.negocio) + "&whatsapp=" + encodeURIComponent(negocioData.whatsapp) + "&logo=" + encodeURIComponent(negocioData.logo || '');
-  document.body.appendChild(sc);
+  }, function() { btnP.disabled = false; btnP.textContent = 'Guardar cambios'; });
 }
 
 function cambiarPassword() {
@@ -871,16 +840,11 @@ function cambiarPassword() {
   if (nueva !== conf) { err.textContent='Las contraseñas no coinciden.'; err.style.display='block'; return; }
   var btnP = document.querySelectorAll('#sec-perfil .btn-main')[1];
   btnP.disabled = true; btnP.textContent = '⏳ Cambiando...';
-  var cb = 'pass_' + Date.now();
-  window[cb] = function(r) {
+  eypFetch({ action: 'cambiarPasswordEYP', correo: negocioData.correo, actual: actual, nueva: nueva }, function(r) {
     if (r && r.ok) { ok.style.display='block'; document.getElementById('pass-actual').value=''; document.getElementById('pass-nueva').value=''; document.getElementById('pass-confirm').value=''; }
     else { err.textContent = r && r.error === 'incorrecta' ? 'La contraseña actual es incorrecta.' : 'Error.'; err.style.display='block'; }
     btnP.disabled = false; btnP.textContent = 'Cambiar contraseña';
-    delete window[cb]; if (document.body.contains(sc)) document.body.removeChild(sc);
-  };
-  var sc = document.createElement('script');
-  sc.src = APPS_SCRIPT_URL + "?action=cambiarPasswordEYP&callback=" + cb + "&correo=" + encodeURIComponent(negocioData.correo) + "&actual=" + encodeURIComponent(actual) + "&nueva=" + encodeURIComponent(nueva);
-  document.body.appendChild(sc);
+  }, function() { err.textContent = 'Error de conexión.'; err.style.display='block'; btnP.disabled = false; btnP.textContent = 'Cambiar contraseña'; });
 }
 
 function cerrarSesion() {
@@ -937,8 +901,7 @@ function solicitarStand() {
   if (!telefono) { err.textContent = 'Ingresa tu teléfono.'; err.style.display = 'block'; return; }
   var btn = document.querySelector('#modal-stand .btn-verde');
   btn.disabled = true; btn.textContent = '⏳ Enviando solicitud...';
-  var cb = 'stand_' + Date.now();
-  window[cb] = function(r) {
+  eypFetch({ action: 'solicitarStandEYP', email: negocioData.correo, negocio: negocioData.negocio, ciudad: ciudad, direccion: direccion, telefono: telefono, link: getLinkBase() }, function(r) {
     if (r && r.ok) {
       ok.textContent = '✓ Solicitud enviada. Tu stand llegará en 5 días hábiles.';
       ok.style.display = 'block';
@@ -951,11 +914,7 @@ function solicitarStand() {
       err.textContent = 'Error al enviar.'; err.style.display = 'block';
       btn.disabled = false; btn.textContent = 'Solicitar mi stand gratis';
     }
-    delete window[cb]; if (document.body.contains(sc)) document.body.removeChild(sc);
-  };
-  var sc = document.createElement('script');
-  sc.src = APPS_SCRIPT_URL + "?action=solicitarStandEYP&callback=" + cb + "&email=" + encodeURIComponent(negocioData.correo) + "&negocio=" + encodeURIComponent(negocioData.negocio) + "&ciudad=" + encodeURIComponent(ciudad) + "&direccion=" + encodeURIComponent(direccion) + "&telefono=" + encodeURIComponent(telefono) + "&link=" + encodeURIComponent(getLinkBase());
-  document.body.appendChild(sc);
+  }, function() { err.textContent = 'Error de conexión.'; err.style.display = 'block'; btn.disabled = false; btn.textContent = 'Solicitar mi stand gratis'; });
 }
 
 function seleccionarCantidad(n, el) {
@@ -979,15 +938,10 @@ function togglePass(id, el) {
 function recuperarPassword() {
   var correo = document.getElementById('login-correo').value.trim();
   if (!correo) { alert('Ingresa tu correo primero.'); return; }
-  var cb = 'rec_' + Date.now();
-  window[cb] = function(r) {
+  eypFetch({ action: 'recuperarPasswordEYP', correo: correo }, function(r) {
     if (r && r.ok) alert('Te enviamos un correo con tu contraseña a ' + correo);
     else alert('No encontramos una cuenta con ese correo.');
-    delete window[cb];
-  };
-  var sc = document.createElement('script');
-  sc.src = APPS_SCRIPT_URL + "?action=recuperarPasswordEYP&callback=" + cb + "&correo=" + encodeURIComponent(correo);
-  document.body.appendChild(sc);
+  }, function() { alert('Error de conexión. Intenta de nuevo.'); });
 }
 
 document.addEventListener('keydown', function(e) {
@@ -1020,15 +974,10 @@ function guardarKYC() {
   if (!window._avisoUrl) { document.getElementById('kyc-err').textContent = 'Sube tu aviso de operación.'; document.getElementById('kyc-err').style.display = 'block'; return; }
   var btn = document.querySelector('#kyc-wrap .btn-main');
   btn.disabled = true; btn.textContent = '⏳ Enviando...';
-  var cb = 'kyc_' + Date.now();
-  window[cb] = function(r) {
+  eypFetch({ action: 'guardarKYC', correo: negocioData.correo, cedula: window._cedulaUrl, aviso: window._avisoUrl }, function(r) {
     if (r && r.ok) { document.getElementById('kyc-wrap').style.display = 'none'; document.getElementById('kyc-done').style.display = 'block'; negocioData.kyc_enviado = 'si'; localStorage.setItem('eyp_sesion', JSON.stringify(negocioData)); }
     else { document.getElementById('kyc-err').textContent = 'Error al enviar.'; document.getElementById('kyc-err').style.display = 'block'; btn.disabled = false; btn.textContent = 'Enviar documentos'; }
-    delete window[cb]; if (document.body.contains(sc)) document.body.removeChild(sc);
-  };
-  var sc = document.createElement('script');
-  sc.src = APPS_SCRIPT_URL + "?action=guardarKYC&callback=" + cb + "&correo=" + encodeURIComponent(negocioData.correo) + "&cedula=" + encodeURIComponent(window._cedulaUrl) + "&aviso=" + encodeURIComponent(window._avisoUrl);
-  document.body.appendChild(sc);
+  }, function() { document.getElementById('kyc-err').textContent = 'Error de conexión.'; document.getElementById('kyc-err').style.display = 'block'; btn.disabled = false; btn.textContent = 'Enviar documentos'; });
 }
 
 function guardarBanco() {
@@ -1044,23 +993,17 @@ function guardarBanco() {
   if (!tipo) { err.textContent = 'Selecciona el tipo de cuenta.'; err.style.display = 'block'; return; }
   var btn = document.querySelector('#banco-wrap .btn-main');
   btn.disabled = true; btn.textContent = '⏳ Guardando...';
-  var cb = 'banco_' + Date.now();
-  window[cb] = function(r) {
+  eypFetch({ action: 'guardarBancoEYP', correo: negocioData.correo, banco: banco, titular: titular, cuenta: cuenta, tipo: tipo }, function(r) {
     if (r && r.ok) { document.getElementById('banco-wrap').style.display = 'none'; document.getElementById('banco-done').style.display = 'block'; document.getElementById('banco-resumen').innerHTML = '<strong>' + banco + '</strong><br>' + titular + '<br>' + cuenta + '<br>' + tipo; negocioData.banco_guardado = 'si'; localStorage.setItem('eyp_sesion', JSON.stringify(negocioData)); }
     else { err.textContent = 'Error al guardar.'; err.style.display = 'block'; btn.disabled = false; btn.textContent = 'Guardar datos bancarios'; }
-    delete window[cb]; if (document.body.contains(sc)) document.body.removeChild(sc);
-  };
-  var sc = document.createElement('script');
-  sc.src = APPS_SCRIPT_URL + "?action=guardarBancoEYP&callback=" + cb + "&correo=" + encodeURIComponent(negocioData.correo) + "&banco=" + encodeURIComponent(banco) + "&titular=" + encodeURIComponent(titular) + "&cuenta=" + encodeURIComponent(cuenta) + "&tipo=" + encodeURIComponent(tipo);
-  document.body.appendChild(sc);
+  }, function() { err.textContent = 'Error de conexión.'; err.style.display = 'block'; btn.disabled = false; btn.textContent = 'Guardar datos bancarios'; });
 }
   function verificarEstado() {
   if (!negocioData) return;
-  var cb = 'est_' + Date.now();
-  window[cb] = function(r) {
+  eypFetch({ action: 'getEstadoEYP', correo: negocioData.correo }, function(r) {
     if (r && r.ok) {
       var estadoActual = r.estado || 'activo';
-   var estadoAnterior = negocioData.estado;
+      var estadoAnterior = negocioData.estado;
       if (estadoActual !== estadoAnterior) {
         negocioData.estado = estadoActual;
         localStorage.setItem('eyp_sesion', JSON.stringify(negocioData));
@@ -1070,12 +1013,7 @@ function guardarBanco() {
         window.location.reload();
       }
     }
-    delete window[cb];
-    if (document.body.contains(sc)) document.body.removeChild(sc);
-  };
-  var sc = document.createElement('script');
-  sc.src = APPS_SCRIPT_URL + "?action=getEstadoEYP&callback=" + cb + "&correo=" + encodeURIComponent(negocioData.correo);
-  document.body.appendChild(sc);
+  });
 }
   var ultimasTxIds = null;
 
