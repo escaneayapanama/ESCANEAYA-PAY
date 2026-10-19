@@ -1069,28 +1069,29 @@ function mostrarBannerPWA() {
   if (deferredPrompt) {
     // Android (o cualquier browser que soporta install prompt)
     contenido.innerHTML =
-      '<div style="font-size:13px;font-weight:700;margin-bottom:4px;font-family:\'Montserrat\',sans-serif">📲 Guarda tu wallet en tu celular</div>' +
-      '<div style="font-size:11px;color:rgba(255,255,255,0.75);margin-bottom:12px">Accede rápido sin abrir el navegador. Tu saldo siempre a la mano.</div>' +
-      '<button onclick="instalarApp()" style="width:100%;padding:11px;border:none;border-radius:10px;background:#4ECDC4;color:#0A1F5C;font-family:\'Montserrat\',sans-serif;font-weight:900;font-size:13px;cursor:pointer">⬇️ Instalar EscaneaYa Pay</button>';
+      '<div style="font-size:13px;font-weight:700;margin-bottom:4px;font-family:\'Montserrat\',sans-serif">💳 Instala tu Wallet en Android</div>' +
+      '<div style="font-size:11px;color:rgba(255,255,255,0.75);margin-bottom:12px">Tendrás un ícono en tu pantalla — ábrelo y ya estás en tu wallet. Sin navegador, sin pasos extras.</div>' +
+      '<button onclick="instalarApp()" style="width:100%;padding:11px;border:none;border-radius:10px;background:#4ECDC4;color:#0A1F5C;font-family:\'Montserrat\',sans-serif;font-weight:900;font-size:13px;cursor:pointer">⬇️ Agregar wallet a mi pantalla</button>';
     banner.style.display = 'block';
   } else if (esSafariIOS) {
     // iPhone/iPad en Safari
     contenido.innerHTML =
-      '<div style="font-size:13px;font-weight:700;margin-bottom:10px;font-family:\'Montserrat\',sans-serif">📲 Guarda tu wallet en iPhone</div>' +
+      '<div style="font-size:13px;font-weight:700;margin-bottom:10px;font-family:\'Montserrat\',sans-serif">💳 Agrega tu Wallet al iPhone</div>' +
+      '<div style="font-size:11px;color:rgba(255,255,255,0.75);margin-bottom:10px">Sigue estos 3 pasos y tendrás un ícono directo a tu wallet en la pantalla de inicio:</div>' +
       '<div style="font-size:12px;color:rgba(255,255,255,0.85);line-height:1.8">' +
-        '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span style="background:rgba(255,255,255,0.15);border-radius:50%;min-width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:11px">1</span>Toca el botón <strong>Compartir ⬆️</strong> en Safari</div>' +
-        '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span style="background:rgba(255,255,255,0.15);border-radius:50%;min-width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:11px">2</span>Selecciona <strong>Añadir a pantalla de inicio ➕</strong></div>' +
-        '<div style="display:flex;align-items:center;gap:8px"><span style="background:rgba(255,255,255,0.15);border-radius:50%;min-width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:11px">3</span>Toca <strong>Añadir</strong> — ¡listo! 🎉</div>' +
+        '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span style="background:rgba(255,255,255,0.15);border-radius:50%;min-width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700">1</span>Toca el ícono <strong>Compartir ⬆️</strong> (abajo en Safari)</div>' +
+        '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span style="background:rgba(255,255,255,0.15);border-radius:50%;min-width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700">2</span>Toca <strong>"Agregar a pantalla de inicio" ➕</strong></div>' +
+        '<div style="display:flex;align-items:center;gap:8px"><span style="background:rgba(255,255,255,0.15);border-radius:50%;min-width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700">3</span>Toca <strong>Agregar</strong> — tu wallet ya está en la pantalla 🎉</div>' +
       '</div>';
     banner.style.display = 'block';
   } else if (!esMovil) {
     // Computadora / laptop
     contenido.innerHTML =
-      '<div style="font-size:13px;font-weight:700;margin-bottom:6px;font-family:\'Montserrat\',sans-serif">📱 Guarda tu wallet en tu celular</div>' +
+      '<div style="font-size:13px;font-weight:700;margin-bottom:6px;font-family:\'Montserrat\',sans-serif">💳 Guarda tu Wallet en tu celular</div>' +
       '<div style="font-size:12px;color:rgba(255,255,255,0.82);line-height:1.7">' +
-        '<div style="margin-bottom:4px">Para tener acceso rápido a tu saldo desde el celular:</div>' +
-        '<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><span style="background:rgba(255,255,255,0.15);border-radius:50%;min-width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-size:10px">1</span><strong>Android:</strong> Abre esta página en Chrome → menú ⋮ → <em>Añadir a pantalla de inicio</em></div>' +
-        '<div style="display:flex;align-items:center;gap:8px"><span style="background:rgba(255,255,255,0.15);border-radius:50%;min-width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-size:10px">2</span><strong>iPhone:</strong> Abre en Safari → Compartir ⬆️ → <em>Añadir a pantalla de inicio</em></div>' +
+        '<div style="margin-bottom:8px;color:rgba(255,255,255,0.7)">Abre esta página desde tu celular y sigue estos pasos para tener un ícono directo a tu wallet:</div>' +
+        '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span style="background:rgba(255,255,255,0.15);border-radius:50%;min-width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700">🤖</span><div><strong>Android:</strong> Chrome → menú ⋮ → <em>Agregar a pantalla de inicio</em></div></div>' +
+        '<div style="display:flex;align-items:center;gap:8px"><span style="background:rgba(255,255,255,0.15);border-radius:50%;min-width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-size:10px">🍎</span><div><strong>iPhone:</strong> Safari → Compartir ⬆️ → <em>Agregar a pantalla de inicio</em></div></div>' +
       '</div>';
     banner.style.display = 'block';
   }
