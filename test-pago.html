@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test Pago - EscaneaYa Pay</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root { --bg:#0f0f1a; --card:#1a1a2e; --fg:#f0f0ff; --muted:#9ca3af; --accent:#6c63ff; --accent2:#00b894; --border:#2d2d44; color-scheme:dark; }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--fg); min-height:100vh; display:flex; align-items:center; justify-content:center; padding:20px; }
+    .card { background:var(--card); border-radius:20px; padding:32px 24px; width:100%; max-width:460px; }
+    h2 { font-size:20px; font-weight:700; color:var(--accent); margin-bottom:6px; }
+    .badge { display:inline-block; background:#2d2d44; color:var(--muted); font-size:11px; padding:3px 10px; border-radius:20px; margin-bottom:24px; }
+    label { display:block; font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:.05em; margin-bottom:6px; }
+    input, select { width:100%; padding:11px 14px; background:var(--bg); color:var(--fg); border:2px solid var(--border); border-radius:10px; font-size:15px; font-family:'Inter',sans-serif; margin-bottom:16px; outline:none; }
+    input:focus, select:focus { border-color:var(--accent); }
+    .qr-url { background:var(--bg); border:1px solid var(--border); border-radius:10px; padding:12px; font-size:12px; color:var(--accent2); word-break:break-all; margin-bottom:16px; display:none; }
+    .btn { width:100%; padding:14px; border:none; border-radius:12px; font-size:15px; font-weight:700; cursor:pointer; font-family:'Inter',sans-serif; transition:opacity .2s; }
+    .btn-gen { background:var(--border); color:var(--fg); margin-bottom:10px; }
+    .btn-ir { background:var(--accent); color:#fff; }
+    .btn:hover { opacity:.88; }
+    .sep { border:none; border-top:1px solid var(--border); margin:20px 0; }
+    .info { font-size:12px; color:var(--muted); line-height:1.7; }
+    .info b { color:var(--fg); }
+  </style>
+</head>
+<body>
+<div class="card">
+  <h2>🧪 Test EscaneaYa Pay</h2>
+  <span class="badge">Modo sandbox Tilopay</span>
+
+  <label>Nombre del negocio</label>
+  <input id="nombre" value="Publicus Panamá" placeholder="Nombre del negocio">
+
+  <label>Email del negocio (subcomercio)</label>
+  <input id="email" value="escaneayapanama@gmail.com" placeholder="email@negocio.com">
+
+  <label>Monto de prueba ($)</label>
+  <input id="monto" type="number" value="10.00" min="1" step="0.01">
+
+  <div class="qr-url" id="qr-url"></div>
+
+  <button class="btn btn-gen" onclick="generarUrl()">🔗 Generar URL de prueba</button>
+  <button class="btn btn-ir" onclick="irAPagar()">💳 Ir a pagar ahora</button>
+
+  <hr class="sep">
+
+  <div class="info">
+    <b>Tarjetas de prueba Tilopay:</b><br>
+    ✅ Visa aprobada: <b>4111 1111 1111 1111</b><br>
+    ❌ Visa denegada: <b>4111 1111 1111 1129</b><br>
+    Vencimiento: cualquier fecha futura | CVV: cualquiera<br><br>
+    <b>Flujo:</b> pago.html → Tilopay → pago-resultado.html → split<br>
+    <b>Comisión EscaneaYa:</b> 5.5% + $0.75 por transacción
+  </div>
+</div>
+
+<script>
+  function getUrl() {
+    const nombre = encodeURIComponent(document.getElementById('nombre').value.trim());
+    const email = document.getElementById('email').value.trim();
+    return `${location.origin}/pago.html?n=${encodeURIComponent(email)}&nombre=${nombre}`;
+  }
+  function generarUrl() {
+    const url = getUrl();
+    const el = document.getElementById('qr-url');
+    el.textContent = url;
+    el.style.display = 'block';
+  }
+  function irAPagar() {
+    const monto = document.getElementById('monto').value;
+    const url = getUrl() + `&monto=${monto}`;
+    window.location.href = url;
+  }
+</script>
+</body>
+</html>
