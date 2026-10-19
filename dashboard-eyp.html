@@ -181,7 +181,7 @@
 <!-- RESUMEN -->
 <div class="seccion" id="sec-resumen" style="display:none">
   <!-- WALLET -->
-  <div class="wallet-card">
+  <div class="wallet-card" id="wallet-card-main">
     <div class="wallet-label">💳 Mi Wallet</div>
     <div class="wallet-amount"><span>$</span><span id="wallet-saldo">0.00</span></div>
     <div class="wallet-sub" id="wallet-sub">Saldo disponible para liquidar</div>
@@ -198,6 +198,54 @@
     <div class="wallet-row" style="margin-top:6px;border-top:1px solid rgba(255,255,255,0.08);padding-top:10px">
       <span class="wallet-row-label" style="color:#7ED321;font-weight:700">💰 Ganancia EscaneaYa</span>
       <span class="wallet-row-val" style="color:#7ED321;font-weight:900" id="wallet-ganancia-eyp">$0.00</span>
+    </div>
+  </div>
+  <button onclick="mostrarTarjetaVisa()" style="width:100%;margin-bottom:12px;padding:13px;border:2px solid rgba(10,31,92,0.15);border-radius:14px;background:#fff;color:#0A1F5C;font-family:'Montserrat',sans-serif;font-weight:800;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px">
+    💳 Ver mi tarjeta EscaneaYa Pay
+  </button>
+
+  <!-- Modal tarjeta tipo visa -->
+  <div id="modal-tarjeta" onclick="if(event.target===this)this.style.display='none'" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:9999;align-items:center;justify-content:center;padding:24px">
+    <div style="width:100%;max-width:400px">
+      <!-- Tarjeta tipo visa -->
+      <div id="visa-card" style="width:100%;aspect-ratio:1.586;border-radius:20px;background:linear-gradient(135deg,#0A1F5C 0%,#1a3a8a 40%,#0d2247 100%);padding:28px;box-sizing:border-box;position:relative;overflow:hidden;font-family:'Montserrat',sans-serif;color:#fff;box-shadow:0 20px 60px rgba(0,0,0,0.5)">
+        <!-- Círculos decorativos -->
+        <div style="position:absolute;top:-40px;right:-40px;width:200px;height:200px;border-radius:50%;background:rgba(126,211,33,0.08)"></div>
+        <div style="position:absolute;bottom:-60px;left:-20px;width:180px;height:180px;border-radius:50%;background:rgba(255,255,255,0.04)"></div>
+        <div style="position:absolute;top:50%;right:-30px;transform:translateY(-50%);width:120px;height:120px;border-radius:50%;background:rgba(126,211,33,0.05)"></div>
+        <!-- Chip -->
+        <div style="width:42px;height:32px;border-radius:6px;background:linear-gradient(135deg,#d4a843,#f0c960,#b8892e);margin-bottom:20px;display:flex;align-items:center;justify-content:center">
+          <div style="width:28px;height:20px;border-radius:3px;border:1.5px solid rgba(0,0,0,0.3);display:grid;grid-template-columns:1fr 1fr;gap:2px;padding:2px">
+            <div style="background:rgba(0,0,0,0.2);border-radius:1px"></div>
+            <div style="background:rgba(0,0,0,0.2);border-radius:1px"></div>
+            <div style="background:rgba(0,0,0,0.2);border-radius:1px"></div>
+            <div style="background:rgba(0,0,0,0.2);border-radius:1px"></div>
+          </div>
+        </div>
+        <!-- Saldo -->
+        <div style="font-size:11px;color:rgba(255,255,255,0.55);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:4px">Saldo disponible</div>
+        <div style="font-size:32px;font-weight:900;letter-spacing:-0.5px;margin-bottom:16px">$<span id="tc-saldo">0.00</span></div>
+        <!-- Número decorativo estilo tarjeta -->
+        <div style="font-size:14px;letter-spacing:0.2em;color:rgba(255,255,255,0.4);margin-bottom:16px;font-weight:600">•••• •••• •••• EYP</div>
+        <!-- Footer tarjeta -->
+        <div style="display:flex;justify-content:space-between;align-items:flex-end">
+          <div>
+            <div style="font-size:9px;color:rgba(255,255,255,0.45);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:3px">Negocio</div>
+            <div style="font-size:14px;font-weight:800;text-transform:uppercase;letter-spacing:0.05em" id="tc-nombre">MI NEGOCIO</div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-size:11px;font-weight:900;color:#7ED321;letter-spacing:0.05em">EscaneaYa</div>
+            <div style="font-size:9px;color:rgba(255,255,255,0.45);letter-spacing:0.08em">PAY</div>
+          </div>
+        </div>
+        <!-- Banda magnética decorativa -->
+      </div>
+      <!-- Botones -->
+      <div style="margin-top:16px;display:flex;gap:10px">
+        <button onclick="guardarTarjetaImagen()" style="flex:1;padding:14px;border:none;border-radius:12px;background:#7ED321;color:#0A1F5C;font-family:'Montserrat',sans-serif;font-weight:900;font-size:13px;cursor:pointer">📥 Guardar imagen</button>
+        <button onclick="document.getElementById('modal-tarjeta').style.display='none'" style="padding:14px 18px;border:2px solid rgba(255,255,255,0.2);border-radius:12px;background:transparent;color:#fff;font-family:'Montserrat',sans-serif;font-weight:700;font-size:13px;cursor:pointer">✕</button>
+      </div>
+      <div id="tc-instruccion" style="margin-top:10px;text-align:center;font-size:11px;color:rgba(255,255,255,0.6)">Presiona y mantén la imagen para guardarla en tu galería</div>
     </div>
   </div>
   <div class="stats-grid">
@@ -1095,6 +1143,150 @@ function mostrarBannerPWA() {
       '</div>';
     banner.style.display = 'block';
   }
+}
+
+function mostrarTarjetaVisa() {
+  if (!negocioData) return;
+  document.getElementById('tc-saldo').textContent = document.getElementById('wallet-saldo').textContent;
+  document.getElementById('tc-nombre').textContent = (negocioData.negocio || 'MI NEGOCIO').toUpperCase();
+  var modal = document.getElementById('modal-tarjeta');
+  modal.style.display = 'flex';
+  // Instrucción según dispositivo
+  var esIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  var instruccion = document.getElementById('tc-instruccion');
+  if (esIOS) {
+    instruccion.textContent = 'En iPhone: presiona el botón "Guardar imagen" y luego toca la imagen que aparece para guardarla.';
+  } else {
+    instruccion.textContent = 'Toca "Guardar imagen" para descargarla en tu galería.';
+  }
+}
+
+function guardarTarjetaImagen() {
+  var card = document.getElementById('visa-card');
+  var btn = event.target;
+  btn.disabled = true;
+  btn.textContent = '⏳ Generando...';
+
+  // Dibujar la tarjeta en canvas manualmente (sin librerías externas)
+  var canvas = document.createElement('canvas');
+  var W = 800, H = 504; // ratio 1.586
+  canvas.width = W;
+  canvas.height = H;
+  var ctx = canvas.getContext('2d');
+
+  // Fondo degradado
+  var grad = ctx.createLinearGradient(0, 0, W, H);
+  grad.addColorStop(0, '#0A1F5C');
+  grad.addColorStop(0.4, '#1a3a8a');
+  grad.addColorStop(1, '#0d2247');
+  ctx.fillStyle = grad;
+  roundRect(ctx, 0, 0, W, H, 36);
+  ctx.fill();
+
+  // Círculos decorativos
+  ctx.save();
+  ctx.globalAlpha = 0.08;
+  ctx.fillStyle = '#7ED321';
+  ctx.beginPath(); ctx.arc(W - 80, -60, 200, 0, Math.PI*2); ctx.fill();
+  ctx.globalAlpha = 0.04;
+  ctx.fillStyle = '#fff';
+  ctx.beginPath(); ctx.arc(-20, H + 40, 180, 0, Math.PI*2); ctx.fill();
+  ctx.restore();
+
+  // Chip dorado
+  var chipX = 56, chipY = 60;
+  var chipGrad = ctx.createLinearGradient(chipX, chipY, chipX+84, chipY+64);
+  chipGrad.addColorStop(0, '#d4a843');
+  chipGrad.addColorStop(0.5, '#f0c960');
+  chipGrad.addColorStop(1, '#b8892e');
+  ctx.fillStyle = chipGrad;
+  roundRect(ctx, chipX, chipY, 84, 64, 10);
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(0,0,0,0.25)';
+  ctx.lineWidth = 2;
+  roundRect(ctx, chipX+10, chipY+10, 64, 44, 6);
+  ctx.stroke();
+  // Líneas del chip
+  ctx.strokeStyle = 'rgba(0,0,0,0.2)';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(chipX+10, chipY+32); ctx.lineTo(chipX+74, chipY+32); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(chipX+42, chipY+10); ctx.lineTo(chipX+42, chipY+54); ctx.stroke();
+
+  // Label saldo
+  ctx.fillStyle = 'rgba(255,255,255,0.55)';
+  ctx.font = '500 22px Montserrat, Arial, sans-serif';
+  ctx.letterSpacing = '2px';
+  ctx.fillText('SALDO DISPONIBLE', 56, 180);
+
+  // Saldo
+  ctx.fillStyle = '#ffffff';
+  ctx.font = '900 72px Montserrat, Arial, sans-serif';
+  ctx.fillText('$' + document.getElementById('tc-saldo').textContent, 56, 260);
+
+  // Número decorativo
+  ctx.fillStyle = 'rgba(255,255,255,0.35)';
+  ctx.font = '600 28px Montserrat, Arial, sans-serif';
+  ctx.fillText('•••• •••• •••• EYP', 56, 330);
+
+  // Nombre negocio
+  ctx.fillStyle = 'rgba(255,255,255,0.45)';
+  ctx.font = '500 18px Montserrat, Arial, sans-serif';
+  ctx.fillText('NEGOCIO', 56, 400);
+  ctx.fillStyle = '#ffffff';
+  ctx.font = '800 28px Montserrat, Arial, sans-serif';
+  var nombre = (negocioData.negocio || 'MI NEGOCIO').toUpperCase();
+  if (nombre.length > 20) nombre = nombre.substring(0, 20) + '…';
+  ctx.fillText(nombre, 56, 435);
+
+  // Logo EscaneaYa (texto derecha)
+  ctx.fillStyle = '#7ED321';
+  ctx.font = '900 32px Montserrat, Arial, sans-serif';
+  ctx.textAlign = 'right';
+  ctx.fillText('EscaneaYa', W - 56, 410);
+  ctx.fillStyle = 'rgba(255,255,255,0.45)';
+  ctx.font = '500 18px Montserrat, Arial, sans-serif';
+  ctx.fillText('PAY', W - 56, 438);
+  ctx.textAlign = 'left';
+
+  // Banda inferior decorativa
+  ctx.fillStyle = 'rgba(126,211,33,0.15)';
+  ctx.fillRect(0, H - 8, W, 8);
+
+  // Convertir a imagen
+  var dataUrl = canvas.toDataURL('image/png');
+  var esIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+
+  if (esIOS) {
+    // En iOS: abrir imagen en nueva pestaña para que el usuario la guarde manualmente
+    var win = window.open();
+    win.document.write('<html><body style="margin:0;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh"><img src="' + dataUrl + '" style="max-width:100%;border-radius:16px"><p style="color:#fff;font-family:sans-serif;text-align:center;padding:16px;font-size:14px">Mantén presionada la imagen y elige "Guardar en fotos"</p></body></html>');
+    win.document.close();
+  } else {
+    // Android / desktop: descarga directa
+    var a = document.createElement('a');
+    a.href = dataUrl;
+    a.download = 'tarjeta-escaneayapay.png';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }
+
+  btn.disabled = false;
+  btn.textContent = '📥 Guardar imagen';
+}
+
+function roundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+  ctx.lineTo(x + w, y + h - r);
+  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  ctx.lineTo(x + r, y + h);
+  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+  ctx.lineTo(x, y + r);
+  ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.closePath();
 }
 
 function instalarApp() {
