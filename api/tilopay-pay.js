@@ -41,7 +41,7 @@ export default async function handler(req, res) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
+        'Authorization': `bearer ${token}`
       },
       body: JSON.stringify({
         redirect: `${process.env.APP_URL}/pago-resultado.html`,
