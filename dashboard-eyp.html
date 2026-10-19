@@ -11,6 +11,9 @@
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230A1F5C'/%3E%3Ctext x='50%25' y='22' text-anchor='middle' font-size='18' font-family='Arial' font-weight='bold' fill='%234ECDC4'%3EEY%3C/text%3E%3C/svg%3E">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>Dashboard — EscaneaYa Pay</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<!-- Firebase SDK para notificaciones push -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging-compat.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@800;900&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -602,7 +605,9 @@ if (negocioData.banco_guardado === 'si') {
   cargarLiquidaciones();
   // Verificar estado cada 30 segundos
   mostrarBannerPWA();
-setInterval(verificarEstado, 30000);
+  setInterval(verificarEstado, 30000);
+  // Iniciar notificaciones push Firebase
+  iniciarFirebase();
 }
 function mostrarTransacciones(txs) {
   verificarNuevosPageos(txs);
@@ -1299,6 +1304,131 @@ function instalarApp() {
     });
   }
 }
+
+// ─── FIREBASE FCM — Notificaciones Push ───────────────────────────────────────
+var firebaseConfig = {
+  apiKey: "AIzaSyDEMO_REPLACE_WITH_REAL_KEY",
+  authDomain: "escaneayapay.firebaseapp.com",
+  projectId: "escaneayapay",
+  storageBucket: "escaneayapay.appspot.com",
+  messagingSenderId: "REPLACE_WITH_SENDER_ID",
+  appId: "REPLACE_WITH_APP_ID"
+};
+
+var firebaseApp = null;
+var fcmMessaging = null;
+
+function iniciarFirebase() {
+  try {
+    if (!firebase || !firebase.app) return;
+    if (!firebase.apps.length) {
+      firebaseApp = firebase.initializeApp(firebaseConfig);
+    } else {
+      firebaseApp = firebase.app();
+    }
+    fcmMessaging = firebase.messaging();
+    solicitarPermisoNotificaciones();
+  } catch(e) {
+    console.log('Firebase no disponible:', e.message);
+  }
+}
+
+function solicitarPermisoNotificaciones() {
+  if (!('Notification' in window)) return;
+  if (!fcmMessaging) return;
+
+  // Solo pedir si no se ha pedido antes
+  if (Notification.permission === 'granted') {
+    obtenerTokenFCM();
+    return;
+  }
+  if (Notification.permission === 'denied') return;
+
+  // Pequeño delay para no interrumpir el login
+  setTimeout(function() {
+    Notification.requestPermission().then(function(permission) {
+      if (permission === 'granted') {
+        obtenerTokenFCM();
+      }
+    }).catch(function(e) { console.log('Permiso notificaciones rechazado:', e); });
+  }, 3000);
+}
+
+function obtenerTokenFCM() {
+  if (!fcmMessaging || !negocioData || !negocioData.correo) return;
+
+  // VAPID key pública de Firebase (reemplazar con la real del proyecto)
+  var vapidKey = 'REPLACE_WITH_VAPID_PUBLIC_KEY';
+
+  fcmMessaging.getToken({ vapidKey: vapidKey }).then(function(token) {
+    if (token) {
+      console.log('FCM token obtenido');
+      // Guardar token en Apps Script para poder enviarle notificaciones
+      guardarTokenFCM(token);
+    }
+  }).catch(function(e) {
+    console.log('Error obteniendo token FCM:', e.message);
+  });
+
+  // Manejar notificaciones cuando la app está abierta en primer plano
+  fcmMessaging.onMessage(function(payload) {
+    console.log('Notificación en foreground:', payload);
+    mostrarNotificacionLocal(
+      payload.notification?.title || 'EscaneaYa Pay',
+      payload.notification?.body  || ''
+    );
+  });
+}
+
+function guardarTokenFCM(token) {
+  if (!negocioData || !negocioData.correo) return;
+  // Guardar localmente para no re-enviarlo en cada sesión si no cambió
+  var tokenGuardado = localStorage.getItem('eyp_fcm_token');
+  if (tokenGuardado === token) return; // Ya está guardado, no hace falta volver a enviarlo
+
+  eypFetch({ action: 'guardarTokenFCM', correo: negocioData.correo, token: token }, function(r) {
+    if (r && r.ok) {
+      localStorage.setItem('eyp_fcm_token', token);
+      console.log('Token FCM guardado en servidor');
+    }
+  }, function() {
+    console.log('No se pudo guardar token FCM (sin conexión)');
+  });
+}
+
+function mostrarNotificacionLocal(titulo, cuerpo) {
+  // Banner in-app cuando la app está abierta
+  var banner = document.createElement('div');
+  banner.style.cssText = 'position:fixed;top:16px;left:50%;transform:translateX(-50%);z-index:9999;background:#0A1F5C;color:#fff;border-radius:14px;padding:14px 18px;max-width:340px;width:calc(100% - 32px);box-shadow:0 8px 24px rgba(0,0,0,0.25);display:flex;gap:12px;align-items:center;animation:slideDown 0.3s ease';
+  banner.innerHTML = '<div style="font-size:24px">🔔</div><div><div style="font-family:Montserrat,sans-serif;font-weight:800;font-size:13px">' + titulo + '</div><div style="font-size:12px;opacity:0.8;margin-top:2px">' + cuerpo + '</div></div>';
+  document.body.appendChild(banner);
+  setTimeout(function() {
+    banner.style.animation = 'slideDown 0.3s ease reverse';
+    setTimeout(function() { if (banner.parentNode) banner.parentNode.removeChild(banner); }, 300);
+  }, 5000);
+}
+
+// Registrar service worker de Firebase
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('/firebase-messaging-sw.js').then(function(reg) {
+      console.log('Firebase SW registrado:', reg.scope);
+    }).catch(function(e) {
+      console.log('Firebase SW error:', e.message);
+    });
+  });
+}
+
+// Iniciar Firebase después de login
+var _origMostrarDashboard = mostrarDashboard;
+// Firebase se inicia en mostrarDashboard() — ver llamada abajo
 </script>
+
+<style>
+@keyframes slideDown {
+  from { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+</style>
 </body>
 </html>
